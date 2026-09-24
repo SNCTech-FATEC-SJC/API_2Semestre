@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.snctech.TurmasController"
+      styleClass="border-pane"
+      prefWidth="900" prefHeight="700">
+
+    <HBox styleClass="top-bar" prefWidth="900">
+        <Label text="Professor" styleClass="top-bar-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label text="Turmas" styleClass="top-bar-title"/>
+    </HBox>
+
+    <VBox spacing="18" styleClass="page-shell">
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <Label text="Gerenciamento de Turmas" styleClass="section-label strong"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Voltar" onAction="#aoClicarVoltar" styleClass="top-action"/>
+            <Button text="Adicionar" styleClass="top-action"/>
+        </HBox>
+
+        <GridPane hgap="16" vgap="16" styleClass="card-grid">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+            </columnConstraints>
+
+            <VBox styleClass="prova-card" spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <Label text="Turma 1" styleClass="title"/>
+                <Label text="30 alunos" styleClass="subtitle"/>
+            </VBox>
+
+            <VBox styleClass="prova-card" spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                <Label text="Turma 2" styleClass="title"/>
+                <Label text="28 alunos" styleClass="subtitle"/>
+            </VBox>
+
+            <VBox styleClass="prova-card" spacing="6" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                <Label text="Turma 3" styleClass="title"/>
+                <Label text="32 alunos" styleClass="subtitle"/>
+            </VBox>
+
+            <VBox styleClass="prova-card" spacing="6" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                <Label text="Turma 4" styleClass="title"/>
+                <Label text="27 alunos" styleClass="subtitle"/>
+            </VBox>
+
+            <VBox styleClass="prova-card" spacing="6" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                <Label text="Turma 5" styleClass="title"/>
+                <Label text="29 alunos" styleClass="subtitle"/>
+            </VBox>
+        </GridPane>
+    </VBox>
+</VBox>
