@@ -1,6 +1,6 @@
 # 📋 Product Backlog
 
-**Equipe:** SNC · **Projeto:** SNCTECH
+**Equipe:** SNCTECH
 
 \---
 
@@ -26,6 +26,7 @@
 |PB-16|Média Final|Como professor, desejo que o cálculo da média seja feito de forma automática para facilitar o acesso a essa informação.|O sistema irá somar a nota dos alunos com seus respectivos pesos e definir a média final|A média final é definida corretamente baseada nas notas e pesos das provas|🟢 Baixa|Status: ❌|Sprint 3|
 |PB-17|Média Final|Como professor, desejo visualizar as médias finais dos alunos para ter controle de aprovação e desempenho.|Permite que o professor visualize as médias dos alunos|Com a liberação da média final pelo sistema o professor consegue a visualizar|🟢 Baixa|Status: ❌|Sprint 3|
 |PB-18|Prazo Das Avaliações|Como professor, desejo definir um prazo para as avaliações a fim de evitar que alunos façam antes da hora ou depois do prazo.|Permite que o professor defina um prazo para os alunos responderem a avaliação, caso não respondam em data e hora a nota será 0|O professor após criar uma avaliação pode definir um prazo para uma turma a responder|🟢 Baixa|Status: ❌|Sprint 3|
+|PB-19|Autenticação|Como usuário, desejo realizar login no sistema para acessar as funcionalidades correspondentes ao meu perfil.|Permite que o usuário faça login no sistema com suas credenciais|O usuário consegue acessar o sistema comm suas credencias, diferenciando assim cada usuário, e se ele é professor ou aluno|🟢 Baixa|Status: ❌| Sprint 3|
 
 \---
 
@@ -58,6 +59,7 @@
 * PB-16 · Média Final (cálculo automático)
 * PB-17 · Média Final (visualização do professor)
 * PB-18 · Prazo Das Avaliações
+* PB-19 · Autenticação
 
 \---
 
