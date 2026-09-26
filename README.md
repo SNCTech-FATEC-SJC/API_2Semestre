@@ -94,7 +94,7 @@ O professor também gerencia turmas e alunos, encerrando automaticamente a turma
 
 ### 📄 Documentação <a id="documentacao"></a>
 
-A documentação completa pode ser consultada na pasta <a href="/Documentos/">Documentos</a>.
+A documentação completa pode ser consultada na pasta <a href="[/Documentos/](https://github.com/SNCTech-FATEC-SJC/API_2Semestre/tree/main/Documenta%C3%A7%C3%A3o)">Documentos</a>.
 
 ##### Conteúdo:
 - <a href="https://github.com/SNCTech-FATEC-SJC/API_2Semestre/blob/main/Documenta%C3%A7%C3%A3o/Backlog.MD">Product Backlog completo</a>
