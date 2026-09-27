@@ -111,12 +111,12 @@ A documentação completa pode ser consultada na pasta <a href="[/Documentos/](h
 
 > _A preencher pelo grupo conforme a stack definida._
 
-- **Linguagem/Framework da API:** _a definir_
+- **Linguagem/Framework da API:** _Java + Spring Boot_
 - **Banco de dados:** _a definir_
 - **ORM / ferramenta de acesso a dados:** _a definir_
 - **Autenticação:** _a definir_
 - **Versionamento:** Git <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="20" height="20" alt="Git"/>
-- **Outras ferramentas:** _a definir_
+- **Outras ferramentas:** _Maven, JavaFX e Scene Builder_
 
 ---
 
