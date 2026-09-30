@@ -2,7 +2,7 @@
 # SNCTECH - Gerenciamento e Aplicação de Avaliações Escolares
 # Projeto API - 2º Semestre 2026
 <p align="center">
-  <img src="Documentos/logo_snctech.png" width="200"/>
+  <img src="Documentação/logo_snctech.png" width="400" heigth="3000"/>
 </p>
 <p align="center">
     <a href="#sobre"> Sobre</a> |
