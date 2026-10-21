@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.snctech.ProvasAplicadasController"
+      
+      styleClass="border-pane"
+      prefWidth="900" prefHeight="700">
+
+    <HBox styleClass="top-bar" prefWidth="900">
+        <Label text="Professor" styleClass="top-bar-title"/>
+    </HBox>
+
+    <VBox spacing="18" styleClass="page-shell">
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <Label text="Provas" styleClass="section-label strong"/>
+            <Label text="Aplicadas" styleClass="section-label strong"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Voltar" onAction="#aoClicarVoltar" styleClass="top-action" fx:id="botaoVoltar"/>
+            <Button text="Nova Prova" onAction="#aoClicarNovaProva" styleClass="top-action"/>
+        </HBox>
+
+        <GridPane hgap="16" vgap="16" styleClass="card-grid">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+            </columnConstraints>
+
+            <VBox styleClass="prova-card" spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0" onMouseClicked="#aoClicarProva">
+                <Label text="Prova 1" styleClass="title"/>
+                <Label text="Turma: 1A" styleClass="subtitle"/>
+                <Label text="Prazo: 15/09" styleClass="subtitle"/>
+            </VBox>
+
+            <VBox styleClass="prova-card" spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0" onMouseClicked="#aoClicarProva">
+                <Label text="Prova 2" styleClass="title"/>
+                <Label text="Turma: 2A" styleClass="subtitle"/>
+                <Label text="Prazo: 18/09" styleClass="subtitle"/>
+            </VBox>
+
+            <VBox styleClass="prova-card" spacing="6" GridPane.columnIndex="2" GridPane.rowIndex="0" onMouseClicked="#aoClicarProva">
+                <Label text="Prova 3" styleClass="title"/>
+                <Label text="Turma: 3A" styleClass="subtitle"/>
+                <Label text="Prazo: 22/09" styleClass="subtitle"/>
+            </VBox>
+
+            <VBox styleClass="prova-card" spacing="6" GridPane.columnIndex="3" GridPane.rowIndex="0" onMouseClicked="#aoClicarProva">
+                <Label text="Prova 4" styleClass="title"/>
+                <Label text="Turma: 4A" styleClass="subtitle"/>
+                <Label text="Prazo: 24/09" styleClass="subtitle"/>
+            </VBox>
+
+            <VBox styleClass="prova-card" spacing="6" GridPane.columnIndex="4" GridPane.rowIndex="0" onMouseClicked="#aoClicarProva">
+                <Label text="Prova 5" styleClass="title"/>
+                <Label text="Turma: 5A" styleClass="subtitle"/>
+                <Label text="Prazo: 27/09" styleClass="subtitle"/>
+            </VBox>
+        </GridPane>
+    </VBox>
+</VBox>

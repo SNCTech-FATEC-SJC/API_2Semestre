@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.snctech.NovaProvaController"
+      styleClass="border-pane"
+      prefWidth="900" prefHeight="700">
+
+    <HBox styleClass="top-bar" prefWidth="900">
+        <Label text="Professor" styleClass="top-bar-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label text="Nova Prova" styleClass="top-bar-title"/>
+    </HBox>
+
+    <VBox spacing="18" styleClass="page-shell">
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <VBox spacing="8" prefWidth="240">
+                <Label text="Turma:" styleClass="form-label"/>
+                <TextField promptText="Turma" styleClass="form-field"/>
+            </VBox>
+
+            <VBox spacing="8" prefWidth="240">
+                <Label text="Prazo:" styleClass="form-label"/>
+                <TextField promptText="Prazo" styleClass="form-field"/>
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS"/>
+        </HBox>
+
+        <HBox spacing="18" alignment="CENTER_LEFT">
+            <Label text="Questões:" styleClass="section-label strong"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Editar" styleClass="secondary-button"/>
+        </HBox>
+
+        <GridPane hgap="16" vgap="16" styleClass="card-grid">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+            </columnConstraints>
+
+            <VBox styleClass="question-card" spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <CheckBox text="Questão 1"/>
+                <Label text="Enunciado resumido..." styleClass="subtitle" wrapText="true"/>
+                <Label text="Resposta: A" styleClass="subtitle"/>
+            </VBox>
+
+            <VBox styleClass="question-card" spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                <CheckBox text="Questão 2"/>
+                <Label text="Enunciado resumido..." styleClass="subtitle" wrapText="true"/>
+                <Label text="Resposta: C" styleClass="subtitle"/>
+            </VBox>
+
+            <VBox styleClass="question-card" spacing="6" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                <CheckBox text="Questão 3"/>
+                <Label text="Enunciado resumido..." styleClass="subtitle" wrapText="true"/>
+                <Label text="Resposta: B" styleClass="subtitle"/>
+            </VBox>
+
+            <VBox styleClass="question-card" spacing="6" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                <CheckBox text="Questão 4"/>
+                <Label text="Enunciado resumido..." styleClass="subtitle" wrapText="true"/>
+                <Label text="Resposta: D" styleClass="subtitle"/>
+            </VBox>
+
+            <VBox styleClass="question-card" spacing="6" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                <CheckBox text="Questão 5"/>
+                <Label text="Enunciado resumido..." styleClass="subtitle" wrapText="true"/>
+                <Label text="Resposta: A" styleClass="subtitle"/>
+            </VBox>
+        </GridPane>
+
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <Button text="Voltar" onAction="#aoClicarVoltar" styleClass="secondary-button" fx:id="botaoVoltar"/>
+            <Button text="Enviar" styleClass="primary-button"/>
+            <Button text="Salvar" styleClass="secondary-button"/>
+        </HBox>
+    </VBox>
+</VBox>
