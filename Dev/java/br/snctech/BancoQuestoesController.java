@@ -3,7 +3,9 @@ package br.snctech;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -124,21 +126,63 @@ public class BancoQuestoesController {
         detalhe.getStyleClass().add("subtitle");
         detalhe.setWrapText(true);
 
+        // Botão Editar
         Button editar = new Button("Editar");
         editar.getStyleClass().add("botao-secundario");
         editar.setMaxWidth(Double.MAX_VALUE);
-
         editar.setOnAction(event -> abrirEdicao(questao, editar));
 
+        // Botão Excluir, logo abaixo do Editar
+        Button excluir = new Button("Excluir questão");
+        excluir.getStyleClass().add("botao-secundario");
+        excluir.setMaxWidth(Double.MAX_VALUE);
+        excluir.setOnAction(event -> excluirQuestao(questao));
+
+        // Adiciona os componentes ao cartão na ordem desejada
         cartao.getChildren().addAll(
                 titulo,
                 tipo,
                 enunciado,
                 detalhe,
-                editar
+                editar,
+                excluir
         );
 
         return cartao;
+    }
+
+    private void excluirQuestao(Questao questao) {
+        Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
+
+        confirmacao.setTitle("Excluir questão");
+        confirmacao.setHeaderText(
+                "Deseja realmente excluir esta questão?"
+        );
+        confirmacao.setContentText(
+                "Questão: " + questao.getEnunciado()
+                + "\n\nEssa ação não poderá ser desfeita."
+        );
+
+        confirmacao.showAndWait().ifPresent(resposta -> {
+            if (resposta == ButtonType.OK) {
+
+                BancoQuestoes.remover(questao);
+
+                if (BancoQuestoes.getQuestaoEmEdicao() == questao) {
+                    BancoQuestoes.limparEdicao();
+                }
+
+                atualizarQuestoes();
+
+                Alert sucesso = new Alert(Alert.AlertType.INFORMATION);
+                sucesso.setTitle("Questão excluída");
+                sucesso.setHeaderText(null);
+                sucesso.setContentText(
+                        "A questão foi excluída com sucesso."
+                );
+                sucesso.showAndWait();
+            }
+        });
     }
 
     private void abrirEdicao(Questao questao, Node origem) {

@@ -8,7 +8,6 @@ public class DashboardProfessorController {
 
     @FXML private Button botaoQuestoes;
     @FXML private Button botaoAvaliacoes;
-    @FXML private Button botaoCorrecao;
     @FXML private Button botaoTurmas;
 
     @FXML
@@ -19,11 +18,6 @@ public class DashboardProfessorController {
     @FXML
     private void aoClicarAvaliacoes(ActionEvent evento) {
         NavegacaoUtil.abrir(botaoAvaliacoes, "provas-aplicadas.fxml", "SNCTECH - Provas Aplicadas");
-    }
-
-    @FXML
-    private void aoClicarCorrecao(ActionEvent evento) {
-        NavegacaoUtil.abrir(botaoCorrecao, "provas-aplicadas.fxml", "SNCTECH - Provas Aplicadas");
     }
 
     @FXML
