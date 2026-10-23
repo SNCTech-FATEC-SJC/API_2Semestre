@@ -20,7 +20,7 @@
         </padding>
 
         <HBox styleClass="top-bar">
-            <Label text="Professor" styleClass="top-bar-title"/>
+            <Label text="Professor " styleClass="top-bar-title"/>
             <Label text="Menu principal" styleClass="top-bar-title" HBox.hgrow="ALWAYS"/>
         </HBox>
         <HBox spacing="26" styleClass="page-shell" VBox.vgrow="ALWAYS">
@@ -28,7 +28,6 @@
                 <Label text="Navegação" styleClass="section-label strong"/>
                 <Button fx:id="botaoQuestoes" onAction="#aoClicarQuestoes" text="Banco de Questões" styleClass="menu-button"/>
                 <Button fx:id="botaoAvaliacoes" onAction="#aoClicarAvaliacoes" text="Provas Aplicadas" styleClass="menu-button"/>
-                <Button fx:id="botaoCorrecao" onAction="#aoClicarCorrecao" text="Correção" styleClass="menu-button"/>
                 <Button fx:id="botaoTurmas" onAction="#aoClicarTurmas" text="Gerenciamento de Turmas" styleClass="menu-button"/>
             </VBox>
             <VBox spacing="18" styleClass="content-panel" HBox.hgrow="ALWAYS">

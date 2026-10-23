@@ -26,11 +26,11 @@ public final class BancoQuestoes {
 
         QUESTOES.add(questao);
     }
-    
+
     public static void remover(Questao questao) {
         QUESTOES.remove(questao);
     }
-    
+
     public static void prepararEdicao(Questao questao) {
         questaoEmEdicao = questao;
     }
