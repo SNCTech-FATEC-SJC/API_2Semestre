@@ -112,9 +112,9 @@ A documentação completa pode ser consultada na pasta <a href="[/Documentos/](h
 > _A preencher pelo grupo conforme a stack definida._
 
 - **Linguagem/Framework da API:** _Java + Spring Boot_
-- **Banco de dados:** _a definir_
-- **ORM / ferramenta de acesso a dados:** _a definir_
-- **Autenticação:** _a definir_
+- **Banco de dados:** PostgreSQL <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original.svg" alt="postgresql" width="20" height="20"/>
+- **ORM / ferramenta de acesso a dados:** Spring Data JPA (Hibernate)
+- **Autenticação:** Spring Security + JWT
 - **Versionamento:** Git <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="20" height="20" alt="Git"/>
 - **Outras ferramentas:** _Maven, JavaFX e Scene Builder_
 
