@@ -109,7 +109,6 @@ A documentação completa pode ser consultada na pasta <a href="[/Documentos/](h
 
 ### 💻 Tecnologias <a id="tecnologias"></a>
 
-> _A preencher pelo grupo conforme a stack definida._
 
 - **Linguagem/Framework da API:** _Java + Spring Boot_
 - **Banco de dados:** PostgreSQL <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original.svg" alt="postgresql" width="20" height="20"/>
