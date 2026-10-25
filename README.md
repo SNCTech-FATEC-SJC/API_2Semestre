@@ -69,7 +69,7 @@ O professor também gerencia turmas e alunos, encerrando automaticamente a turma
 | **PB-09** | Gerenciamento de Turmas | Como professor, desejo cadastrar e editar turmas ativas e já concluídas para gerenciamento e organização das avaliações. | 🟡 Média | ❌ Não finalizado |
 | **PB-10** | Gerenciamento de Alunos | Como professor, desejo adicionar, editar e visualizar os alunos pertencentes a minhas turmas ativas para organização das minhas turmas. | 🟡 Média | ❌ Não finalizado |
 | **PB-11** | Visualização Avaliação | Como aluno, desejo visualizar minhas avaliações já feitas e as futuras para de ter controle da minhas notas e planos de estudo. | 🟡 Média | ❌ Não finalizado |
-| **PB-12** | Notas | Como professor, desejo que o cálculo das notas seja gerado automaticamente para facilitar a correção. | 🟢 Baixa | ❌ Não finalizado |
+| **PB-12** | Notas | Como professor, desejo que o cálculo das notas seja gerado automaticamente para facilitar a correção. | 🟡 Média | ❌ Não finalizado |
 | **PB-13** | Notas | Como aluno, desejo visualizar minhas notas para acompanhar meu desempenho. | 🟢 Baixa | ❌ Não finalizado |
 | **PB-14** | Notas | Como professor, desejo visualizar as notas dos alunos para ter controle de aprovação e desempenho. | 🟢 Baixa | ❌ Não finalizado |
 | **PB-15** | Média Final | Como aluno, desejo visualizar minha média final para ter conhecimento da minha aprovação ou reprovação. | 🟢 Baixa | ❌ Não finalizado |
