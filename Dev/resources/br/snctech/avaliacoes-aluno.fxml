@@ -24,6 +24,7 @@
         <HBox alignment="CENTER_LEFT" spacing="12">
             <Label text="E-mail cadastrado:" styleClass="form-label"/>
             <TextField fx:id="campoAluno" promptText="E-mail do aluno" styleClass="form-field" HBox.hgrow="ALWAYS"/>
+            <Button text="Ver minhas notas" onAction="#mostrarNotas" styleClass="top-action"/>
         </HBox>
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="fundo">
             <content>
@@ -34,6 +35,12 @@
                         <ColumnConstraints percentWidth="33.34"/>
                     </columnConstraints>
                 </GridPane>
+            </content>
+        </ScrollPane>
+        <Label text="Minhas notas" styleClass="section-label strong"/>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="150" minHeight="150" maxHeight="150" styleClass="fundo">
+            <content>
+                <VBox fx:id="listaNotas" spacing="6"/>
             </content>
         </ScrollPane>
         <Label text="Cada aluno pode abrir uma avaliação uma única vez. Ao abrir, o tempo começa a contar." styleClass="mensagem"/>

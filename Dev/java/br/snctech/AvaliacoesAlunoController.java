@@ -1,5 +1,7 @@
 package br.snctech;
 
+import br.snctech.correcao.model.NotaDoAluno;
+import br.snctech.correcao.repositorio.postgres.NotasDoAlunoPostgres;
 import br.snctech.model.Avaliacao;
 import br.snctech.model.Tentativa;
 import br.snctech.service.TentativaService;
@@ -23,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 public class AvaliacoesAlunoController {
     @FXML private GridPane listaAvaliacoes;
     @FXML private TextField campoAluno;
+    @FXML private VBox listaNotas;
     private static final DateTimeFormatter FORMATO_DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
 
     // Provisório até existir login: o aluno informa o e-mail que já está cadastrado no banco.
@@ -34,6 +37,7 @@ public class AvaliacoesAlunoController {
     @FXML
     private void initialize() {
         campoAluno.setText(alunoAtual);
+        mostrarNotas();
         listaAvaliacoes.getChildren().clear();
         int coluna = 0;
         int linha = 0;
@@ -76,6 +80,44 @@ public class AvaliacoesAlunoController {
                 linha++;
             }
         }
+    }
+
+    /**
+     * PB-11: mostra as avaliações já realizadas (ou encerradas) do aluno com a nota.
+     * A nota só aparece depois da correção completa; antes disso aparece "Em correção".
+     */
+    @FXML
+    private void mostrarNotas() {
+        listaNotas.getChildren().clear();
+        String email = campoAluno.getText() == null ? "" : campoAluno.getText().trim();
+        if (email.isEmpty()) {
+            listaNotas.getChildren().add(mensagem("Informe o e-mail do aluno e clique em \"Ver minhas notas\"."));
+            return;
+        }
+        try {
+            alunoAtual = email;
+            var notas = NotasDoAlunoPostgres.listar(email);
+            if (notas.isEmpty()) {
+                listaNotas.getChildren().add(mensagem("Nenhuma avaliação realizada ou encerrada para este aluno."));
+                return;
+            }
+            for (NotaDoAluno nota : notas) {
+                Label linha = new Label(nota.titulo() + "  •  prazo " + nota.prazo().format(FORMATO_DATA_HORA)
+                        + "  •  Nota: " + nota.textoDaNota());
+                linha.setWrapText(true);
+                listaNotas.getChildren().add(linha);
+            }
+        } catch (RuntimeException erro) {
+            listaNotas.getChildren().add(mensagem("Não foi possível carregar as notas. Confira a conexão com o PostgreSQL. "
+                    + "Detalhe: " + erro.getMessage()));
+        }
+    }
+
+    private Label mensagem(String texto) {
+        Label label = new Label(texto);
+        label.setWrapText(true);
+        label.getStyleClass().add("mensagem");
+        return label;
     }
 
     /** Confere as regras, pede confirmação (só dá para abrir uma vez) e vai para a tela de resposta. */
