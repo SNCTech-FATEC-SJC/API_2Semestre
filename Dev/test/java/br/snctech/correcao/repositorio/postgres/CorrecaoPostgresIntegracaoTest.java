@@ -55,6 +55,25 @@ class CorrecaoPostgresIntegracaoTest {
         assertTrue(entregues.size() >= 2);
     }
 
+    @Test
+    void notasDoAlunoRespeitamACorrecao() {
+        Integer av = idDaProvaDeExemplo();
+        Assumptions.assumeTrue(av != null, "Seed de exemplo não aplicado.");
+        // Carla não abriu a prova e o prazo do exemplo já passou: nota 0.
+        var carla = NotasDoAlunoPostgres.listar("carla@aluno.test.com").stream()
+                .filter(n -> n.idAvaliacao() == av).findFirst();
+        assertTrue(carla.isPresent());
+        assertEquals(br.snctech.correcao.model.NotaDoAluno.Situacao.NAO_REALIZADA, carla.get().situacao());
+        // Ana entregou: ou aparece "Em correção", ou a nota final, mas nunca uma nota parcial.
+        var ana = NotasDoAlunoPostgres.listar("ANA@aluno.test.com").stream()
+                .filter(n -> n.idAvaliacao() == av).findFirst();
+        assertTrue(ana.isPresent());
+        assertTrue(ana.get().situacao() == br.snctech.correcao.model.NotaDoAluno.Situacao.EM_CORRECAO
+                || ana.get().situacao() == br.snctech.correcao.model.NotaDoAluno.Situacao.NOTA);
+        // E-mail desconhecido não devolve nada.
+        assertTrue(NotasDoAlunoPostgres.listar("ninguem@x.com").isEmpty());
+    }
+
     private static Integer idDaProvaDeExemplo() {
         return Conexao.executar(c -> {
             try (var ps = c.prepareStatement("SELECT id FROM avaliacoes WHERE titulo = 'Prova de Exemplo - Correção'");
