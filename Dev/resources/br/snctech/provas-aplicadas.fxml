@@ -8,7 +8,11 @@
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="br.snctech.ProvasAplicadasController" styleClass="border-pane" prefWidth="900" prefHeight="700">
-    <HBox styleClass="top-bar" prefWidth="900"><Label text="Professor" styleClass="top-bar-title"/></HBox>
+    <HBox styleClass="top-bar" prefWidth="900">
+        <Label text="Professor" styleClass="top-bar-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Visualização do aluno" onAction="#aoClicarVisualizacaoAluno" styleClass="top-action"/>
+    </HBox>
     <VBox spacing="18" styleClass="page-shell">
         <HBox alignment="CENTER_LEFT" spacing="12">
             <Label text="Avaliações cadastradas" styleClass="section-label strong"/><Region HBox.hgrow="ALWAYS"/>

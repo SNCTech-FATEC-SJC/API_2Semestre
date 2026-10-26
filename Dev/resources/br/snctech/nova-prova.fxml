@@ -29,6 +29,20 @@
                     <DatePicker fx:id="campoPrazo" promptText="Selecione o prazo" styleClass="form-field" maxWidth="Infinity"/>
                 </VBox>
             </HBox>
+            <HBox spacing="12">
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Hora de início:" styleClass="form-label"/>
+                    <TextField fx:id="campoHoraInicio" promptText="HH:mm (ex.: 08:00)" styleClass="form-field"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Hora de término:" styleClass="form-label"/>
+                    <TextField fx:id="campoHoraFim" promptText="HH:mm (ex.: 23:59)" styleClass="form-field"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Duração por aluno (minutos, 0 = sem limite):" styleClass="form-label"/>
+                    <TextField fx:id="campoDuracao" promptText="Ex.: 60" styleClass="form-field"/>
+                </VBox>
+            </HBox>
         </VBox>
         <Label text="Selecione pelo menos uma questão:" styleClass="section-label strong"/>
         <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">

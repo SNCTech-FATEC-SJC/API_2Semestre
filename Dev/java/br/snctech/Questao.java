@@ -28,6 +28,8 @@ public class Questao {
         }
     }
 
+    // Identificador no banco (tabela questoes). 0 = ainda não foi gravada.
+    private int id;
     private String enunciado;
     private String tipo;
     private String imagemPath;
@@ -53,6 +55,28 @@ public class Questao {
         this.pares = pares == null
                 ? new ArrayList<>()
                 : new ArrayList<>(pares);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    /** Duas questões gravadas no banco são a mesma quando têm o mesmo id; as ainda não gravadas só são iguais a si mesmas. */
+    @Override
+    public boolean equals(Object outro) {
+        if (this == outro) return true;
+        if (!(outro instanceof Questao)) return false;
+        Questao questao = (Questao) outro;
+        return id > 0 && id == questao.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id > 0 ? Integer.hashCode(id) : System.identityHashCode(this);
     }
 
     public String getEnunciado() {
