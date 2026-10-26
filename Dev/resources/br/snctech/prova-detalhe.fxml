@@ -13,6 +13,7 @@
         <HBox spacing="12">
             <Button text="Voltar" onAction="#aoClicarVoltar" styleClass="secondary-button" fx:id="botaoVoltar"/>
             <Button text="Editar avaliação" onAction="#aoClicarEditar" styleClass="primary-button"/>
+            <Button text="Corrigir prova" onAction="#aoClicarCorrigir" styleClass="primary-button"/>
         </HBox>
     </VBox>
 </VBox>

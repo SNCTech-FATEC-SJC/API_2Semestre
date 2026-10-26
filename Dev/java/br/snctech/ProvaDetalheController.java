@@ -1,9 +1,11 @@
 package br.snctech;
 
+import br.snctech.correcao.DadosCorrecao;
 import br.snctech.model.Avaliacao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import java.time.format.DateTimeFormatter;
 import javafx.scene.layout.VBox;
@@ -35,6 +37,18 @@ public class ProvaDetalheController {
     @FXML private void aoClicarEditar(ActionEvent evento) {
         NovaProvaController.prepararEdicao(avaliacaoSelecionada);
         NavegacaoUtil.abrir((Node) evento.getSource(), "nova-prova.fxml", "SNCTECH - Editar Avaliação");
+    }
+    /** PB-03 / PB-08: abre a correção desta avaliação (provas entregues, correção automática e manual). */
+    @FXML private void aoClicarCorrigir(ActionEvent evento) {
+        if (avaliacaoSelecionada == null || avaliacaoSelecionada.getId() <= 0) return;
+        try {
+            DadosCorrecao.prepararCorrecao(avaliacaoSelecionada.getId(), avaliacaoSelecionada.getNome(),
+                    avaliacaoSelecionada.getTurma(),
+                    origem -> NavegacaoUtil.abrir(origem, "prova-detalhe.fxml", "SNCTECH - Detalhes da Avaliação"));
+            NavegacaoUtil.abrir((Node) evento.getSource(), "correcao-alunos.fxml", "SNCTECH - Correção da prova");
+        } catch (RuntimeException e) {
+            new Alert(Alert.AlertType.ERROR, "Não foi possível abrir a correção.\n" + e.getMessage()).showAndWait();
+        }
     }
     @FXML private void aoClicarVoltar(ActionEvent evento) {
         NavegacaoUtil.abrir((Node) evento.getSource(), "provas-aplicadas.fxml", "SNCTECH - Provas Aplicadas");

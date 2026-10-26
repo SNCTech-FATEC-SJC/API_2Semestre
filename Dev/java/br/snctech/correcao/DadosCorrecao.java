@@ -1,5 +1,7 @@
 package br.snctech.correcao;
 
+import br.snctech.banco.Conexao;
+import br.snctech.banco.SessaoUsuario;
 import br.snctech.correcao.corretor.CorretorAssociacao;
 import br.snctech.correcao.corretor.CorretorDiscursiva;
 import br.snctech.correcao.corretor.CorretorMultiplaEscolha;
@@ -8,6 +10,11 @@ import br.snctech.correcao.repositorio.FonteDeEnunciados;
 import br.snctech.correcao.repositorio.RepositorioAlunos;
 import br.snctech.correcao.repositorio.RepositorioAvaliacoesRespondidas;
 import br.snctech.correcao.repositorio.RepositorioQuestoesCorrecao;
+import br.snctech.correcao.repositorio.postgres.EsquemaCorrecao;
+import br.snctech.correcao.repositorio.postgres.FonteDeEnunciadosPostgres;
+import br.snctech.correcao.repositorio.postgres.RepositorioAlunosPostgres;
+import br.snctech.correcao.repositorio.postgres.RepositorioAvaliacoesRespondidasPostgres;
+import br.snctech.correcao.repositorio.postgres.RepositorioQuestoesCorrecaoPostgres;
 import br.snctech.correcao.repositorio.memoria.RepositorioAlunosMemoria;
 import br.snctech.correcao.repositorio.memoria.RepositorioAvaliacoesRespondidasMemoria;
 import br.snctech.correcao.repositorio.memoria.RepositorioQuestoesCorrecaoMemoria;
@@ -16,6 +23,10 @@ import br.snctech.correcao.service.CorrecaoManualService;
 import br.snctech.correcao.service.ResultadoProvaService;
 import br.snctech.correcao.service.ResumoCorrecaoService;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.IntPredicate;
@@ -29,8 +40,9 @@ import javafx.scene.Node;
  * <p>Quem usa de fora (PB-07, telas de professor/aluno, PB-12):
  * {@code DadosCorrecao.correcaoAutomatica()}, {@code correcaoManual()}, {@code resumo()}, {@code resultadoProva()}.
  *
- * <p>Fonte dos dados: {@link #usarMemoria()} (padrão, com dados de demonstração). Quando o banco existir,
- * quem o implementar liga os repositórios dele com {@link #configurar}. Só este arquivo conhece essa escolha.
+ * <p>Fonte dos dados: segue o {@code modo} do {@code banco.properties} do grupo. {@code modo=banco} usa o
+ * PostgreSQL ({@link #usarBanco()}); {@code modo=memoria} usa dados de demonstração ({@link #usarMemoria()}).
+ * Só este arquivo conhece essa escolha.
  */
 public final class DadosCorrecao {
 
@@ -63,6 +75,43 @@ public final class DadosCorrecao {
                 .forEach(prova -> automatica.corrigir(prova.getId()));
     }
 
+    /** Dados do PostgreSQL. O professor logado e o prazo da avaliação também vêm do banco. */
+    public static synchronized void usarBanco() {
+        String problema = EsquemaCorrecao.verificar();
+        if (problema != null) {
+            throw new IllegalStateException(problema);
+        }
+        configurar(new RepositorioAvaliacoesRespondidasPostgres(),
+                new RepositorioQuestoesCorrecaoPostgres(),
+                new RepositorioAlunosPostgres(),
+                new FonteDeEnunciadosPostgres());
+        definirProfessor(SessaoUsuario.getProfessorId());
+        definirVerificadorDePrazo(DadosCorrecao::prazoEncerradoNoBanco);
+    }
+
+    /** O prazo (avaliacoes.prazo_fim) já passou? Avaliação inexistente conta como não encerrada. */
+    private static boolean prazoEncerradoNoBanco(int idAvaliacao) {
+        return Conexao.executar(c -> {
+            try (PreparedStatement ps = c.prepareStatement("SELECT prazo_fim FROM avaliacoes WHERE id = ?")) {
+                ps.setInt(1, idAvaliacao);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next() || rs.getTimestamp(1) == null) {
+                        return false;
+                    }
+                    return rs.getTimestamp(1).before(Timestamp.valueOf(LocalDateTime.now()));
+                }
+            }
+        });
+    }
+
+    /**
+     * Para o botão "Corrigir" chamar antes de abrir a Tela 6.
+     * @return null se pode abrir; senão a mensagem do problema (banco fora do ar, migração faltando...).
+     */
+    public static String verificarBanco() {
+        return Conexao.modoMemoria() ? null : EsquemaCorrecao.verificar();
+    }
+
     /** Para ligar repositórios próprios (banco de dados, testes, integração). */
     public static synchronized void configurar(RepositorioAvaliacoesRespondidas repoRespondidas,
                                                RepositorioQuestoesCorrecao repoQuestoes,
@@ -83,7 +132,11 @@ public final class DadosCorrecao {
 
     private static void garantir() {
         if (automatica == null) {
-            usarMemoria();
+            if (Conexao.modoMemoria()) {
+                usarMemoria();
+            } else {
+                usarBanco();
+            }
         }
     }
 
@@ -114,6 +167,8 @@ public final class DadosCorrecao {
     /** Chamar antes de abrir {@code correcao-alunos.fxml}. {@code aoVoltar} pode ser null. */
     public static void prepararCorrecao(int idAvaliacao, String nomeAvaliacao, String nomeTurma, Consumer<Node> aoVoltar) {
         contexto = new Contexto(idAvaliacao, nomeAvaliacao, nomeTurma, aoVoltar);
+        // Provas entregues que ainda não passaram pela correção automática (ex.: o aluno acabou de enviar).
+        correcaoAutomatica().corrigirNaoCorrigidas(idAvaliacao);
     }
 
     public static Contexto contexto() { return contexto; }
