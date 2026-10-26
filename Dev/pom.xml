@@ -14,6 +14,7 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.2</javafx.version>
+        <junit.version>5.13.4</junit.version>
     </properties>
 
     <dependencies>
@@ -27,10 +28,17 @@
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <sourceDirectory>java</sourceDirectory>
+        <testSourceDirectory>test/java</testSourceDirectory>
         <resources>
             <resource>
                 <directory>resources</directory>
@@ -44,6 +52,11 @@
                 <configuration>
                     <mainClass>br.snctech.App</mainClass>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.3</version>
             </plugin>
         </plugins>
     </build>
