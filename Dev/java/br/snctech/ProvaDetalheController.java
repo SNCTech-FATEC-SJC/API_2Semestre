@@ -22,6 +22,11 @@ public class ProvaDetalheController {
         detalhesQuestoes.getChildren().add(new Label("Turma: " + avaliacaoSelecionada.getTurma()));
         detalhesQuestoes.getChildren().add(new Label("Data: " + (avaliacaoSelecionada.getData() == null ? "Não definida" : avaliacaoSelecionada.getData().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))));
         detalhesQuestoes.getChildren().add(new Label("Prazo: " + (avaliacaoSelecionada.getPrazo() == null ? "Não definido" : avaliacaoSelecionada.getPrazo().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))));
+        detalhesQuestoes.getChildren().add(new Label("Horário: "
+                + avaliacaoSelecionada.getHoraInicio().format(DateTimeFormatter.ofPattern("HH:mm")) + " às "
+                + avaliacaoSelecionada.getHoraFim().format(DateTimeFormatter.ofPattern("HH:mm"))));
+        detalhesQuestoes.getChildren().add(new Label("Duração por aluno: " + (avaliacaoSelecionada.getDuracaoMinutos() > 0
+                ? avaliacaoSelecionada.getDuracaoMinutos() + " minutos" : "sem limite além do prazo")));
         detalhesQuestoes.getChildren().add(new Label("Questões selecionadas:"));
         for (Questao questao : avaliacaoSelecionada.getQuestoes()) {
             detalhesQuestoes.getChildren().add(new Label("• " + questao.getEnunciado()));

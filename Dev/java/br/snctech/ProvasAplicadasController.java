@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import java.time.format.DateTimeFormatter;
@@ -25,7 +26,7 @@ public class ProvasAplicadasController {
         int coluna = 0, linha = 0;
         var avaliacoes = DadosAplicacao.getRepositorioAvaliacoes().listarTodas();
         if (avaliacoes.isEmpty()) {
-            listaProvas.add(new Label("Nenhuma avaliação cadastrada. Clique em ‘Nova Prova’ para começar."), 0, 0);
+            listaProvas.add(new Label("Nenhuma avaliação cadastrada."), 0, 0);
             return;
         }
         for (Avaliacao avaliacao : avaliacoes) {
@@ -37,8 +38,22 @@ public class ProvasAplicadasController {
                     ? "Retirar disponibilização" : "Disponibilizar aos alunos");
             disponibilizar.getStyleClass().add("top-action");
             disponibilizar.setOnAction(evento -> {
-                avaliacao.setDisponibilizada(!avaliacao.isDisponibilizada());
-                atualizarLista();
+                boolean novoEstado = !avaliacao.isDisponibilizada();
+                try {
+                    // Importante: não basta alterar o objeto em memória. O repositório
+                    // também grava liberada/liberada_em no PostgreSQL quando o modo banco está ativo.
+                    DadosAplicacao.getRepositorioAvaliacoes()
+                            .atualizarDisponibilizacao(avaliacao, novoEstado);
+                    atualizarLista();
+                } catch (RuntimeException erro) {
+                    Alert alerta = new Alert(Alert.AlertType.ERROR);
+                    alerta.setTitle("Erro ao atualizar avaliação");
+                    alerta.setHeaderText("Não foi possível alterar a disponibilização.");
+                    alerta.setContentText(erro.getMessage() == null
+                            ? "Confira a conexão com o PostgreSQL e tente novamente."
+                            : erro.getMessage());
+                    alerta.showAndWait();
+                }
             });
             cartao.getChildren().addAll(
                     new Label(avaliacao.getNome()),
@@ -46,6 +61,8 @@ public class ProvasAplicadasController {
                     new Label("Início: " + formatarDataHora(avaliacao, true)),
                     new Label("Prazo: " + formatarDataHora(avaliacao, false)),
                     new Label("Questões: " + avaliacao.getQuestoes().size()),
+                    new Label("Duração: " + (avaliacao.getDuracaoMinutos() > 0 ? avaliacao.getDuracaoMinutos() + " min" : "sem limite além do prazo")),
+                    new Label("Alunos que abriram: " + DadosAplicacao.getRepositorioTentativas().listarPorAvaliacao(avaliacao.getId()).size()),
                     status,
                     disponibilizar
             );

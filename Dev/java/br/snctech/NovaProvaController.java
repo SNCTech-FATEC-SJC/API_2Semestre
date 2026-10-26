@@ -11,6 +11,9 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +23,14 @@ public class NovaProvaController {
     @FXML private TextField campoTurma;
     @FXML private DatePicker campoData;
     @FXML private DatePicker campoPrazo;
+    @FXML private TextField campoHoraInicio;
+    @FXML private TextField campoHoraFim;
+    @FXML private TextField campoDuracao;
     @FXML private VBox listaQuestoes;
     @FXML private javafx.scene.control.Button botaoVoltar;
     private final List<CheckBox> seletores = new ArrayList<>();
     private static Avaliacao avaliacaoEmEdicao;
+    private static final DateTimeFormatter FORMATO_HORA = DateTimeFormatter.ofPattern("H:mm");
 
     public static void prepararEdicao(Avaliacao avaliacao) { avaliacaoEmEdicao = avaliacao; }
 
@@ -40,7 +47,15 @@ public class NovaProvaController {
             listaQuestoes.getChildren().add(cartao);
         }
 
+        // Padrões de uma avaliação nova: o dia inteiro e sem limite de tempo por aluno.
+        campoHoraInicio.setText("00:00");
+        campoHoraFim.setText("23:59");
+        campoDuracao.setText("0");
+
         if (avaliacaoEmEdicao != null) {
+            campoHoraInicio.setText(avaliacaoEmEdicao.getHoraInicio().format(DateTimeFormatter.ofPattern("HH:mm")));
+            campoHoraFim.setText(avaliacaoEmEdicao.getHoraFim().format(DateTimeFormatter.ofPattern("HH:mm")));
+            campoDuracao.setText(String.valueOf(avaliacaoEmEdicao.getDuracaoMinutos()));
             campoNome.setText(avaliacaoEmEdicao.getNome());
             campoTurma.setText(avaliacaoEmEdicao.getTurma());
             campoData.setValue(avaliacaoEmEdicao.getData());
@@ -89,12 +104,33 @@ public class NovaProvaController {
             return;
         }
 
+        LocalTime horaInicio = lerHora(campoHoraInicio.getText());
+        if (horaInicio == null) {
+            mostrarAviso("Informe a hora de início no formato HH:mm (ex.: 08:00).", campoHoraInicio);
+            return;
+        }
+        LocalTime horaFim = lerHora(campoHoraFim.getText());
+        if (horaFim == null) {
+            mostrarAviso("Informe a hora de término no formato HH:mm (ex.: 23:59).", campoHoraFim);
+            return;
+        }
+        int duracao;
+        try {
+            String textoDuracao = campoDuracao.getText() == null ? "" : campoDuracao.getText().trim();
+            duracao = textoDuracao.isEmpty() ? 0 : Integer.parseInt(textoDuracao);
+        } catch (NumberFormatException erro) {
+            mostrarAviso("Informe a duração em minutos, só com números (use 0 para não limitar).", campoDuracao);
+            return;
+        }
+
         try {
             AvaliacaoService servico = new AvaliacaoService(DadosAplicacao.getRepositorioAvaliacoes());
             if (avaliacaoEmEdicao == null) {
-                servico.criar(campoNome.getText(), selecionadas, campoTurma.getText(), campoData.getValue(), campoPrazo.getValue());
+                servico.criar(campoNome.getText(), selecionadas, campoTurma.getText(), campoData.getValue(), campoPrazo.getValue(),
+                        horaInicio, horaFim, duracao);
             } else {
-                servico.editar(avaliacaoEmEdicao.getId(), campoNome.getText(), selecionadas, campoTurma.getText(), campoData.getValue(), campoPrazo.getValue());
+                servico.editar(avaliacaoEmEdicao.getId(), campoNome.getText(), selecionadas, campoTurma.getText(), campoData.getValue(), campoPrazo.getValue(),
+                        horaInicio, horaFim, duracao);
             }
             avaliacaoEmEdicao = null;
             NavegacaoUtil.abrir((Node) evento.getSource(), "provas-aplicadas.fxml", "SNCTECH - Provas Aplicadas");
@@ -108,6 +144,16 @@ public class NovaProvaController {
             alerta.setHeaderText("Não foi possível concluir o salvamento");
             alerta.setContentText("Ocorreu um erro inesperado. Confira os dados e tente novamente.\nDetalhe: " + erro.getMessage());
             alerta.showAndWait();
+        }
+    }
+
+    /** Lê "8:00" ou "08:00". Devolve null se o texto não for uma hora válida. */
+    private LocalTime lerHora(String texto) {
+        if (texto == null) return null;
+        try {
+            return LocalTime.parse(texto.trim(), FORMATO_HORA);
+        } catch (DateTimeParseException erro) {
+            return null;
         }
     }
 

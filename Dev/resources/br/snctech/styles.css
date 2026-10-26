@@ -316,3 +316,30 @@
 .button:pressed {
     -fx-opacity: 0.82;
 }
+
+/* Tela de avaliações do aluno e tela Responder Avaliação */
+.prova-card-aluno {
+    -fx-background-color: -fx-cor-cartao;
+    -fx-border-color: -fx-cor-borda;
+    -fx-border-radius: 9;
+    -fx-background-radius: 9;
+    -fx-padding: 10;
+}
+
+.resposta-card {
+    -fx-background-color: -fx-cor-cartao;
+    -fx-border-color: -fx-cor-borda;
+    -fx-border-radius: 9;
+    -fx-background-radius: 9;
+    -fx-padding: 14;
+}
+
+.cronometro {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-cor-texto;
+}
+
+.cronometro-alerta {
+    -fx-text-fill: -fx-cor-primaria;
+}

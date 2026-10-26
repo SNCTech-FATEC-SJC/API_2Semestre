@@ -5,6 +5,7 @@ import br.snctech.model.Avaliacao;
 import br.snctech.Repositorio.RepositorioAvaliacoes;
 import java.util.List;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 /** Centraliza as regras de negócio de criação e edição de avaliações. */
 public class AvaliacaoService {
@@ -20,6 +21,14 @@ public class AvaliacaoService {
         return repositorio.salvar(nome.trim(), questoes, turma.trim(), data, prazo);
     }
 
+    /** Cria a avaliação já com o horário de início/término e a duração por aluno (0 = só vale o prazo). */
+    public Avaliacao criar(String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo,
+                           LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos) {
+        validar(nome, questoes, turma, data, prazo);
+        validarHorarios(data, prazo, horaInicio, horaFim, duracaoMinutos);
+        return repositorio.salvar(nome.trim(), questoes, turma.trim(), data, prazo, horaInicio, horaFim, duracaoMinutos);
+    }
+
     public Avaliacao editar(int id, String nome, List<Questao> questoes) {
         Avaliacao existente = repositorio.buscarPorId(id);
         return editar(id, nome, questoes, existente == null ? "" : existente.getTurma(),
@@ -28,9 +37,30 @@ public class AvaliacaoService {
 
     public Avaliacao editar(int id, String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo) {
         validar(nome, questoes, turma, data, prazo);
+        Avaliacao existente = buscarExistente(id);
+        // Sem os novos campos, a avaliação mantém o horário e a duração que já tinha
+        // (inclusive na nova versão criada quando ela já foi respondida).
+        return aplicarEdicao(existente, nome, questoes, turma, data, prazo,
+                existente.getHoraInicio(), existente.getHoraFim(), existente.getDuracaoMinutos());
+    }
+
+    public Avaliacao editar(int id, String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo,
+                            LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos) {
+        validar(nome, questoes, turma, data, prazo);
+        validarHorarios(data, prazo, horaInicio, horaFim, duracaoMinutos);
+        Avaliacao existente = buscarExistente(id);
+        return aplicarEdicao(existente, nome, questoes, turma, data, prazo, horaInicio, horaFim, duracaoMinutos);
+    }
+
+    private Avaliacao buscarExistente(int id) {
         Avaliacao existente = repositorio.buscarPorId(id);
         if (existente == null) throw new IllegalArgumentException("A avaliação não foi encontrada.");
+        return existente;
+    }
 
+    private Avaliacao aplicarEdicao(Avaliacao existente, String nome, List<Questao> questoes, String turma,
+                                    LocalDate data, LocalDate prazo,
+                                    LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos) {
         // Uma avaliação respondida nunca é alterada: criamos uma nova versão.
         if (existente.isRespondida()) {
             String nomeNovo = nome.trim();
@@ -41,9 +71,9 @@ public class AvaliacaoService {
                     nomeNovo = base + versao++;
                 } while (nomeJaExiste(nomeNovo));
             }
-            return repositorio.salvar(nomeNovo, questoes, turma.trim(), data, prazo);
+            return repositorio.salvar(nomeNovo, questoes, turma.trim(), data, prazo, horaInicio, horaFim, duracaoMinutos);
         }
-        repositorio.atualizar(existente, nome.trim(), questoes, turma.trim(), data, prazo);
+        repositorio.atualizar(existente, nome.trim(), questoes, turma.trim(), data, prazo, horaInicio, horaFim, duracaoMinutos);
         return existente;
     }
 
@@ -58,5 +88,15 @@ public class AvaliacaoService {
         if (data == null) throw new IllegalArgumentException("Selecione a data da avaliação.");
         if (prazo == null) throw new IllegalArgumentException("Selecione o prazo da avaliação.");
         if (prazo.isBefore(data)) throw new IllegalArgumentException("O prazo não pode ser anterior à data da avaliação.");
+    }
+
+    /** Só vale para quem informa horário e duração: o término precisa vir depois do início. */
+    private void validarHorarios(LocalDate data, LocalDate prazo, LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos) {
+        if (horaInicio == null) throw new IllegalArgumentException("Informe a hora de início da avaliação.");
+        if (horaFim == null) throw new IllegalArgumentException("Informe a hora de término da avaliação.");
+        if (!prazo.atTime(horaFim).isAfter(data.atTime(horaInicio))) {
+            throw new IllegalArgumentException("O término da avaliação deve ser depois do início.");
+        }
+        if (duracaoMinutos < 0) throw new IllegalArgumentException("A duração não pode ser negativa.");
     }
 }

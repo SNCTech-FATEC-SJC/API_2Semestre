@@ -19,6 +19,9 @@ public class Avaliacao {
     private LocalTime horaInicio;
     private LocalTime horaFim;
     private boolean disponibilizada;
+    private int duracaoMinutos; // limite de tempo por aluno; 0 = sem limite além do prazo
+    private int versao = 1;                // 1 = original; 2, 3... = versões criadas ao editar uma avaliação já respondida
+    private Integer avaliacaoPaiId = null; // avaliação da qual esta versão foi criada (null na original)
 
     public Avaliacao(int id, String nome, List<Questao> questoes) {
         this.id = id;
@@ -46,10 +49,16 @@ public class Avaliacao {
     public LocalTime getHoraInicio() { return horaInicio; }
     public LocalTime getHoraFim() { return horaFim; }
     public boolean isDisponibilizada() { return disponibilizada; }
+    public int getDuracaoMinutos() { return duracaoMinutos; }
     public void setTurma(String turma) { this.turma = turma; }
     public void setData(LocalDate data) { this.data = data; }
     public void setPrazo(LocalDate prazo) { this.prazo = prazo; }
     public void setHoraInicio(LocalTime horaInicio) { this.horaInicio = horaInicio; }
     public void setHoraFim(LocalTime horaFim) { this.horaFim = horaFim; }
     public void setDisponibilizada(boolean disponibilizada) { this.disponibilizada = disponibilizada; }
+    public void setDuracaoMinutos(int duracaoMinutos) { this.duracaoMinutos = duracaoMinutos; }
+    public int getVersao() { return versao; }
+    public void setVersao(int versao) { this.versao = versao; }
+    public Integer getAvaliacaoPaiId() { return avaliacaoPaiId; }
+    public void setAvaliacaoPaiId(Integer avaliacaoPaiId) { this.avaliacaoPaiId = avaliacaoPaiId; }
 }
