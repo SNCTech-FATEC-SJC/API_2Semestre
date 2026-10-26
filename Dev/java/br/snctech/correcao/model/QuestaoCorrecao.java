@@ -16,16 +16,31 @@ import java.util.Map;
  * @param gabaritoAlternativaId id da alternativa correta: "A".."D" (múltipla escolha) ou "V"/"F" (verdadeiro/falso)
  * @param gabaritoPares         pares corretos "idItemA -> idItemB" (associação)
  * @param respostaEsperada      texto cadastrado pelo professor (discursiva, usado na pré-correção)
+ * @param textosAlternativas    id da alternativa -> texto, para as telas mostrarem o texto em vez do id
+ *                              (opcional; vazio nos dados de demonstração)
  */
 public record QuestaoCorrecao(Integer id,
                               TipoQuestao tipo,
                               BigDecimal valor,
                               String gabaritoAlternativaId,
                               Map<String, String> gabaritoPares,
-                              String respostaEsperada) {
+                              String respostaEsperada,
+                              Map<String, String> textosAlternativas) {
 
     public QuestaoCorrecao {
         gabaritoPares = gabaritoPares == null ? Map.of() : Map.copyOf(gabaritoPares);
+        textosAlternativas = textosAlternativas == null ? Map.of() : Map.copyOf(textosAlternativas);
+    }
+
+    /** Sem textos de alternativas (dados de demonstração e testes). */
+    public QuestaoCorrecao(Integer id, TipoQuestao tipo, BigDecimal valor, String gabaritoAlternativaId,
+                           Map<String, String> gabaritoPares, String respostaEsperada) {
+        this(id, tipo, valor, gabaritoAlternativaId, gabaritoPares, respostaEsperada, null);
+    }
+
+    /** Texto de uma alternativa, ou null se esta questão não tem o texto cadastrado. */
+    public String textoDaAlternativa(String idAlternativa) {
+        return idAlternativa == null ? null : textosAlternativas.get(idAlternativa);
     }
 
     public static QuestaoCorrecao multiplaEscolha(Integer id, BigDecimal valor, String alternativaCorretaId) {

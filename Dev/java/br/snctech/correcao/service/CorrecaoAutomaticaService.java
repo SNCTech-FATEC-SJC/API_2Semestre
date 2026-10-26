@@ -30,6 +30,27 @@ public class CorrecaoAutomaticaService {
         return ar;
     }
 
+    /**
+     * Corrige as provas entregues da avaliação que ainda não foram corrigidas (alguma questão sem status).
+     * Provas já corrigidas não são tocadas, e notas lançadas pelo professor nunca são sobrescritas.
+     *
+     * @return quantas provas foram corrigidas agora
+     */
+    public int corrigirNaoCorrigidas(Integer idAvaliacao) {
+        List<QuestaoCorrecao> questoes = repoQuestoes.buscarPorAvaliacao(idAvaliacao);
+        int corrigidas = 0;
+        for (AvaliacaoRespondida ar : repoRespondidas.buscarPorAvaliacao(idAvaliacao)) {
+            boolean faltaCorrigir = questoes.stream()
+                    .anyMatch(q -> ar.resposta(q.id()).map(r -> r.getStatus() == null).orElse(true));
+            if (faltaCorrigir) {
+                corrigir(ar, questoes);
+                repoRespondidas.salvar(ar);
+                corrigidas++;
+            }
+        }
+        return corrigidas;
+    }
+
     /** Lógica pura (sem banco), fácil de testar. */
     public void corrigir(AvaliacaoRespondida ar, List<QuestaoCorrecao> questoes) {
         for (QuestaoCorrecao questao : questoes) {

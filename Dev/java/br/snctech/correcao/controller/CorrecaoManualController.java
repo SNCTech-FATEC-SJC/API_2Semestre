@@ -235,18 +235,24 @@ public class CorrecaoManualController {
     /** Texto da resposta do aluno (gabarito=false) ou do gabarito (gabarito=true) de uma questão objetiva. */
     private static String descrever(QuestaoCorrecao q, RespostaQuestao r, boolean gabarito) {
         return switch (q.tipo()) {
-            case MULTIPLA_ESCOLHA -> alternativa(gabarito ? q.gabaritoAlternativaId() : r.getAlternativaId());
+            case MULTIPLA_ESCOLHA -> alternativa(q, gabarito ? q.gabaritoAlternativaId() : r.getAlternativaId());
             case VERDADEIRO_FALSO -> {
                 String id = gabarito ? q.gabaritoAlternativaId() : r.getAlternativaId();
-                yield "V".equals(id) ? "Verdadeiro" : "F".equals(id) ? "Falso" : "(em branco)";
+                String texto = q.textoDaAlternativa(id);
+                yield texto != null ? texto
+                        : "V".equals(id) ? "Verdadeiro" : "F".equals(id) ? "Falso" : "(em branco)";
             }
             case ASSOCIACAO -> pares(gabarito ? q.gabaritoPares() : r.getPares());
             case DISCURSIVA -> gabarito ? String.valueOf(q.respostaEsperada()) : String.valueOf(r.getTexto());
         };
     }
 
-    private static String alternativa(String id) {
-        return id == null || id.isBlank() ? "(em branco)" : "Alternativa " + id;
+    private static String alternativa(QuestaoCorrecao q, String id) {
+        if (id == null || id.isBlank()) {
+            return "(em branco)";
+        }
+        String texto = q.textoDaAlternativa(id);
+        return texto != null ? texto : "Alternativa " + id;
     }
 
     private static String pares(Map<String, String> pares) {
