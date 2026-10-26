@@ -72,7 +72,7 @@ public class TurmaDAO {
                     String criadoEm = rs.getString("criado_em");
 
                     String status = ativa ? "[ATIVA]" : "[ENCERRADA]";
-                    System.printf("ID: %d | Turma: %s | Status: %s | Criada em: %s%n", 
+                    System.out.printf("ID: %d | Turma: %s | Status: %s | Criada em: %s%n", 
                                   id, nome, status, criadoEm);
                 }
             }

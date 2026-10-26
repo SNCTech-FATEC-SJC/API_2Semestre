@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="br.snctech.QuestaoController"
+           styleClass="fundo"
+           prefWidth="900"
+           prefHeight="700">
+
+    <ScrollPane xmlns="http://javafx.com/javafx/21"
+                fitToWidth="true"
+                hbarPolicy="NEVER"
+                styleClass="fundo">
+
+        <content>
+            <VBox alignment="TOP_CENTER" styleClass="fundo">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+
+                <VBox alignment="TOP_CENTER"
+                      spacing="18"
+                      maxWidth="900"
+                      styleClass="painel">
+
+                    <padding>
+                        <Insets top="28" right="34" bottom="28" left="34"/>
+                    </padding>
+
+                    <Label text="Cadastro de questão"
+                           styleClass="titulo-pagina"/>
+
+                    <Label text="Crie uma questão para o banco de questões."
+                           styleClass="subtitulo-pagina"/>
+
+                    <Label text="Tipo de questão"
+                           styleClass="rotulo"/>
+
+                    <ComboBox fx:id="cbTipo"
+                              maxWidth="Infinity"
+                              prefWidth="400"/>
+
+                    <Label text="Enunciado"
+                           styleClass="rotulo"/>
+
+                    <TextArea fx:id="campoEnunciado"
+                              promptText="Digite o enunciado da questão..."
+                              wrapText="true"
+                              prefRowCount="5"
+                              prefHeight="145"
+                              maxWidth="Infinity"
+                              styleClass="campo-texto"/>
+
+                    <Label text="Alternativas"
+                           styleClass="rotulo"/>
+
+                    <VBox fx:id="painelMultiplaEscolha"
+                          spacing="12"
+                          maxWidth="Infinity">
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <RadioButton fx:id="radioA" text="A"/>
+                            <TextField fx:id="campoAlternativaA"
+                                       promptText="Alternativa A"
+                                       maxWidth="Infinity"
+                                       HBox.hgrow="ALWAYS"
+                                       styleClass="campo-texto"/>
+                        </HBox>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <RadioButton fx:id="radioB" text="B"/>
+                            <TextField fx:id="campoAlternativaB"
+                                       promptText="Alternativa B"
+                                       maxWidth="Infinity"
+                                       HBox.hgrow="ALWAYS"
+                                       styleClass="campo-texto"/>
+                        </HBox>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <RadioButton fx:id="radioC" text="C"/>
+                            <TextField fx:id="campoAlternativaC"
+                                       promptText="Alternativa C"
+                                       maxWidth="Infinity"
+                                       HBox.hgrow="ALWAYS"
+                                       styleClass="campo-texto"/>
+                        </HBox>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <RadioButton fx:id="radioD" text="D"/>
+                            <TextField fx:id="campoAlternativaD"
+                                       promptText="Alternativa D"
+                                       maxWidth="Infinity"
+                                       HBox.hgrow="ALWAYS"
+                                       styleClass="campo-texto"/>
+                        </HBox>
+
+                        <Label text="Selecione o círculo da alternativa correta."
+                               styleClass="mensagem"/>
+
+                    </VBox>
+
+<VBox fx:id="painelDissertativa"
+      spacing="8"
+      maxWidth="Infinity"
+      visible="false"
+      managed="false">
+
+    <Label text="Resposta esperada"
+           styleClass="rotulo"/>
+
+    <TextArea fx:id="campoRespostaDissertativa"
+              promptText="Digite a resposta esperada para esta questão..."
+              wrapText="true"
+              prefRowCount="4"
+              prefHeight="110"
+              maxWidth="Infinity"
+              styleClass="campo-texto"/>
+
+    <Label text="A resposta esperada é obrigatória, mesmo que o aluno responda livremente."
+           styleClass="mensagem"
+           wrapText="true"/>
+
+</VBox>
+
+                    <VBox fx:id="painelVerdadeiroFalso"
+                          spacing="12"
+                          maxWidth="Infinity"
+                          visible="false"
+                          managed="false">
+
+                        <Label text="Selecione a resposta correta:"
+                               styleClass="rotulo"/>
+
+                        <HBox spacing="24" alignment="CENTER_LEFT">
+                            <RadioButton fx:id="radioVerdadeiro"
+                                         text="Verdadeiro"/>
+
+                            <RadioButton fx:id="radioFalso"
+                                         text="Falso"/>
+                        </HBox>
+
+                    </VBox>
+
+                    <VBox fx:id="painelLigarColunas"
+                          spacing="12"
+                          maxWidth="Infinity"
+                          visible="false"
+                          managed="false">
+
+                        <Label text="Pares correspondentes"
+                               styleClass="rotulo"/>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+
+                            <TextField fx:id="campoTermoA"
+                                       promptText="Termo da coluna A"
+                                       HBox.hgrow="ALWAYS"
+                                       styleClass="campo-texto"/>
+
+                            <TextField fx:id="campoTermoB"
+                                       promptText="Termo da coluna B"
+                                       HBox.hgrow="ALWAYS"
+                                       styleClass="campo-texto"/>
+
+                            <Button text="Adicionar par"
+                                    onAction="#aoClicarAdicionarPar"
+                                    styleClass="botao-secundario"/>
+
+                        </HBox>
+
+                        <ListView fx:id="listaPares"
+                                  prefHeight="110"
+                                  maxWidth="Infinity"/>
+
+                        <Button text="Remover par selecionado"
+                                onAction="#aoClicarRemoverPar"
+                                styleClass="botao-secundario"/>
+
+                    </VBox>
+
+                    <Separator/>
+
+                    <Label text="Imagem do enunciado (opcional)"
+                           styleClass="rotulo"/>
+
+                    <HBox spacing="12"
+                          alignment="CENTER_LEFT"
+                          maxWidth="Infinity">
+
+                        <Button text="Selecionar imagem"
+                                onAction="#aoClicarSelecionarImagem"
+                                styleClass="botao-secundario"/>
+
+                        <Button text="Remover imagem"
+                                onAction="#aoClicarRemoverImagem"
+                                styleClass="botao-secundario"/>
+
+                    </HBox>
+
+                    <Label fx:id="lblImagem"
+                           text="Nenhuma imagem selecionada"
+                           styleClass="mensagem"
+                           wrapText="true"/>
+
+                    <ImageView fx:id="previewImagem"
+                               fitWidth="300"
+                               fitHeight="160"
+                               preserveRatio="true"
+                               smooth="true"/>
+
+                    <Separator/>
+
+                    <HBox spacing="12"
+                          alignment="CENTER_LEFT"
+                          maxWidth="Infinity">
+
+<Button fx:id="botaoSalvar"
+        text="Salvar questão"
+        onAction="#aoClicarSalvar"
+        styleClass="botao-primario"/>
+
+                        <Button text="Limpar"
+                                onAction="#aoClicarLimpar"
+                                styleClass="botao-secundario"/>
+
+                        <Button fx:id="botaoVoltar"
+                                text="Voltar"
+                                onAction="#aoClicarVoltar"
+                                styleClass="botao-secundario"/>
+
+                    </HBox>
+
+                    <Label fx:id="mensagem"
+                           text="Preencha os dados da questão."
+                           styleClass="mensagem"
+                           wrapText="true"/>
+
+                </VBox>
+            </VBox>
+        </content>
+    </ScrollPane>
+
+</StackPane>
