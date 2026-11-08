@@ -1,6 +1,6 @@
 
 # SNCTECH - Gerenciamento e Aplicação de Avaliações Escolares
-# Projeto API - 2º Semestre 2026
+## Projeto API - 2º Semestre 2026
 <p align="center">
   <img src="Documentação/logo_snctech.png" width="400" heigth="3000"/>
 </p>
@@ -11,6 +11,7 @@
     <a href="#backlog"> Backlog do Produto</a> |
     <a href="#sprints"> Cronograma das Sprints</a> |
     <a href="#documentacao"> Documentação</a> |
+    <a href="#manual"> Manual do Usuário</a> |
     <a href="#tecnologias"> Tecnologias</a> |
     <a href="#equipe"> Equipe</a>
 </p>
@@ -94,15 +95,18 @@ O professor também gerencia turmas e alunos, encerrando automaticamente a turma
 
 ### 📄 Documentação <a id="documentacao"></a>
 
-A documentação completa pode ser consultada na pasta <a href="[/Documentos/](https://github.com/SNCTech-FATEC-SJC/API_2Semestre/tree/main/Documenta%C3%A7%C3%A3o)">Documentos</a>.
+A documentação completa pode ser consultada na pasta <a href="https://github.com/SNCTech-FATEC-SJC/API_2Semestre/tree/main/Documenta%C3%A7%C3%A3o">Documentação</a>.
 
 ##### Conteúdo:
 - <a href="https://github.com/SNCTech-FATEC-SJC/API_2Semestre/blob/main/Documenta%C3%A7%C3%A3o/Backlog.MD">Product Backlog completo</a>
 - <a href="https://github.com/SNCTech-FATEC-SJC/API_2Semestre/blob/main/Documenta%C3%A7%C3%A3o/Definition%20of%20Ready.MD">Definition of Ready (DoR)</a>
 - <a href="https://github.com/SNCTech-FATEC-SJC/API_2Semestre/blob/main/Documenta%C3%A7%C3%A3o/Definition%20of%20Done.MD">Definition of Done (DoD)</a>
 
+---
 
+### 📖 Manual do usuário <a id="manual"></a>
 
+Consulte o arquivo <a href="https://github.com/SNCTech-FATEC-SJC/API_2Semestre/blob/main/Documenta%C3%A7%C3%A3o/Manual%20do%20Usu%C3%A1rio.md">Manual do Usuário</a> para obter orientações de uso da aplicação.
 
 
 ---
