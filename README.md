@@ -114,12 +114,14 @@ Consulte o arquivo <a href="https://github.com/SNCTech-FATEC-SJC/API_2Semestre/b
 ### 💻 Tecnologias <a id="tecnologias"></a>
 
 
-- **Linguagem/Framework da API:** _Java + Spring Boot_
+- **Linguagem de programação:** Java 25
+- **Interface gráfica:** JavaFX 25.0.5, FXML e CSS
 - **Banco de dados:** PostgreSQL <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original.svg" alt="postgresql" width="20" height="20"/>
-- **ORM / ferramenta de acesso a dados:** Spring Data JPA (Hibernate)
-- **Autenticação:** Spring Security + JWT
+- **Acesso ao banco de dados:** JDBC
+- **Testes automatizados:** JUnit 5 
+- **Gerenciamento de dependências:** Maven
 - **Versionamento:** Git <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="20" height="20" alt="Git"/>
-- **Outras ferramentas:** _Maven, JavaFX e Scene Builder_
+- **Ferramenta de interface:** Scene Builder
 
 ---
 
