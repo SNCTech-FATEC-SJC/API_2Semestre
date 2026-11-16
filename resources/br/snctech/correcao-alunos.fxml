@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- Tela 6 - Correção da prova (lista de alunos). PB-03 / PB-08. -->
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.snctech.correcao.controller.CorrecaoAlunosController"
+      styleClass="border-pane, corr-raiz" stylesheets="@correcao.css" prefWidth="1100" prefHeight="720">
+
+    <HBox styleClass="top-bar">
+        <Label text="Professor" styleClass="top-bar-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="tituloAvaliacao" text="Correção da prova" styleClass="top-bar-title"/>
+    </HBox>
+
+    <VBox spacing="14" styleClass="page-shell" VBox.vgrow="ALWAYS">
+        <Label text="Correção da prova" styleClass="titulo-pagina"/>
+        <Label fx:id="subtitulo" styleClass="subtitulo-pagina"/>
+
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <Label text="Total corrigido" styleClass="section-label"/>
+            <ProgressBar fx:id="barraProgresso" prefWidth="260" progress="0"/>
+            <Label fx:id="rotuloPercentual" styleClass="section-label"/>
+        </HBox>
+
+        <VBox styleClass="content-panel" VBox.vgrow="ALWAYS">
+            <GridPane fx:id="tabela" hgap="12"/>
+        </VBox>
+
+        <HBox spacing="12">
+            <Button fx:id="botaoVoltar" text="Voltar" onAction="#aoClicarVoltar" styleClass="secondary-button"/>
+        </HBox>
+    </VBox>
+</VBox>
