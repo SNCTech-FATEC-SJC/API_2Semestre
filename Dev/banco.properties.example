@@ -1,0 +1,11 @@
+# Copie este arquivo para "banco.properties" (ele fica fora do Git) e ajuste.
+# Cada valor também pode vir de uma variável de ambiente ou de -D no Java:
+#   db.url -> SNCTECH_DB_URL / -Dsnctech.db.url      db.usuario -> SNCTECH_DB_USUARIO
+#   db.senha -> SNCTECH_DB_SENHA                     modo -> SNCTECH_MODO / -Dsnctech.modo
+
+db.url=jdbc:postgresql://localhost:5432/SNCTech_DB
+db.usuario=postgres
+db.senha=123654
+
+# banco = grava no PostgreSQL | memoria = não usa banco, nada é salvo (só para demonstração)
+modo=banco

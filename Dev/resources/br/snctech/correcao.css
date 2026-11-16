@@ -1,0 +1,66 @@
+/* Estilos das telas de Correção (6 e 7). Usa as cores do styles.css do grupo (-fx-cor-*). */
+
+.corr-raiz {
+    -fx-corr-verde: #2e7d32;
+    -fx-corr-laranja: #b26a00;
+    -fx-corr-vermelho: #b71c1c;
+    -fx-corr-azul: #1565c0;
+}
+
+.corr-cartao {
+    -fx-background-color: -fx-cor-cartao;
+    -fx-background-radius: 10;
+    -fx-border-color: -fx-cor-borda;
+    -fx-border-radius: 10;
+    -fx-padding: 14;
+}
+
+.corr-titulo-questao {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-cor-texto;
+}
+
+.corr-secao-titulo {
+    -fx-text-fill: -fx-cor-texto-fraco;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.corr-nota-grande {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-cor-texto;
+}
+
+.corr-aviso {
+    -fx-text-fill: -fx-cor-texto-fraco;
+    -fx-font-size: 11px;
+}
+
+.corr-selo {
+    -fx-border-radius: 12;
+    -fx-padding: 2 10 2 10;
+    -fx-font-size: 11px;
+}
+.corr-selo-verde    { -fx-text-fill: -fx-corr-verde;    -fx-border-color: -fx-corr-verde; }
+.corr-selo-laranja  { -fx-text-fill: -fx-corr-laranja;  -fx-border-color: -fx-corr-laranja; }
+.corr-selo-vermelho { -fx-text-fill: -fx-corr-vermelho; -fx-border-color: -fx-corr-vermelho; }
+.corr-selo-azul     { -fx-text-fill: -fx-corr-azul;     -fx-border-color: -fx-corr-azul; }
+.corr-selo-cinza    { -fx-text-fill: -fx-cor-texto-fraco; -fx-border-color: -fx-cor-borda; }
+
+.corr-cabecalho-tabela {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-cor-texto-fraco;
+}
+
+.corr-linha-aluno {
+    -fx-border-color: transparent transparent -fx-cor-borda transparent;
+    -fx-padding: 8 0 8 0;
+}
+
+.rolagem-transparente,
+.rolagem-transparente > .viewport {
+    -fx-background-color: transparent;
+}
