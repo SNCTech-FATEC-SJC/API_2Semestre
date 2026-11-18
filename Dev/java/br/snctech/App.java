@@ -1,6 +1,6 @@
 package br.snctech;
 
-
+import br.snctech.correcao.DadosCorrecao;
 import br.snctech.questoes.service.BancoQuestoes;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
