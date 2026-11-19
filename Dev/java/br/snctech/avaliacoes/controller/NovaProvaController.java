@@ -2,6 +2,14 @@ package br.snctech.avaliacoes.controller;
 
 
 
+import br.snctech.autenticacao.modelo.Perfil;
+import br.snctech.autenticacao.modelo.UsuarioLogado;
+import br.snctech.avaliacoes.model.TurmaAvaliacao;
+import br.snctech.banco.Conexao;
+import br.snctech.banco.ErroBanco;
+import br.snctech.banco.SessaoUsuario;
+import br.snctech.turmas.modelo.Turma;
+import br.snctech.turmas.repositorio.TurmaDAO;
 import br.snctech.util.NavegacaoUtil;
 import br.snctech.infraestrutura.DadosAplicacao;
 import br.snctech.questoes.model.Questao;
@@ -13,10 +21,13 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
+import javafx.collections.FXCollections;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -26,7 +37,7 @@ import java.util.List;
 /** Controla criação/edição e carrega questões do módulo da outra dupla. */
 public class NovaProvaController {
     @FXML private TextField campoNome;
-    @FXML private TextField campoTurma;
+    @FXML private ComboBox<Turma> campoTurma;
     @FXML private DatePicker campoData;
     @FXML private DatePicker campoPrazo;
     @FXML private TextField campoHoraInicio;
@@ -36,12 +47,15 @@ public class NovaProvaController {
     @FXML private javafx.scene.control.Button botaoVoltar;
     private final List<CheckBox> seletores = new ArrayList<>();
     private static Avaliacao avaliacaoEmEdicao;
+    private String erroAoCarregarTurmas;
     private static final DateTimeFormatter FORMATO_HORA = DateTimeFormatter.ofPattern("H:mm");
 
     public static void prepararEdicao(Avaliacao avaliacao) { avaliacaoEmEdicao = avaliacao; }
 
     @FXML
     private void initialize() {
+        carregarTurmas();
+
         // Monta a lista usando BancoQuestoes, em vez das cinco questões estáticas do FXML.
         for (Questao questao : DadosAplicacao.getRepositorioQuestoes().listarTodas()) {
             CheckBox seletor = new CheckBox(questao.getEnunciado());
@@ -63,7 +77,6 @@ public class NovaProvaController {
             campoHoraFim.setText(avaliacaoEmEdicao.getHoraFim().format(DateTimeFormatter.ofPattern("HH:mm")));
             campoDuracao.setText(String.valueOf(avaliacaoEmEdicao.getDuracaoMinutos()));
             campoNome.setText(avaliacaoEmEdicao.getNome());
-            campoTurma.setText(avaliacaoEmEdicao.getTurma());
             campoData.setValue(avaliacaoEmEdicao.getData());
             campoPrazo.setValue(avaliacaoEmEdicao.getPrazo());
             for (CheckBox seletor : seletores) {
@@ -89,10 +102,17 @@ public class NovaProvaController {
             mostrarAviso("Informe o nome da avaliação.", campoNome);
             return;
         }
-        if (campoTurma.getText() == null || campoTurma.getText().isBlank()) {
-            mostrarAviso("Informe a turma da avaliação.", campoTurma);
+        Turma turmaEscolhida = campoTurma.getValue();
+        if (turmaEscolhida == null) {
+            String motivo = erroAoCarregarTurmas != null
+                    ? "Não foi possível carregar as turmas: " + erroAoCarregarTurmas
+                    : campoTurma.getItems().isEmpty()
+                    ? "Não há turma ativa disponível. Cadastre ou reative uma turma em Gerenciamento de Turmas."
+                    : "Selecione a turma da avaliação.";
+            mostrarAviso(motivo, campoTurma);
             return;
         }
+        TurmaAvaliacao turma = new TurmaAvaliacao(turmaEscolhida.id(), turmaEscolhida.nome());
         if (selecionadas.isEmpty()) {
             mostrarAviso("Selecione pelo menos uma questão.", seletores.isEmpty() ? null : seletores.get(0));
             return;
@@ -132,10 +152,10 @@ public class NovaProvaController {
         try {
             AvaliacaoService servico = new AvaliacaoService(DadosAplicacao.getRepositorioAvaliacoes());
             if (avaliacaoEmEdicao == null) {
-                servico.criar(campoNome.getText(), selecionadas, campoTurma.getText(), campoData.getValue(), campoPrazo.getValue(),
+                servico.criar(campoNome.getText(), selecionadas, turma, campoData.getValue(), campoPrazo.getValue(),
                         horaInicio, horaFim, duracao);
             } else {
-                servico.editar(avaliacaoEmEdicao.getId(), campoNome.getText(), selecionadas, campoTurma.getText(), campoData.getValue(), campoPrazo.getValue(),
+                servico.editar(avaliacaoEmEdicao.getId(), campoNome.getText(), selecionadas, turma, campoData.getValue(), campoPrazo.getValue(),
                         horaInicio, horaFim, duracao);
             }
             avaliacaoEmEdicao = null;
@@ -150,6 +170,56 @@ public class NovaProvaController {
             alerta.setHeaderText("Não foi possível concluir o salvamento");
             alerta.setContentText("Ocorreu um erro inesperado. Confira os dados e tente novamente.\nDetalhe: " + erro.getMessage());
             alerta.showAndWait();
+        }
+    }
+
+    /**
+     * Preenche o seletor só com turmas ATIVAS: as do professor logado (o administrador vê todas).
+     * Ao editar, a turma já vinculada à avaliação continua aparecendo, mesmo que tenha sido concluída.
+     */
+    private void carregarTurmas() {
+        UsuarioLogado usuario = SessaoUsuario.getUsuario();
+        final boolean administrador = usuario != null && usuario.perfil() == Perfil.ADMIN;
+
+        campoTurma.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Turma turma) {
+                if (turma == null) return "";
+                String texto = turma.nome();
+                if (!turma.ativa()) texto += " (concluída)";
+                if (administrador && turma.professorNome() != null && !turma.professorNome().isBlank()) {
+                    texto += " - " + turma.professorNome();
+                }
+                return texto;
+            }
+
+            @Override
+            public Turma fromString(String texto) {
+                return null;
+            }
+        });
+
+        try {
+            Integer professorFiltro = administrador ? null : SessaoUsuario.getProfessorId();
+            List<Turma> ativas = Conexao.executar(c -> TurmaDAO.listar(c, professorFiltro).stream()
+                    .filter(Turma::ativa).toList());
+            campoTurma.setItems(FXCollections.observableArrayList(ativas));
+
+            if (avaliacaoEmEdicao != null && avaliacaoEmEdicao.getTurmaId() > 0) {
+                int turmaId = avaliacaoEmEdicao.getTurmaId();
+                Turma vinculada = campoTurma.getItems().stream()
+                        .filter(t -> t.id() == turmaId).findFirst().orElse(null);
+                if (vinculada == null) {
+                    vinculada = Conexao.executar(c -> TurmaDAO.buscarPorId(c, turmaId));
+                    if (vinculada != null) campoTurma.getItems().add(0, vinculada);
+                }
+                if (vinculada != null) campoTurma.getSelectionModel().select(vinculada);
+            }
+            campoTurma.setPromptText(campoTurma.getItems().isEmpty()
+                    ? "Nenhuma turma ativa disponível" : "Selecione a turma");
+        } catch (ErroBanco erro) {
+            erroAoCarregarTurmas = erro.getMessage();
+            campoTurma.setPromptText("Não foi possível carregar as turmas");
         }
     }
 

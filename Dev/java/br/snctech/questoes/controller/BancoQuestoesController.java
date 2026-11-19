@@ -3,6 +3,9 @@ package br.snctech.questoes.controller;
 
 
 import br.snctech.util.NavegacaoUtil;
+import br.snctech.banco.Conexao;
+import br.snctech.banco.QuestaoDAO;
+import br.snctech.banco.SessaoUsuario;
 import br.snctech.questoes.model.Questao;
 import br.snctech.questoes.service.BancoQuestoes;
 import javafx.event.ActionEvent;
@@ -170,6 +173,22 @@ public class BancoQuestoesController {
 
         confirmacao.showAndWait().ifPresent(resposta -> {
             if (resposta == ButtonType.OK) {
+                try {
+                    if (!Conexao.modoMemoria() && questao.getId() > 0) {
+                        int professorId = SessaoUsuario.getProfessorId();
+                        Conexao.emTransacao(c -> {
+                            QuestaoDAO.excluir(c, questao.getId(), professorId);
+                            return null;
+                        });
+                    }
+                } catch (RuntimeException erro) {
+                    Alert falha = new Alert(Alert.AlertType.ERROR);
+                    falha.setTitle("Não foi possível excluir");
+                    falha.setHeaderText(null);
+                    falha.setContentText(erro.getMessage());
+                    falha.showAndWait();
+                    return;
+                }
 
                 BancoQuestoes.remover(questao);
 

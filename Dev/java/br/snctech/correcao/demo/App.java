@@ -1,5 +1,6 @@
 package br.snctech.correcao.demo;
 
+import br.snctech.correcao.DadosCorrecao;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

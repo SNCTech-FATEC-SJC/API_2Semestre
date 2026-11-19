@@ -14,6 +14,7 @@ public class Avaliacao {
     private List<Questao> questoes;
     private boolean respondida;
     private String turma;
+    private int turmaId;   // id da turma real (tabela turmas); 0 = sem vínculo
     private LocalDate data;
     private LocalDate prazo;
     private LocalTime horaInicio;
@@ -44,6 +45,7 @@ public class Avaliacao {
     public void setNome(String nome) { this.nome = nome; }
     public void setQuestoes(List<Questao> questoes) { this.questoes = new ArrayList<>(questoes); }
     public String getTurma() { return turma; }
+    public int getTurmaId() { return turmaId; }
     public LocalDate getData() { return data; }
     public LocalDate getPrazo() { return prazo; }
     public LocalTime getHoraInicio() { return horaInicio; }
@@ -51,6 +53,7 @@ public class Avaliacao {
     public boolean isDisponibilizada() { return disponibilizada; }
     public int getDuracaoMinutos() { return duracaoMinutos; }
     public void setTurma(String turma) { this.turma = turma; }
+    public void setTurmaId(int turmaId) { this.turmaId = turmaId; }
     public void setData(LocalDate data) { this.data = data; }
     public void setPrazo(LocalDate prazo) { this.prazo = prazo; }
     public void setHoraInicio(LocalTime horaInicio) { this.horaInicio = horaInicio; }
