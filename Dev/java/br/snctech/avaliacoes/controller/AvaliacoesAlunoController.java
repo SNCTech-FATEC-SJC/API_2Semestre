@@ -1,6 +1,7 @@
 package br.snctech.avaliacoes.controller;
 
 
+import br.snctech.notas.controller.PainelMediaDoAluno;
 import br.snctech.util.NavegacaoUtil;
 import br.snctech.infraestrutura.DadosAplicacao;
 import br.snctech.correcao.model.NotaDoAluno;
@@ -110,6 +111,7 @@ public class AvaliacoesAlunoController {
                 linha.setWrapText(true);
                 listaNotas.getChildren().add(linha);
             }
+            listaNotas.getChildren().addAll(PainelMediaDoAluno.linhas(email));
         } catch (RuntimeException erro) {
             listaNotas.getChildren().add(mensagem("Não foi possível carregar as notas. Confira a conexão com o PostgreSQL. "
                     + "Detalhe: " + erro.getMessage()));

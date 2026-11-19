@@ -11,6 +11,7 @@ public class DashboardProfessorController {
     @FXML private Button botaoQuestoes;
     @FXML private Button botaoAvaliacoes;
     @FXML private Button botaoTurmas;
+    @FXML private Button botaoNotas;
 
     @FXML
     private void aoClicarQuestoes(ActionEvent evento) {
@@ -25,5 +26,10 @@ public class DashboardProfessorController {
     @FXML
     private void aoClicarTurmas(ActionEvent evento) {
         NavegacaoUtil.abrir(botaoTurmas, "turmas.fxml", "SNCTECH - Turmas");
+    }
+
+    @FXML
+    private void aoClicarNotas(ActionEvent evento) {
+        NavegacaoUtil.abrir(botaoNotas, "notas-turma.fxml", "SNCTECH - Notas e médias");
     }
 }

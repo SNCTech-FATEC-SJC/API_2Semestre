@@ -2,7 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict OV1DgoeL8dVbPgFm5X8mXCIgHwg6F0t01JIr6LC4vKBWaCClrqbTzRkYQ1T7Xgx
 
 -- Dumped from database version 18.6
 -- Dumped by pg_dump version 18.6
@@ -492,8 +491,7 @@ ALTER TABLE ONLY public.usuarios ALTER COLUMN id SET DEFAULT nextval('public.usu
 -- Data for Name: alternativas; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.alternativas (id, questao_id, texto, correta, par_associacao) FROM stdin;
-\.
+-- (sem dados)
 
 
 --
@@ -502,8 +500,7 @@ COPY public.alternativas (id, questao_id, texto, correta, par_associacao) FROM s
 -- Data for Name: avaliacao_questoes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.avaliacao_questoes (avaliacao_id, questao_id, ordem) FROM stdin;
-\.
+-- (sem dados)
 
 
 --
@@ -512,8 +509,7 @@ COPY public.avaliacao_questoes (avaliacao_id, questao_id, ordem) FROM stdin;
 -- Data for Name: avaliacoes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.avaliacoes (id, turma_id, titulo, peso, versao, avaliacao_pai_id, liberada, liberada_em, prazo_fim, criado_em) FROM stdin;
-\.
+-- (sem dados)
 
 
 --
@@ -522,8 +518,7 @@ COPY public.avaliacoes (id, turma_id, titulo, peso, versao, avaliacao_pai_id, li
 -- Data for Name: matriculas; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.matriculas (id, turma_id, aluno_id, criado_em) FROM stdin;
-\.
+-- (sem dados)
 
 
 --
@@ -532,8 +527,7 @@ COPY public.matriculas (id, turma_id, aluno_id, criado_em) FROM stdin;
 -- Data for Name: questoes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.questoes (id, professor_id, tipo, enunciado, imagem_url, criado_em) FROM stdin;
-\.
+-- (sem dados)
 
 
 --
@@ -542,8 +536,7 @@ COPY public.questoes (id, professor_id, tipo, enunciado, imagem_url, criado_em) 
 -- Data for Name: respostas_aluno; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.respostas_aluno (id, tentativa_id, questao_id, alternativa_escolhida_id, resposta_discursiva, resposta_associacao, nota_atribuida, validada) FROM stdin;
-\.
+-- (sem dados)
 
 
 --
@@ -552,8 +545,7 @@ COPY public.respostas_aluno (id, tentativa_id, questao_id, alternativa_escolhida
 -- Data for Name: tentativas_avaliacao; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.tentativas_avaliacao (id, avaliacao_id, aluno_id, data_inicio, data_envio, status, nota_total, corrigida_completamente) FROM stdin;
-\.
+-- (sem dados)
 
 
 --
@@ -562,8 +554,7 @@ COPY public.tentativas_avaliacao (id, avaliacao_id, aluno_id, data_inicio, data_
 -- Data for Name: turmas; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.turmas (id, nome, professor_id, ativa, criado_em) FROM stdin;
-\.
+-- (sem dados)
 
 
 --
@@ -572,11 +563,10 @@ COPY public.turmas (id, nome, professor_id, ativa, criado_em) FROM stdin;
 -- Data for Name: usuarios; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.usuarios (id, nome, email, senha_hash, perfil, criado_em) FROM stdin;
-1	Prof. Carlos	carlos@test.com	987654	professor	2026-10-24 15:24:59
-2	Ana Maria	ana@aluno.test.com	testaluno	aluno	2026-10-24 15:25:55
-3	Admin	admin@snctech.com	adminsntech	admin	2026-10-24 15:26:37
-\.
+INSERT INTO public.usuarios (id, nome, email, senha_hash, perfil, criado_em) VALUES
+    ('1', 'Prof. Carlos', 'carlos@test.com', '987654', 'professor', '2026-10-24 15:24:59'),
+    ('2', 'Ana Maria', 'ana@aluno.test.com', 'testaluno', 'aluno', '2026-10-24 15:25:55'),
+    ('3', 'Admin', 'admin@snctech.com', 'adminsntech', 'admin', '2026-10-24 15:26:37');
 
 
 --
@@ -882,5 +872,4 @@ ALTER TABLE ONLY public.turmas
 -- PostgreSQL database dump complete
 --
 
-\unrestrict OV1DgoeL8dVbPgFm5X8mXCIgHwg6F0t01JIr6LC4vKBWaCClrqbTzRkYQ1T7Xgx
 

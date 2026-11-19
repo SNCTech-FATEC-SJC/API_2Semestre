@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CorrecaoManualService {
-
     private final RepositorioAvaliacoesRespondidas repoRespondidas;
     private final RepositorioQuestoesCorrecao repoQuestoes;
 
@@ -19,7 +18,6 @@ public class CorrecaoManualService {
         this.repoQuestoes = repoQuestoes;
     }
 
-    /** Discursivas aguardando o professor, de todos os alunos de uma avaliação. */
     public List<PendenciaDiscursiva> listarPendentes(Integer idAvaliacao) {
         List<QuestaoCorrecao> questoes = repoQuestoes.buscarPorAvaliacao(idAvaliacao);
         List<PendenciaDiscursiva> pendencias = new ArrayList<>();
@@ -41,7 +39,6 @@ public class CorrecaoManualService {
         return pendencias;
     }
 
-    /** Professor aceita a nota sugerida pelo sistema ("Validar nota"). */
     public AvaliacaoRespondida validarSugestao(Integer idAvaliacaoRespondida, Integer idQuestao, Integer idProfessor) {
         AvaliacaoRespondida ar = repoRespondidas.buscar(idAvaliacaoRespondida);
         BigDecimal sugerida = ar.resposta(idQuestao)
@@ -53,15 +50,6 @@ public class CorrecaoManualService {
         return lancarNota(idAvaliacaoRespondida, idQuestao, sugerida, idProfessor);
     }
 
-    /**
-     * Professor lança ou ALTERA a nota de qualquer questão da prova (0 até o valor da questão):
-     * discursiva pendente, discursiva já corrigida ou até questão objetiva que o sistema corrigiu
-     * (DoD do PB-03 e do PB-08: "o professor pode alterar uma correção já realizada").
-     *
-     * <p>A questão passa a {@code CORRIGIDA_MANUALMENTE}; por isso a correção automática
-     * nunca mais sobrescreve essa nota.
-     * Depois de chamar, use {@code resultado.notaFinalConfirmada()} para saber se a prova foi fechada.
-     */
     public AvaliacaoRespondida lancarNota(Integer idAvaliacaoRespondida, Integer idQuestao,
                                           BigDecimal nota, Integer idProfessor) {
         AvaliacaoRespondida ar = repoRespondidas.buscar(idAvaliacaoRespondida);
@@ -76,12 +64,18 @@ public class CorrecaoManualService {
                     "A nota deve estar entre 0 e " + questao.valor());
         }
 
-        // Questão em branco (aluno não respondeu) também pode receber nota do professor.
         RespostaQuestao resposta = ar.respostaOuVazia(idQuestao);
         resposta.setNota(nota);
         resposta.setStatus(StatusCorrecao.CORRIGIDA_MANUALMENTE);
         resposta.setCorrigidoPor(idProfessor);
 
+        repoRespondidas.salvar(ar);
+        return ar;
+    }
+
+    public AvaliacaoRespondida finalizarCorrecao(Integer idAvaliacaoRespondida) {
+        AvaliacaoRespondida ar = repoRespondidas.buscar(idAvaliacaoRespondida);
+        ar.finalizarCorrecao();
         repoRespondidas.salvar(ar);
         return ar;
     }

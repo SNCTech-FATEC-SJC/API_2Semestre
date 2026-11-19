@@ -17,17 +17,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
-/**
- * Tela 6 - Correção da prova: lista os alunos da avaliação com a situação de cada um.
- *
- * <p>Como abrir a partir de outra tela:
- * <pre>
- *   DadosCorrecao.prepararCorrecao(idAvaliacao, nome, turma, n -> NavegacaoUtil.abrir(n, "prova-detalhe.fxml", "..."));
- *   NavegacaoUtil.abrir(origem, "correcao-alunos.fxml", "SNCTECH - Correção da prova");
- * </pre>
- */
 public class CorrecaoAlunosController {
-
     @FXML private Label tituloAvaliacao;
     @FXML private Label subtitulo;
     @FXML private Label rotuloPercentual;
@@ -93,9 +83,18 @@ public class CorrecaoAlunosController {
 
     private static Label seloDaSituacao(LinhaAluno aluno) {
         return switch (aluno.situacao()) {
-            case CORRIGIDA -> PecasVisuais.selo("Corrigida", Cor.VERDE);
+            case FINALIZADA -> PecasVisuais.selo("Finalizada", Cor.VERDE);
+            case CORRIGIDA -> PecasVisuais.selo("Falta finalizar", Cor.AZUL);
             case PENDENTE -> PecasVisuais.selo("Pendente", Cor.LARANJA);
             case NAO_RESPONDEU -> PecasVisuais.selo("Não respondeu", Cor.CINZA);
+        };
+    }
+
+    private static String textoDoBotao(LinhaAluno aluno) {
+        return switch (aluno.situacao()) {
+            case PENDENTE, NAO_RESPONDEU -> "Corrigir";
+            case CORRIGIDA -> "Finalizar";
+            case FINALIZADA -> "Revisar";
         };
     }
 
@@ -103,7 +102,7 @@ public class CorrecaoAlunosController {
         if (aluno.idAvaliacaoRespondida() == null) {
             return new Label("–");
         }
-        Button botao = new Button(aluno.discursivasPendentes() > 0 ? "Corrigir" : "Revisar");
+        Button botao = new Button(textoDoBotao(aluno));
         botao.getStyleClass().add("primary-button");
         botao.setOnAction(e -> {
             DadosCorrecao.selecionarAluno(aluno.idAluno());
