@@ -33,6 +33,11 @@ public interface RepositorioTentativas {
         return aluno != null && !aluno.isBlank();
     }
 
+    /** O aluno está matriculado na turma? Sem banco (modo memória) não há matrículas, então vale sempre. */
+    default boolean alunoNaTurma(String aluno, int turmaId) {
+        return true;
+    }
+
     default int contarPorAvaliacao(int avaliacaoId) {
         return listarPorAvaliacao(avaliacaoId).size();
     }

@@ -343,3 +343,119 @@
 .cronometro-alerta {
     -fx-text-fill: -fx-cor-primaria;
 }
+
+/* ------------------------------------------------------------------ */
+/* Gerenciamento de turmas e de alunos (tabelas, diálogos, status)     */
+/* ------------------------------------------------------------------ */
+
+.table-view {
+    -fx-background-color: -fx-cor-cartao;
+    -fx-border-color: -fx-cor-borda;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-table-cell-border-color: #ececec;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: -fx-cor-primaria;
+    -fx-background-radius: 8 8 0 0;
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: -fx-cor-primaria;
+    -fx-border-color: transparent transparent transparent rgba(255, 255, 255, 0.25);
+    -fx-size: 36px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-alignment: center-left;
+}
+
+.table-view .column-header .arrow,
+.table-view .column-header .sort-order-dots-container {
+    -fx-background-color: white;
+}
+
+.table-row-cell {
+    -fx-cell-size: 38px;
+    -fx-background-color: -fx-cor-cartao;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #faf6f6;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #f3d6d6;
+}
+
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: -fx-cor-texto;
+}
+
+.table-cell {
+    -fx-text-fill: -fx-cor-texto;
+    -fx-alignment: center-left;
+    -fx-padding: 0 10 0 10;
+}
+
+.table-cell.status-ativa {
+    -fx-text-fill: #2e7d32;
+    -fx-font-weight: bold;
+}
+
+.table-cell.status-concluida {
+    -fx-text-fill: -fx-cor-texto-fraco;
+}
+
+.botao-primario {
+    -fx-padding: 8 18 8 18;
+}
+
+.botao-secundario {
+    -fx-padding: 8 18 8 18;
+}
+
+.botao-primario:hover {
+    -fx-background-color: -fx-cor-primaria-clara;
+}
+
+.botao-secundario:hover {
+    -fx-background-color: #f8eaea;
+}
+
+.botao-primario:disabled,
+.botao-secundario:disabled {
+    -fx-opacity: 0.45;
+}
+
+.dialog-pane {
+    -fx-background-color: -fx-cor-cartao;
+}
+
+.dialog-pane > .button-bar > .container {
+    -fx-background-color: -fx-cor-cartao;
+    -fx-padding: 10 16 14 16;
+}
+
+.dialog-pane > .content.label {
+    -fx-text-fill: -fx-cor-texto;
+}
+
+/* Botões da barra superior vermelha (sair da conta / fechar aplicação) */
+.top-bar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-border-color: white;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+}
+
+.top-bar-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+}

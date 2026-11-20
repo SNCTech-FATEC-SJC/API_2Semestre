@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="br.snctech.dashboard.controller.DashboardAlunoController"
+           styleClass="fundo"
+           prefWidth="900" prefHeight="700">
+
+    <VBox alignment="TOP_CENTER" spacing="22" maxWidth="760">
+        <padding>
+            <Insets top="30" right="30" bottom="30" left="30"/>
+        </padding>
+
+        <HBox styleClass="top-bar" spacing="10">
+            <Label fx:id="labelUsuario" text="Aluno" styleClass="top-bar-title"/>
+            <Label text="- Menu principal" styleClass="top-bar-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="botaoSair" text="Sair da conta" onAction="#aoClicarSair" styleClass="top-bar-button"/>
+            <Button fx:id="botaoFechar" text="Fechar aplicação" onAction="#aoClicarFechar" styleClass="top-bar-button"/>
+        </HBox>
+        <HBox spacing="26" styleClass="page-shell" VBox.vgrow="ALWAYS">
+            <VBox spacing="12" styleClass="menu-panel">
+                <Label text="Navegação" styleClass="section-label strong"/>
+                <Button fx:id="botaoTurmas" onAction="#aoClicarTurmas" text="Minhas Turmas" styleClass="menu-button"/>
+                <Button fx:id="botaoAvaliacoes" onAction="#aoClicarAvaliacoes" text="Minhas Avaliações" styleClass="menu-button"/>
+                <Button fx:id="botaoNotas" onAction="#aoClicarNotas" text="Minhas Notas" styleClass="menu-button"/>
+            </VBox>
+            <VBox spacing="18" styleClass="content-panel" HBox.hgrow="ALWAYS">
+                <Label fx:id="labelBoasVindas" text="Aluno" styleClass="titulo-pagina"/>
+                <Label text="Painel do aluno" styleClass="subtitulo-pagina"/>
+                <VBox styleClass="chart-box" VBox.vgrow="ALWAYS">
+                    <Label text="O que você pode fazer" styleClass="section-label"/>
+                    <Label text="Consulte suas turmas, responda às avaliações e veja suas notas pelo menu ao lado." styleClass="subtitulo-pagina" wrapText="true"/>
+                </VBox>
+            </VBox>
+        </HBox>
+    </VBox>
+</StackPane>

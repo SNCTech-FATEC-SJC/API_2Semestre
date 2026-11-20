@@ -1,6 +1,13 @@
 package br.snctech.avaliacoes.controller;
 
 
+import br.snctech.alunos.repositorio.AlunoDAO;
+import br.snctech.autenticacao.modelo.Perfil;
+import br.snctech.autenticacao.modelo.UsuarioLogado;
+import br.snctech.banco.Conexao;
+import br.snctech.banco.ErroBanco;
+import br.snctech.banco.SessaoUsuario;
+import br.snctech.turmas.modelo.Turma;
 import br.snctech.util.NavegacaoUtil;
 import br.snctech.infraestrutura.DadosAplicacao;
 import br.snctech.correcao.model.NotaDoAluno;
@@ -20,6 +27,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Lista as avaliações disponibilizadas e deixa o aluno abrir uma para responder.
@@ -31,7 +40,7 @@ public class AvaliacoesAlunoController {
     @FXML private VBox listaNotas;
     private static final DateTimeFormatter FORMATO_DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
 
-    // Provisório até existir login: o aluno informa o e-mail que já está cadastrado no banco.
+    // Logado como ALUNO: vale o e-mail do login. Professor/administrador (visualização do aluno): informam o e-mail.
     private static String alunoAtual = "";
 
     private final TentativaService servico = new TentativaService(
@@ -39,14 +48,36 @@ public class AvaliacoesAlunoController {
 
     @FXML
     private void initialize() {
-        campoAluno.setText(alunoAtual);
+        UsuarioLogado usuario = SessaoUsuario.getUsuario();
+        boolean logadoComoAluno = usuario != null && usuario.perfil() == Perfil.ALUNO;
+        if (logadoComoAluno) {
+            alunoAtual = usuario.email();
+            campoAluno.setText(alunoAtual);
+            campoAluno.setEditable(false);
+            campoAluno.setFocusTraversable(false);
+        } else {
+            campoAluno.setText(alunoAtual);
+        }
         mostrarNotas();
         listaAvaliacoes.getChildren().clear();
+
+        // O aluno só vê avaliações das turmas em que está matriculado.
+        final Set<Integer> turmasPermitidas;
+        try {
+            turmasPermitidas = logadoComoAluno
+                    ? Conexao.executar(c -> AlunoDAO.listarTurmasDoAluno(c, usuario.id())).stream()
+                            .map(Turma::id).collect(Collectors.toSet())
+                    : null;
+        } catch (ErroBanco erro) {
+            listaAvaliacoes.add(mensagem("Não foi possível carregar suas turmas. Detalhe: " + erro.getMessage()), 0, 0, 3, 1);
+            return;
+        }
         int coluna = 0;
         int linha = 0;
         LocalDateTime agora = LocalDateTime.now();
         var avaliacoes = DadosAplicacao.getRepositorioAvaliacoes().listarTodas().stream()
                 .filter(Avaliacao::isDisponibilizada)
+                .filter(avaliacao -> turmasPermitidas == null || turmasPermitidas.contains(avaliacao.getTurmaId()))
                 .filter(avaliacao -> avaliacao.getPrazo() != null
                         && avaliacao.getHoraFim() != null
                         && !avaliacao.getPrazo().atTime(avaliacao.getHoraFim()).isBefore(agora))
@@ -92,7 +123,7 @@ public class AvaliacoesAlunoController {
     @FXML
     private void mostrarNotas() {
         listaNotas.getChildren().clear();
-        String email = campoAluno.getText() == null ? "" : campoAluno.getText().trim();
+        String email = emailDoAluno();
         if (email.isEmpty()) {
             listaNotas.getChildren().add(mensagem("Informe o e-mail do aluno e clique em \"Ver minhas notas\"."));
             return;
@@ -116,6 +147,15 @@ public class AvaliacoesAlunoController {
         }
     }
 
+    /** Aluno logado: sempre o e-mail do login (não dá para trocar na tela). Demais perfis: o campo digitado. */
+    private String emailDoAluno() {
+        UsuarioLogado usuario = SessaoUsuario.getUsuario();
+        if (usuario != null && usuario.perfil() == Perfil.ALUNO) {
+            return usuario.email();
+        }
+        return campoAluno.getText() == null ? "" : campoAluno.getText().trim();
+    }
+
     private Label mensagem(String texto) {
         Label label = new Label(texto);
         label.setWrapText(true);
@@ -125,7 +165,7 @@ public class AvaliacoesAlunoController {
 
     /** Confere as regras, pede confirmação (só dá para abrir uma vez) e vai para a tela de resposta. */
     private void abrirAvaliacao(Avaliacao avaliacao, Node origem) {
-        alunoAtual = campoAluno.getText() == null ? "" : campoAluno.getText().trim();
+        alunoAtual = emailDoAluno();
 
         String motivo = servico.motivoDeBloqueio(avaliacao.getId(), alunoAtual);
         if (motivo != null) {
@@ -177,6 +217,11 @@ public class AvaliacoesAlunoController {
 
     @FXML
     private void aoClicarVoltar(ActionEvent evento) {
-        NavegacaoUtil.abrir((Node) evento.getSource(), "provas-aplicadas.fxml", "SNCTECH - Banco de Provas");
+        UsuarioLogado usuario = SessaoUsuario.getUsuario();
+        if (usuario != null && usuario.perfil() == Perfil.ALUNO) {
+            NavegacaoUtil.abrirInicio((Node) evento.getSource());
+        } else {
+            NavegacaoUtil.abrir((Node) evento.getSource(), "provas-aplicadas.fxml", "SNCTECH - Banco de Provas");
+        }
     }
 }

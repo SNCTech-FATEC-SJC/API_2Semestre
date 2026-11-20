@@ -6,6 +6,7 @@ import br.snctech.banco.ErroBanco;
 import br.snctech.banco.QuestaoDAO;
 import br.snctech.banco.SessaoUsuario;
 import br.snctech.avaliacoes.model.Avaliacao;
+import br.snctech.avaliacoes.model.TurmaAvaliacao;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,14 +15,14 @@ import java.util.*;
 
 /** Implementação PostgreSQL do repositório de avaliações. */
 public class RepositorioAvaliacoesJdbc implements RepositorioAvaliacoes {
-    @Override public Avaliacao salvar(String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo) {
+    @Override public Avaliacao salvar(String nome, List<Questao> questoes, TurmaAvaliacao turma, LocalDate data, LocalDate prazo) {
         return salvar(nome, questoes, turma, data, prazo, LocalTime.MIDNIGHT, LocalTime.MIDNIGHT, 0);
     }
 
-    @Override public Avaliacao salvar(String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo,
+    @Override public Avaliacao salvar(String nome, List<Questao> questoes, TurmaAvaliacao turma, LocalDate data, LocalDate prazo,
                                      LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos) {
         return Conexao.emTransacao(c -> {
-            int turmaId = obterOuCriarTurma(c, turma);
+            int turmaId = validarTurma(c, turma);
             LocalDateTime inicio = data.atTime(horaInicio == null ? LocalTime.MIDNIGHT : horaInicio);
             LocalDateTime fim = prazo.atTime(horaFim == null ? LocalTime.MIDNIGHT : horaFim);
             int id;
@@ -36,10 +37,10 @@ public class RepositorioAvaliacoesJdbc implements RepositorioAvaliacoes {
         });
     }
 
-    @Override public Avaliacao salvarNovaVersao(Avaliacao original, String nome, List<Questao> questoes, String turma,
+    @Override public Avaliacao salvarNovaVersao(Avaliacao original, String nome, List<Questao> questoes, TurmaAvaliacao turma,
                                                 LocalDate data, LocalDate prazo, LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos) {
         return Conexao.emTransacao(c -> {
-            int turmaId = obterOuCriarTurma(c, turma);
+            int turmaId = validarTurma(c, turma);
             int versao = original.getVersao() + 1;
             try (PreparedStatement ps = c.prepareStatement("SELECT COALESCE(MAX(versao), ?) + 1 FROM avaliacoes WHERE avaliacao_pai_id = ?")) {
                 ps.setInt(1, original.getVersao()); ps.setInt(2, original.getAvaliacaoPaiId() == null ? original.getId() : original.getAvaliacaoPaiId());
@@ -73,10 +74,10 @@ public class RepositorioAvaliacoesJdbc implements RepositorioAvaliacoes {
 
     @Override public Avaliacao buscarPorId(int id) { return Conexao.executar(c -> carregarPorId(c, id)); }
 
-    @Override public void atualizar(Avaliacao a, String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo,
+    @Override public void atualizar(Avaliacao a, String nome, List<Questao> questoes, TurmaAvaliacao turma, LocalDate data, LocalDate prazo,
                                     LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos) {
         Conexao.emTransacao(c -> {
-            int turmaId = obterOuCriarTurma(c, turma);
+            int turmaId = validarTurma(c, turma);
             String sql = "UPDATE avaliacoes SET turma_id=?, titulo=?, prazo_fim=?, inicio=?, duracao_minutos=? WHERE id=?";
             try (PreparedStatement ps = c.prepareStatement(sql)) {
                 ps.setInt(1, turmaId); ps.setString(2, nome); ps.setTimestamp(3, Timestamp.valueOf(prazo.atTime(horaFim)));
@@ -87,7 +88,7 @@ public class RepositorioAvaliacoesJdbc implements RepositorioAvaliacoes {
             gravarQuestoes(c, a.getId(), questoes);
             return null;
         });
-        a.setNome(nome); a.setQuestoes(questoes); a.setTurma(turma); a.setData(data); a.setPrazo(prazo);
+        a.setNome(nome); a.setQuestoes(questoes); a.setTurma(turma.nome()); a.setTurmaId(turma.id()); a.setData(data); a.setPrazo(prazo);
         a.setHoraInicio(horaInicio); a.setHoraFim(horaFim); a.setDuracaoMinutos(duracaoMinutos);
     }
 
@@ -105,15 +106,23 @@ public class RepositorioAvaliacoesJdbc implements RepositorioAvaliacoes {
         a.setDisponibilizada(disponibilizada);
     }
 
-    private static int obterOuCriarTurma(Connection c, String nome) throws SQLException {
-        Integer professorId = UsuarioProfessor.id(c);
-        try (PreparedStatement ps = c.prepareStatement("SELECT id FROM turmas WHERE lower(nome)=lower(?) ORDER BY id LIMIT 1")) {
-            ps.setString(1, nome.trim()); try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return rs.getInt(1); }
+    /**
+     * A avaliação só pode ser vinculada a uma turma que já existe. Este repositório não cria turmas:
+     * elas são cadastradas em Gerenciamento de Turmas.
+     */
+    private static int validarTurma(Connection c, TurmaAvaliacao turma) throws SQLException {
+        if (turma == null || turma.id() <= 0) {
+            throw new IllegalArgumentException("Selecione a turma da avaliação.");
         }
-        try (PreparedStatement ps = c.prepareStatement("INSERT INTO turmas (nome, professor_id, ativa) VALUES (?,?,true) RETURNING id")) {
-            ps.setString(1, nome.trim()); if (professorId == null) ps.setNull(2, Types.INTEGER); else ps.setInt(2, professorId);
-            try (ResultSet rs = ps.executeQuery()) { rs.next(); return rs.getInt(1); }
+        try (PreparedStatement ps = c.prepareStatement("SELECT 1 FROM turmas WHERE id = ?")) {
+            ps.setInt(1, turma.id());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    throw new IllegalArgumentException("A turma selecionada não existe mais. Atualize a tela e escolha outra.");
+                }
+            }
         }
+        return turma.id();
     }
 
     private static void gravarQuestoes(Connection c, int avaliacaoId, List<Questao> questoes) throws SQLException {
@@ -142,7 +151,7 @@ public class RepositorioAvaliacoesJdbc implements RepositorioAvaliacoes {
                 }
                 Timestamp inicio = rs.getTimestamp("inicio"), fim = rs.getTimestamp("prazo_fim");
                 Avaliacao a = new Avaliacao(rs.getInt("id"), rs.getString("titulo"), qs);
-                a.setTurma(rs.getString("turma_nome"));
+                a.setTurma(rs.getString("turma_nome")); a.setTurmaId(rs.getInt("turma_id"));
                 if (inicio != null) { a.setData(inicio.toLocalDateTime().toLocalDate()); a.setHoraInicio(inicio.toLocalDateTime().toLocalTime()); }
                 if (fim != null) { a.setPrazo(fim.toLocalDateTime().toLocalDate()); a.setHoraFim(fim.toLocalDateTime().toLocalTime()); }
                 a.setDuracaoMinutos(rs.getInt("duracao_minutos")); a.setDisponibilizada(rs.getBoolean("liberada"));
@@ -151,14 +160,6 @@ public class RepositorioAvaliacoesJdbc implements RepositorioAvaliacoes {
                     tps.setInt(1, id); try (ResultSet trs = tps.executeQuery()) { if (trs.next()) a.setRespondida(trs.getBoolean(1)); }
                 }
                 return a;
-            }
-        }
-    }
-
-    private static final class UsuarioProfessor {
-        static Integer id(Connection c) throws SQLException {
-            try (PreparedStatement ps = c.prepareStatement("SELECT id FROM usuarios WHERE perfil=CAST('professor' AS perfil_usuario) ORDER BY id LIMIT 1"); ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt(1) : null;
             }
         }
     }

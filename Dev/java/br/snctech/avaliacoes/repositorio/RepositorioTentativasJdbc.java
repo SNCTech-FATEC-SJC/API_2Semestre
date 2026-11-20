@@ -96,6 +96,17 @@ public class RepositorioTentativasJdbc implements RepositorioTentativas {
         return Conexao.executar(c -> UsuarioDAO.buscarAlunoPorEmail(c, aluno) != null);
     }
 
+    @Override public boolean alunoNaTurma(String aluno, int turmaId) {
+        if (aluno == null || aluno.isBlank()) return false;
+        return Conexao.executar(c -> {
+            String sql = "SELECT 1 FROM matriculas m JOIN usuarios u ON u.id = m.aluno_id WHERE m.turma_id = ? AND lower(u.email) = lower(?)";
+            try (PreparedStatement ps = c.prepareStatement(sql)) {
+                ps.setInt(1, turmaId); ps.setString(2, aluno.trim());
+                try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
+            }
+        });
+    }
+
     private static Tentativa carregar(Connection c, int id) throws SQLException {
         String sql = "SELECT ta.id,ta.avaliacao_id,ta.data_inicio,ta.limite,ta.data_envio,ta.status,u.email FROM tentativas_avaliacao ta JOIN usuarios u ON u.id=ta.aluno_id WHERE ta.id=?";
         try (PreparedStatement ps = c.prepareStatement(sql)) {

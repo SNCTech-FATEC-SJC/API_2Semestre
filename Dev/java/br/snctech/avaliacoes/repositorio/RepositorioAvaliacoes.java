@@ -4,6 +4,7 @@ package br.snctech.avaliacoes.repositorio;
 import br.snctech.avaliacoes.service.AvaliacaoService;
 import br.snctech.questoes.model.Questao;
 import br.snctech.avaliacoes.model.Avaliacao;
+import br.snctech.avaliacoes.model.TurmaAvaliacao;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -15,13 +16,13 @@ import java.util.List;
  */
 public interface RepositorioAvaliacoes {
 
-    Avaliacao salvar(String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo);
+    Avaliacao salvar(String nome, List<Questao> questoes, TurmaAvaliacao turma, LocalDate data, LocalDate prazo);
 
-    Avaliacao salvar(String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo,
+    Avaliacao salvar(String nome, List<Questao> questoes, TurmaAvaliacao turma, LocalDate data, LocalDate prazo,
                      LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos);
 
     /** Nova versão de uma avaliação que já foi respondida: guarda o vínculo com a original (versão e avaliação-pai). */
-    Avaliacao salvarNovaVersao(Avaliacao original, String nome, List<Questao> questoes, String turma,
+    Avaliacao salvarNovaVersao(Avaliacao original, String nome, List<Questao> questoes, TurmaAvaliacao turma,
                                LocalDate data, LocalDate prazo, LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos);
 
     List<Avaliacao> listarTodas();
@@ -30,7 +31,7 @@ public interface RepositorioAvaliacoes {
     Avaliacao buscarPorId(int id);
 
     /** Altera a avaliação no repositório e também o objeto recebido. */
-    void atualizar(Avaliacao avaliacao, String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo,
+    void atualizar(Avaliacao avaliacao, String nome, List<Questao> questoes, TurmaAvaliacao turma, LocalDate data, LocalDate prazo,
                    LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos);
 
     /** Disponibiliza (ou retira) a avaliação para os alunos. Altera o repositório e também o objeto recebido. */
