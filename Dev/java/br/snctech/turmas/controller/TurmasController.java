@@ -192,7 +192,7 @@ public class TurmasController {
     private void aoClicarNova(ActionEvent evento) {
         abrirFormulario(null).ifPresent(dados -> executarAcao(
                 () -> Conexao.emTransacao(c -> TurmaDAO.cadastrar(c, dados.nome(), dados.professorId())),
-                "Turma cadastrada. A turma ativa anterior do professor foi concluída."));
+                "Turma cadastrada com sucesso."));
     }
 
     @FXML
@@ -228,7 +228,7 @@ public class TurmasController {
                         "Turma concluída com sucesso.");
             }
         } else if (DialogoUtil.confirmar(botaoVoltar, "Reativar turma",
-                "Reativar a turma \"" + turma.nome() + "\"? A turma ativa atual do professor será concluída.")) {
+                "Reativar a turma \"" + turma.nome() + "\"? Ela voltará para a lista de turmas ativas.")) {
             executarAcao(() -> Conexao.emTransacao(c -> TurmaDAO.reativar(c, turma.id())),
                     "Turma reativada com sucesso.");
         }
@@ -363,8 +363,8 @@ public class TurmasController {
         comboProfessor.setDisable(!administrador);
 
         Label dica = new Label(existente == null
-                ? "Ao cadastrar, a turma ativa atual do professor será concluída."
-                : "Alterar o professor de uma turma ativa conclui a turma ativa atual do novo professor.");
+                ? "A turma é criada como ativa. Um professor pode ter várias turmas ativas ao mesmo tempo."
+                : "Um professor pode ter várias turmas ativas ao mesmo tempo.");
         dica.getStyleClass().add("mensagem");
         dica.setWrapText(true);
         Label erro = new Label();
