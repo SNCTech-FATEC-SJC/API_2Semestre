@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.snctech.avaliacoes.controller.NovaProvaController" styleClass="border-pane" prefWidth="900" prefHeight="700">
+    <VBox styleClass="top-bar" spacing="12">
+        <HBox spacing="10">
+            <Label text="Professor" styleClass="top-bar-title"/>
+            <Label text=" - Criar / Editar Avaliação" styleClass="top-bar-title"/>
+        </HBox>
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <Button text="Voltar" onAction="#aoClicarVoltar" styleClass="primary-button" fx:id="botaoVoltar"/>
+            <Button text="Salvar avaliação" onAction="#aoClicarSalvar" styleClass="primary-button"/>
+        </HBox>
+    </VBox>
+    <VBox spacing="18" styleClass="page-shell" VBox.vgrow="ALWAYS">
+        <VBox spacing="8">
+            <Label text="Nome da avaliação:" styleClass="form-label"/>
+            <TextField fx:id="campoNome" promptText="Ex.: Avaliação 1" styleClass="form-field"/>
+            <Label text="Turmas que poderão realizar a prova:" styleClass="form-label"/>
+            <VBox fx:id="listaTurmas" spacing="6"/>
+            <Button text="Selecionar todos os alunos" onAction="#aoClicarSelecionarTodosAlunos" styleClass="secondary-button"/>
+            <Label text="Alunos que poderão realizar a prova:" styleClass="form-label"/>
+            <VBox fx:id="listaAlunos" spacing="6"/>
+            <HBox spacing="12">
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Data da avaliação:" styleClass="form-label"/>
+                    <DatePicker fx:id="campoData" promptText="Selecione a data" styleClass="form-field" maxWidth="Infinity"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Prazo de entrega:" styleClass="form-label"/>
+                    <DatePicker fx:id="campoPrazo" promptText="Selecione o prazo" styleClass="form-field" maxWidth="Infinity"/>
+                </VBox>
+            </HBox>
+            <HBox spacing="12">
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Hora de início:" styleClass="form-label"/>
+                    <TextField fx:id="campoHoraInicio" promptText="HH:mm (ex.: 08:00)" styleClass="form-field"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Hora de término:" styleClass="form-label"/>
+                    <TextField fx:id="campoHoraFim" promptText="HH:mm (ex.: 23:59)" styleClass="form-field"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Peso da avaliação:" styleClass="form-label"/>
+                    <TextField fx:id="campoPeso" promptText="Ex.: 1,0" styleClass="form-field"/>
+                </VBox>
+            </HBox>
+        </VBox>
+        <Label text="Selecione pelo menos uma questão:" styleClass="section-label strong"/>
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+            <content><VBox fx:id="listaQuestoes" spacing="10"/></content>
+        </ScrollPane>
+    </VBox>
+</VBox>

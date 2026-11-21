@@ -1,0 +1,69 @@
+############################################
+# Build e artefatos gerados
+############################################
+target/
+out/
+bin/
+build/
+dist/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+hs_err_pid*
+
+############################################
+# Dependencias e caches
+############################################
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+.gradle/
+
+############################################
+# IDEs e configuracoes locais
+############################################
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.metadata/
+
+############################################
+# Configuracao sensivel/local do banco
+############################################
+banco.properties
+
+############################################
+# Arquivos temporarios e de sistema
+############################################
+*.tmp
+*.bak
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+############################################
+# Arquivos compactados
+############################################
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+
+############################################
+# Migração substituída e obsoleta
+############################################
+Avisos.e.Banco/DB_SQL/migracao_04_alunos_selecionados_recuperacao.sql
+
+############################################
+# Ferramentas locais de modernizacao
+############################################
+.github/modernize/
