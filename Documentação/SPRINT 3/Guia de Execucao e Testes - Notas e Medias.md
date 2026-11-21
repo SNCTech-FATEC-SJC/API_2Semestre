@@ -1,13 +1,13 @@
 # Guia de Execução e Testes — Correção, Notas e Média Final
 
-Este guia mostra, do zero, como **montar o banco no pgAdmin**, **abrir e rodar o projeto no IntelliJ** e **testar** a parte de Correção, Notas e Média Final (PB-03, PB-08, PB-12 a PB-17).
+Este guia mostra, do zero, como **abrir e rodar o projeto no IntelliJ** (o banco é montado pelo próprio programa) e **testar** a parte de Correção, Notas e Média Final (PB-03, PB-08, PB-12 a PB-17).
 
 | Item | Valor |
 |---|---|
 | Branch | `notas_e_media_final` |
 | Java | JDK 25 |
 | JavaFX | 21.0.2 (baixado pelo Maven) |
-| Banco | PostgreSQL 18 + pgAdmin 4 |
+| Banco | PostgreSQL 18 (o pgAdmin é opcional) |
 | Nome do banco | `SNCTech_DB` |
 | Pasta do projeto | `Dev` (onde fica o `pom.xml`) |
 
@@ -17,8 +17,8 @@ Este guia mostra, do zero, como **montar o banco no pgAdmin**, **abrir e rodar o
 
 1. [Pré-requisitos](#1-pré-requisitos)
 2. [Baixar o código](#2-baixar-o-código)
-3. [Montar o banco no pgAdmin](#3-montar-o-banco-no-pgadmin)
-4. [Configurar o banco.properties](#4-configurar-o-bancoproperties)
+3. [Banco de dados: o programa prepara sozinho](#3-banco-de-dados-o-programa-prepara-sozinho)
+4. [Trocar a senha salva](#4-trocar-a-senha-salva)
 5. [Abrir e rodar no IntelliJ](#5-abrir-e-rodar-no-intellij)
 6. [Roteiro de testes](#6-roteiro-de-testes)
 7. [Como recomeçar os testes do zero](#7-como-recomeçar-os-testes-do-zero)
@@ -55,77 +55,49 @@ git pull
 
 ---
 
-## 3. Montar o banco no pgAdmin
+## 3. Banco de dados: o programa prepara sozinho
 
-### 3.1 Criar o banco
+Não é preciso rodar nenhum script no pgAdmin nem criar o `banco.properties` à mão. Ao abrir, o programa:
 
-1. Abra o **pgAdmin 4** e conecte no servidor **PostgreSQL 18** (digite a senha do `postgres` se pedir).
-2. Clique com o botão direito em **Databases → Create → Database…**
-3. Em **Database**, digite exatamente: `SNCTech_DB`
-4. Clique em **Save**.
+1. **Pede a senha do PostgreSQL** (só na primeira vez). É a senha escolhida na instalação. Ela fica salva no arquivo `Dev/banco.properties`, que **não vai para o Git**.
+2. **Cria o banco `SNCTech_DB`** se ele ainda não existir.
+3. **Roda os scripts da pasta `Dev/Avisos.e.Banco/DB_SQL`** que ainda não foram aplicados naquele computador, na ordem certa, e anota cada um na tabela `controle_scripts`. Cada script roda **uma única vez**.
 
-> Se o banco `SNCTech_DB` já existir e você quiser começar do zero, veja a [seção 7](#7-como-recomeçar-os-testes-do-zero).
+Ordem em que os scripts são aplicados:
 
-### 3.2 Como rodar um arquivo .sql (Query Tool)
+| Ordem | Arquivo | O que faz |
+|---|---|---|
+| 1 | `snctech_backup.sql` | Cria as tabelas e os usuários de teste (só se o banco estiver vazio) |
+| 2 | `migracao_01_integracao_avaliacoes.sql` | Ajustes de avaliações e tentativas |
+| 3 | `migracao_02_correcao.sql` | Colunas da correção |
+| 4 | `seed_02_correcao_exemplo.sql` | Turma de exemplo, alunos Ana, Bruno e Carla e a 1ª prova |
+| 5 | `migracao_05_notas_e_medias.sql` | Coluna "correção finalizada" e tabela `medias_finais` |
+| 6 | `seed_05_medias_exemplo.sql` | 2ª prova de exemplo (peso 2) |
 
-Repita este procedimento para **cada** arquivo da tabela abaixo:
+> As migrações 03 e 04 são da branch de Disponibilização de provas. Quando ela entrar na `main`, o programa aplica as duas sozinho.
 
-1. Na árvore da esquerda, clique em **`SNCTech_DB`** para selecioná-lo.
-2. Menu **Tools → Query Tool**. Confira o título da aba: tem que ser `SNCTech_DB/postgres@PostgreSQL 18`.
-3. Clique no ícone de **pasta** 📁 (Open File), primeiro da barra da aba.
-4. Abra o arquivo, que fica em `API_2Semestre\Dev\DB_SQL\`.
-5. Aperte **F5** (Execute script).
-6. Confira a aba **Messages**: deve terminar com *Query returned successfully*.
+### 3.1 Regra para quem criar um script novo
 
-> **Use uma aba nova para cada arquivo.** O backup altera configurações da sessão; rodar o próximo script na mesma aba pode dar erro de "relation does not exist".
+- Nome no formato `migracao_NN_descricao.sql` (estrutura) ou `seed_NN_descricao.sql` (dados de exemplo), com `NN` maior que o último número usado.
+- Os scripts rodam por número; no mesmo número, a migração roda antes do seed.
+- **Nunca altere um script que já foi para a `main`**: crie um novo. Quem já rodou o antigo não roda de novo.
+- Escreva o script para poder rodar mais de uma vez sem erro (`IF NOT EXISTS`, `ON CONFLICT DO NOTHING`).
+- Basta colocar o arquivo na pasta: na próxima vez que cada colega abrir o programa, o banco dele se atualiza.
 
-### 3.3 Ordem dos arquivos
-
-| Ordem | Arquivo | O que faz | Mensagem esperada |
-|---|---|---|---|
-| 1 | `snctech_backup.sql` | Cria as tabelas e os usuários de teste | `Query returned successfully` |
-| 2 | `migracao_01_integracao_avaliacoes.sql` | Ajustes de avaliações e tentativas | `COMMIT` |
-| 3 | `migracao_02_correcao.sql` | Colunas da correção | `COMMIT` |
-| 4 | `seed_02_correcao_exemplo.sql` | Turma de exemplo, alunos Ana, Bruno e Carla e a 1ª prova | `Seed criado...` |
-| 5 | `migracao_03_notas_e_medias.sql` | Coluna "correção finalizada" e tabela `medias_finais` | `COMMIT` |
-| 6 | `seed_03_medias_exemplo.sql` | 2ª prova de exemplo (peso 2) | `Seed 03 criado: avaliação id ...` |
-
-- Os arquivos **1, 2, 3 e 5** são obrigatórios.
-- Os arquivos **4 e 6** (seeds) são **dados de exemplo**, usados no roteiro de testes e na apresentação.
-- As migrações e os seeds podem ser rodados mais de uma vez sem estragar nada.
-
-### 3.4 Conferir
-
-Numa aba nova do Query Tool (no `SNCTech_DB`), rode:
+### 3.2 Conferir (opcional, no pgAdmin)
 
 ```sql
+SELECT arquivo, aplicado_em FROM controle_scripts ORDER BY aplicado_em;
 SELECT titulo, peso FROM avaliacoes ORDER BY id;
 ```
 
-Resultado esperado:
-
-| titulo | peso |
-|---|---|
-| Prova de Exemplo - Correção | 1.00 |
-| Prova 2 - Média (exemplo) | 2.00 |
+Na segunda consulta devem aparecer **Prova de Exemplo - Correção (1.00)** e **Prova 2 - Média (exemplo) (2.00)**.
 
 ---
 
-## 4. Configurar o banco.properties
+## 4. Trocar a senha salva
 
-O arquivo `banco.properties` guarda a senha do **seu** PostgreSQL. Ele **não vai para o Git** (está no `.gitignore`).
-
-1. Na pasta `Dev`, copie o arquivo `banco.properties.example`.
-2. Renomeie a cópia para `banco.properties`.
-   > No Windows, ative **Exibir → Extensões de nomes de arquivos** para não criar `banco.properties.example.properties` ou similar.
-3. Abra no Bloco de Notas e ajuste a senha:
-
-```properties
-db.url=jdbc:postgresql://localhost:5432/SNCTech_DB
-db.usuario=postgres
-db.senha=SUA_SENHA_DO_POSTGRES
-modo=banco
-```
+Se a senha do PostgreSQL mudar, o programa avisa que ela não funcionou e pede de novo. Para trocar à mão, apague o arquivo `Dev/banco.properties` e abra o programa.
 
 ---
 
@@ -147,16 +119,17 @@ modo=banco
 4. Resultado esperado no final do console:
 
 ```
-Tests run: 111, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 115, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
-> Se aparecer `Skipped` maior que 0, os testes de integração com o banco foram pulados: confira o `banco.properties` e se as migrações foram rodadas.
+> Rode o programa uma vez **antes** dos testes, para o `banco.properties` ser criado. Se aparecer `Skipped` maior que 0, os testes de integração com o banco foram pulados porque o programa ainda não preparou o banco.
 
 ### 5.3 Rodar o programa
 
 1. No painel **Maven**: **snctech → Plugins → javafx → `javafx:run`** (dois cliques).
-2. A tela de login abre. Clique em **Entrar**.
+2. Na primeira vez, digite a **senha do PostgreSQL** e clique em **Conectar**. O programa cria o banco e roda os scripts (leva poucos segundos).
+3. O painel do professor abre.
 
 > **Não** rode o `App.java` pelo ▶ verde do editor: isso dá o erro *"JavaFX runtime components are missing"*. Use sempre o `javafx:run`.
 
@@ -166,12 +139,25 @@ BUILD SUCCESS
 
 Usa os dados de exemplo (seeds). Cada passo tem a **ação** e o **resultado esperado**.
 
+### Logins de teste
+
+| Perfil | E-mail | Senha |
+|---|---|---|
+| Professor | `carlos@test.com` | `987654` |
+| Aluna | `ana@aluno.test.com` | `testaluno` |
+| Aluno | `bruno@aluno.test.com` | `exemplo` |
+| Aluna | `carla@aluno.test.com` | `exemplo` |
+
+O programa abre no painel do professor. Para **ver como aluno**: **Sair da conta → Sim**, entre com o e-mail e a senha do aluno e clique em **Minhas Notas**. Para voltar ao professor: **Sair da conta** e entre com `carlos@test.com`.
+
+> Atalho, sem trocar de login: no professor, **Provas Aplicadas → Visualização do aluno**, digite o e-mail do aluno e clique em **Ver minhas notas**.
+
 ### Parte 1 — Antes de o professor finalizar a correção
 
 | # | Ação | Resultado esperado |
 |---|---|---|
 | 1 | Painel do professor → **Notas e Médias** | Turma **"Turma Correção (exemplo)"** selecionada. Colunas "Prova de Exemplo - Correção / peso 1" e "Prova 2 - Média (exemplo) / peso 2". Ana e Bruno com **"Aguardando Correção do Professor"** nas duas provas e média **"–"**. Carla com **"0,00 (não realizada)"** nas duas provas e média **0,00 • Reprovado** (ela não fez nenhuma prova). Mensagem listando as pendências e botão **Liberar médias desativado**. |
-| 2 | Voltar → **Provas Aplicadas** → **Visualização do aluno** → e-mail `ana@aluno.test.com` → **Ver minhas notas** | As duas provas com **"Aguardando Correção do Professor"**. Média final: *"A média final ainda não foi liberada pelo professor."* |
+| 2 | Ver como a **Ana** (login `ana@aluno.test.com` → **Minhas Notas**) | As duas provas com **"Aguardando Correção do Professor"**. Média final: *"A média final ainda não foi liberada pelo professor."* |
 
 ### Parte 2 — Correção e finalização pelo professor
 
@@ -181,7 +167,7 @@ Usa os dados de exemplo (seeds). Cada passo tem a **ação** e o **resultado esp
 | 4 | Clicar em **Corrigir** na linha da **Ana** | Selo **"Parcial"** e botão **Finalizar correção desativado**. |
 | 5 | Na discursiva da Ana, digitar **2** → **Alterar nota** | Selo **"Falta finalizar"** (azul), nota **8,67** e botão **Finalizar correção ativo**. |
 | 6 | Clicar em **Finalizar correção** | Selo **"Finalizada"** (verde). |
-| 7 | Visualização do aluno com `ana@aluno.test.com` | Prova de Exemplo com nota **8,67**. Prova 2 ainda **"Aguardando Correção do Professor"**. |
+| 7 | Ver como a **Ana** | Prova de Exemplo com nota **8,67**. Prova 2 ainda **"Aguardando Correção do Professor"**. |
 | 8 | **Voltar à lista de alunos** (a Ana aparece **"Finalizada"**, botão **Revisar**) → **Corrigir** na linha do **Bruno** → nota **2** na discursiva → **Finalizar correção** | Nota do Bruno **4,50** e selo **"Finalizada"**. |
 | 9 | Provas Aplicadas → cartão **Prova 2 - Média (exemplo)** → **Corrigir prova** → **Finalizar** na linha da **Ana** → **Finalizar correção**; depois escolher **Bruno** no seletor do alto → **Finalizar correção** | A prova já veio corrigida pelo sistema (só objetivas): na lista, os dois aparecem **"Falta finalizar"**. Ana **10,00** e Bruno **5,00**, ambos **"Finalizada"** no fim. |
 
@@ -190,9 +176,9 @@ Usa os dados de exemplo (seeds). Cada passo tem a **ação** e o **resultado esp
 | # | Ação | Resultado esperado |
 |---|---|---|
 | 10 | Painel → **Notas e Médias** | Tabela abaixo e botão **Liberar médias ativo**. |
-| 11 | Visualização do aluno com a Ana | As duas notas aparecem, mas a Média final diz **"ainda não foi liberada"**. |
+| 11 | Ver como a **Ana** | As duas notas aparecem, mas a Média final diz **"ainda não foi liberada"**. |
 | 12 | Notas e Médias → **Liberar médias** → **OK** | Coluna "Para o aluno" = **"Liberada"**, mensagem *"Médias liberadas..."* e botão desativado. |
-| 13 | Visualização do aluno com a Ana (e depois com `bruno@aluno.test.com`) | Ana: **Média final 9,56 • Aprovado**. Bruno: **4,83 • Exame final**. |
+| 13 | Ver como a **Ana** e depois como o **Bruno** | Ana: **Média final 9,56 • Aprovado**. Bruno: **4,83 • Exame final**. |
 
 Tabela esperada no passo 10:
 
@@ -209,7 +195,7 @@ Conta da Ana: (8,67 × 1 + 10,00 × 2) ÷ (1 + 2) = 28,67 ÷ 3 = **9,56**.
 | # | Ação | Resultado esperado |
 |---|---|---|
 | 14 | Corrigir a Prova de Exemplo → **Ana** → mudar a discursiva para **0,50** → **Alterar nota** | Nota da Ana na prova passa a **7,17**. |
-| 15 | Painel → **Notas e Médias** | Média da Ana **9,06**, continua **Liberada**. Na Visualização do aluno, a Ana vê **9,06**. |
+| 15 | Painel → **Notas e Médias** | Média da Ana **9,06**, continua **Liberada**. Vendo como a Ana, a média é **9,06**. |
 
 ### Regras conferidas por este roteiro
 
@@ -229,10 +215,9 @@ Conta da Ana: (8,67 × 1 + 10,00 × 2) ÷ (1 + 2) = 28,67 ÷ 3 = **9,56**.
 
 O roteiro altera os dados do banco. Para repetir:
 
-1. No pgAdmin, **feche todas as abas do Query Tool**.
-2. Botão direito em **`SNCTech_DB` → Delete (Force)** e confirme.
-3. Crie o banco de novo ([seção 3.1](#31-criar-o-banco)).
-4. Rode os 6 arquivos na ordem da [seção 3.3](#33-ordem-dos-arquivos).
+1. Feche o programa.
+2. No pgAdmin, botão direito em **`SNCTech_DB` → Delete (Force)** e confirme.
+3. Abra o programa de novo (`javafx:run`): ele cria o banco e roda todos os scripts outra vez.
 
 ---
 
@@ -240,13 +225,11 @@ O roteiro altera os dados do banco. Para repetir:
 
 | Problema | Causa | Solução |
 |---|---|---|
-| pgAdmin: *syntax error at or near "\\"* no backup | Versão antiga do `snctech_backup.sql` (com `\restrict`) | Use o `snctech_backup.sql` desta branch, que é compatível com o pgAdmin. |
-| *relation "avaliacoes" does not exist* ao rodar uma migração | Script rodado na mesma aba do backup | Abra **uma aba nova** do Query Tool para cada arquivo, ou rode `SET search_path TO public;` antes. |
-| *database "SNCTech_DB" is being accessed by other users* ao apagar | Abas do Query Tool abertas | Feche as abas ou use **Delete (Force)**. |
-| Programa: *"Falta a tabela medias_finais..."*, *"O banco não está pronto para a Correção"* ou, na tela do aluno, *"column correcao_finalizada does not exist"* | Migração 03 não foi rodada | Rode `migracao_03_notas_e_medias.sql`. |
-| Programa: erro de senha ou conexão | Senha errada no `banco.properties` | Confira o `db.senha` (seção 4). |
+| Janela pedindo a senha toda vez | Senha errada | Digite a senha escolhida na instalação do PostgreSQL. Se esqueceu, troque pelo pgAdmin: `ALTER USER postgres WITH PASSWORD 'nova';` |
+| *Não foi possível falar com o PostgreSQL* | PostgreSQL desligado ou não instalado | No Windows: **Serviços → postgresql-x64-18 → Iniciar**. |
+| *Erro ao aplicar o script X* | Erro dentro daquele script | Nada dele foi gravado. Corrija o script (ou avise quem o criou) e abra o programa de novo. |
+| *O banco está vazio e a pasta Avisos.e.Banco/DB_SQL não foi encontrada* | Programa rodado fora da pasta `Dev` | Abra a pasta `Dev` no IntelliJ e rode pelo `javafx:run`. |
 | *JavaFX runtime components are missing* | Programa rodado pelo ▶ do editor | Rode pelo Maven: **Plugins → javafx → javafx:run**. |
 | *UnsupportedClassVersionError* | O Maven está usando um Java antigo | Configure o JDK 25 no projeto e no `JAVA_HOME`. |
-| Arquivo virou `nome.sql.sql` | O Windows escondia a extensão ao renomear | Ative **Exibir → Extensões de nomes de arquivos** e renomeie. |
-| Notas e Médias diz *"Você ainda não tem turmas cadastradas"* | Seeds não foram rodados | Rode `seed_02` e `seed_03`. |
+| Notas e Médias diz *"Você ainda não tem turmas cadastradas"* | Os seeds foram removidos da tabela `controle_scripts` ou o banco é antigo | Recomece do zero (seção 7). |
 | A Ana não aparece em Notas e Médias com as médias esperadas | Nota diferente de **2** nas discursivas | Use 2 nos passos 5 e 8, ou recomece do zero (seção 7). |

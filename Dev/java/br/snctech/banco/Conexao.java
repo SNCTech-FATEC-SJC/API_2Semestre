@@ -2,9 +2,12 @@ package br.snctech.banco;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -45,9 +48,7 @@ public final class Conexao {
         try {
             if (conexao == null || conexao.isClosed() || !conexao.isValid(2)) {
                 conexao = DriverManager.getConnection(
-                        config("db.url", "snctech.db.url", "SNCTECH_DB_URL", URL_PADRAO),
-                        config("db.usuario", "snctech.db.usuario", "SNCTECH_DB_USUARIO", USUARIO_PADRAO),
-                        config("db.senha", "snctech.db.senha", "SNCTECH_DB_SENHA", ""));
+                        url(), usuario(), senha());
             }
             return conexao;
         } catch (SQLException e) {
@@ -118,8 +119,8 @@ public final class Conexao {
             });
             return null;
         } catch (ErroBanco e) {
-            return "O banco não está com o esquema esperado. Restaure o DB_SQL/snctech_backup.sql e rode o "
-                    + "DB_SQL/migracao_01_integracao_avaliacoes.sql. Detalhe: " + e.getMessage();
+            return "O banco não está com o esquema esperado. Feche e abra o programa de novo: ele aplica "
+                    + "sozinho os scripts da pasta Avisos.e.Banco/DB_SQL. Detalhe: " + e.getMessage();
         }
     }
 
@@ -132,6 +133,53 @@ public final class Conexao {
             }
             conexao = null;
         }
+    }
+
+    public static String url() {
+        return config("db.url", "snctech.db.url", "SNCTECH_DB_URL", URL_PADRAO);
+    }
+
+    public static String usuario() {
+        return config("db.usuario", "snctech.db.usuario", "SNCTECH_DB_USUARIO", USUARIO_PADRAO);
+    }
+
+    public static String senha() {
+        return config("db.senha", "snctech.db.senha", "SNCTECH_DB_SENHA", "");
+    }
+
+    public static synchronized void recarregarConfiguracao() {
+        fechar();
+        arquivo = null;
+    }
+
+    public static synchronized File salvarAcesso(String usuario, String senha) throws IOException {
+        File destino = arquivoParaSalvar();
+        Properties novo = new Properties();
+        if (destino.isFile()) {
+            try (Reader leitor = new InputStreamReader(new FileInputStream(destino), StandardCharsets.UTF_8)) {
+                novo.load(leitor);
+            }
+        }
+        novo.setProperty("db.url", url());
+        novo.setProperty("db.usuario", usuario);
+        novo.setProperty("db.senha", senha);
+        novo.putIfAbsent("modo", "banco");
+        try (Writer escritor = new OutputStreamWriter(new FileOutputStream(destino), StandardCharsets.UTF_8)) {
+            novo.store(escritor, "Gerado pelo SNCTECH. Fica so neste computador (fora do Git).");
+        }
+        recarregarConfiguracao();
+        return destino;
+    }
+
+    private static File arquivoParaSalvar() {
+        String caminho = System.getProperty("snctech.config");
+        if (caminho != null) return new File(caminho);
+        File aqui = new File("banco.properties");
+        File dev = new File("Dev/banco.properties");
+        if (aqui.isFile()) return aqui;
+        if (dev.isFile()) return dev;
+        if (!new File("pom.xml").isFile() && new File("Dev/pom.xml").isFile()) return dev;
+        return aqui;
     }
 
     // ---------------------------------------------------------------- configuração

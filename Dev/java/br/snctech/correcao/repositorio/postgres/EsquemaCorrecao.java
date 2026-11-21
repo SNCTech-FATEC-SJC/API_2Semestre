@@ -39,8 +39,8 @@ public final class EsquemaCorrecao {
             });
             return null;
         } catch (ErroBanco e) {
-            return "O banco não está pronto para a Correção. Rode DB_SQL/migracao_01_integracao_avaliacoes.sql, "
-                    + "DB_SQL/migracao_02_correcao.sql e DB_SQL/migracao_03_notas_e_medias.sql. Detalhe: " + e.getMessage();
+            return "O banco não está pronto para a Correção. Feche e abra o programa de novo para ele aplicar "
+                    + "os scripts da pasta Avisos.e.Banco/DB_SQL. Detalhe: " + e.getMessage();
         }
     }
 }

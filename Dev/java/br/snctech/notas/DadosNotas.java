@@ -38,7 +38,7 @@ public final class DadosNotas {
         try {
             boolean existe = Conexao.executar(RepositorioMediasPostgres::tabelaExiste);
             return existe ? null
-                    : "Falta a tabela medias_finais no banco. Rode o arquivo DB_SQL/migracao_03_notas_e_medias.sql no pgAdmin.";
+                    : "Falta a tabela medias_finais no banco. Feche e abra o programa de novo para ele aplicar o script migracao_05_notas_e_medias.sql.";
         } catch (RuntimeException erro) {
             return "Não foi possível acessar o banco de dados. Detalhe: " + erro.getMessage();
         }

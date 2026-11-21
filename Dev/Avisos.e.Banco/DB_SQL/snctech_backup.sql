@@ -11,7 +11,6 @@
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -32,7 +31,6 @@ CREATE TYPE public.perfil_usuario AS ENUM (
 );
 
 
-ALTER TYPE public.perfil_usuario OWNER TO postgres;
 
 --
 -- TOC entry 874 (class 1247 OID 16408)
@@ -46,7 +44,6 @@ CREATE TYPE public.status_tentativa AS ENUM (
 );
 
 
-ALTER TYPE public.status_tentativa OWNER TO postgres;
 
 --
 -- TOC entry 871 (class 1247 OID 16398)
@@ -61,7 +58,6 @@ CREATE TYPE public.tipo_questao AS ENUM (
 );
 
 
-ALTER TYPE public.tipo_questao OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -81,7 +77,6 @@ CREATE TABLE public.alternativas (
 );
 
 
-ALTER TABLE public.alternativas OWNER TO postgres;
 
 --
 -- TOC entry 227 (class 1259 OID 16487)
@@ -97,7 +92,6 @@ CREATE SEQUENCE public.alternativas_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.alternativas_id_seq OWNER TO postgres;
 
 --
 -- TOC entry 5133 (class 0 OID 0)
@@ -120,7 +114,6 @@ CREATE TABLE public.avaliacao_questoes (
 );
 
 
-ALTER TABLE public.avaliacao_questoes OWNER TO postgres;
 
 --
 -- TOC entry 230 (class 1259 OID 16505)
@@ -141,7 +134,6 @@ CREATE TABLE public.avaliacoes (
 );
 
 
-ALTER TABLE public.avaliacoes OWNER TO postgres;
 
 --
 -- TOC entry 229 (class 1259 OID 16504)
@@ -157,7 +149,6 @@ CREATE SEQUENCE public.avaliacoes_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.avaliacoes_id_seq OWNER TO postgres;
 
 --
 -- TOC entry 5134 (class 0 OID 0)
@@ -181,7 +172,6 @@ CREATE TABLE public.matriculas (
 );
 
 
-ALTER TABLE public.matriculas OWNER TO postgres;
 
 --
 -- TOC entry 223 (class 1259 OID 16448)
@@ -197,7 +187,6 @@ CREATE SEQUENCE public.matriculas_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.matriculas_id_seq OWNER TO postgres;
 
 --
 -- TOC entry 5135 (class 0 OID 0)
@@ -223,7 +212,6 @@ CREATE TABLE public.questoes (
 );
 
 
-ALTER TABLE public.questoes OWNER TO postgres;
 
 --
 -- TOC entry 225 (class 1259 OID 16469)
@@ -239,7 +227,6 @@ CREATE SEQUENCE public.questoes_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.questoes_id_seq OWNER TO postgres;
 
 --
 -- TOC entry 5136 (class 0 OID 0)
@@ -267,7 +254,6 @@ CREATE TABLE public.respostas_aluno (
 );
 
 
-ALTER TABLE public.respostas_aluno OWNER TO postgres;
 
 --
 -- TOC entry 234 (class 1259 OID 16569)
@@ -283,7 +269,6 @@ CREATE SEQUENCE public.respostas_aluno_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.respostas_aluno_id_seq OWNER TO postgres;
 
 --
 -- TOC entry 5137 (class 0 OID 0)
@@ -311,7 +296,6 @@ CREATE TABLE public.tentativas_avaliacao (
 );
 
 
-ALTER TABLE public.tentativas_avaliacao OWNER TO postgres;
 
 --
 -- TOC entry 232 (class 1259 OID 16547)
@@ -327,7 +311,6 @@ CREATE SEQUENCE public.tentativas_avaliacao_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.tentativas_avaliacao_id_seq OWNER TO postgres;
 
 --
 -- TOC entry 5138 (class 0 OID 0)
@@ -352,7 +335,6 @@ CREATE TABLE public.turmas (
 );
 
 
-ALTER TABLE public.turmas OWNER TO postgres;
 
 --
 -- TOC entry 221 (class 1259 OID 16432)
@@ -368,7 +350,6 @@ CREATE SEQUENCE public.turmas_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.turmas_id_seq OWNER TO postgres;
 
 --
 -- TOC entry 5139 (class 0 OID 0)
@@ -394,7 +375,6 @@ CREATE TABLE public.usuarios (
 );
 
 
-ALTER TABLE public.usuarios OWNER TO postgres;
 
 --
 -- TOC entry 219 (class 1259 OID 16415)
@@ -410,7 +390,6 @@ CREATE SEQUENCE public.usuarios_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.usuarios_id_seq OWNER TO postgres;
 
 --
 -- TOC entry 5140 (class 0 OID 0)
