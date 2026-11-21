@@ -1,26 +1,54 @@
 package br.snctech.banco;
 
+import br.snctech.autenticacao.modelo.UsuarioLogado;
+
 /**
- * Quem está usando o sistema. Enquanto o login (PB-19) não existe, o professor é o primeiro
- * professor cadastrado no banco (Prof. Carlos, no dump de exemplo). Quando o login for feito,
- * é só chamar definirProfessor(id) depois de autenticar.
+ * Registro de quem está conectado. O login chama iniciar(usuario); sair da conta chama encerrar().
+ *
+ * getProfessorId() continua existindo para o código que já o usa: devolve o id do usuário logado.
+ * Só sem ninguém logado (execução direta de uma tela em desenvolvimento) cai no professor de teste.
  */
 public final class SessaoUsuario {
-    private static Integer professorId;
+    private static UsuarioLogado usuario;
+    private static Integer professorIdDeTeste;
 
     private SessaoUsuario() { }
 
+    public static synchronized void iniciar(UsuarioLogado novoUsuario) {
+        if (novoUsuario == null) {
+            throw new IllegalArgumentException("Usuário da sessão não pode ser nulo.");
+        }
+        usuario = novoUsuario;
+    }
+
+    public static synchronized void encerrar() {
+        usuario = null;
+    }
+
+    public static synchronized boolean logado() {
+        return usuario != null;
+    }
+
+    /** Usuário logado, ou null se ninguém autenticou. */
+    public static synchronized UsuarioLogado getUsuario() {
+        return usuario;
+    }
+
     public static synchronized int getProfessorId() {
-        if (professorId == null) {
-            professorId = Conexao.executar(UsuarioDAO::buscarIdDoPrimeiroProfessor);
-            if (professorId == null) {
+        if (usuario != null) {
+            return usuario.id();
+        }
+        if (professorIdDeTeste == null) {
+            professorIdDeTeste = Conexao.executar(UsuarioDAO::buscarIdDoPrimeiroProfessor);
+            if (professorIdDeTeste == null) {
                 throw new ErroBanco("Não há nenhum professor cadastrado na tabela usuarios.");
             }
         }
-        return professorId;
+        return professorIdDeTeste;
     }
 
+    /** Apenas para testes sem login. */
     public static synchronized void definirProfessor(int id) {
-        professorId = id;
+        professorIdDeTeste = id;
     }
 }

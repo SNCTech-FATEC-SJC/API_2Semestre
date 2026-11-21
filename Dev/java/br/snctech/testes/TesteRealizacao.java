@@ -7,6 +7,7 @@ import br.snctech.avaliacoes.repositorio.RepositorioAvaliacoesMemoria;
 import br.snctech.avaliacoes.repositorio.RepositorioTentativas;
 import br.snctech.avaliacoes.repositorio.RepositorioTentativasMemoria;
 import br.snctech.avaliacoes.model.Avaliacao;
+import br.snctech.avaliacoes.model.TurmaAvaliacao;
 import br.snctech.avaliacoes.model.Tentativa;
 import br.snctech.avaliacoes.service.ApoioResposta;
 import br.snctech.avaliacoes.service.AvaliacaoService;
@@ -35,6 +36,8 @@ public class TesteRealizacao {
         @Override public Clock withZone(ZoneId z) { return this; }
         @Override public Instant instant() { return agora; }
     }
+
+    static final TurmaAvaliacao T1A = new TurmaAvaliacao(1, "1A");
 
     static int ok = 0, falhas = 0;
 
@@ -67,7 +70,7 @@ public class TesteRealizacao {
         TentativaService service = new TentativaService(repoTent, repoAval, relogio);
 
         // Prova de 26/10 08:00 até 28/10 18:00, com 60 minutos por aluno
-        Avaliacao prova = repoAval.salvar("Prova 1", List.of(q1, q2, q3), "1A",
+        Avaliacao prova = repoAval.salvar("Prova 1", List.of(q1, q2, q3), T1A,
                 LocalDate.of(2026, 10, 26), LocalDate.of(2026, 10, 28));
         prova.setHoraInicio(LocalTime.of(8, 0));
         prova.setHoraFim(LocalTime.of(18, 0));
@@ -137,7 +140,7 @@ public class TesteRealizacao {
         exigeErro("Depois do prazo", "prazo da avaliação terminou", () -> service.iniciar(prova.getId(), "eva"));
 
         // Sem duração definida, só vale o prazo
-        Avaliacao semDuracao = repoAval.salvar("Prova 2", List.of(q1), "1A",
+        Avaliacao semDuracao = repoAval.salvar("Prova 2", List.of(q1), T1A,
                 LocalDate.of(2026, 10, 28), LocalDate.of(2026, 10, 30));
         semDuracao.setHoraInicio(LocalTime.of(8, 0));
         semDuracao.setHoraFim(LocalTime.of(12, 0));
@@ -147,7 +150,7 @@ public class TesteRealizacao {
 
         System.out.println("--- Avaliação criada pelo service (como a tela Nova Prova faz) ---");
         AvaliacaoService criador = new AvaliacaoService(repoAval);
-        Avaliacao daTela = criador.criar("Prova da tela", List.of(q1, q2), "1A",
+        Avaliacao daTela = criador.criar("Prova da tela", List.of(q1, q2), T1A,
                 LocalDate.of(2026, 11, 2), LocalDate.of(2026, 11, 3),
                 LocalTime.of(8, 0), LocalTime.of(10, 0), 30);
         daTela.setDisponibilizada(true);
@@ -163,11 +166,21 @@ public class TesteRealizacao {
         confere("...e a tentativa fica ENCERRADA com a resposta salva",
                 gabi.getStatus() == Tentativa.Status.ENCERRADA && "4".equals(gabi.getResposta(q1)));
         confere("Avaliação criada pela tela conta como respondida depois que alguém abre", daTela.isRespondida());
-        Avaliacao v2daTela = criador.editar(daTela.getId(), "Prova da tela", List.of(q1), "1A",
+        Avaliacao v2daTela = criador.editar(daTela.getId(), "Prova da tela", List.of(q1), T1A,
                 LocalDate.of(2026, 11, 2), LocalDate.of(2026, 11, 3), LocalTime.of(8, 0), LocalTime.of(10, 0), 30);
         confere("Editar depois de aberta cria a versão 2 e preserva a tentativa da original",
                 v2daTela.getNome().equals("Prova da tela2") && service.motivoDeBloqueio(daTela.getId(), "gabi") != null
                         && repoTent.listarPorAvaliacao(daTela.getId()).size() == 1);
+
+        System.out.println("--- Aluno fora da turma da avaliação ---");
+        RepositorioTentativas semMatricula = new RepositorioTentativasMemoria() {
+            @Override public boolean alunoNaTurma(String aluno, int turmaId) { return false; }
+        };
+        TentativaService servicoSemMatricula = new TentativaService(semMatricula, repoAval, relogio);
+        exigeErro("Aluno sem matrícula na turma não abre a prova", "não está matriculado",
+                () -> servicoSemMatricula.iniciar(daTela.getId(), "ines"));
+        confere("Com matrícula (regra padrão da memória) o mesmo aluno é liberado",
+                service.motivoDeBloqueio(daTela.getId(), "ines") == null);
 
         System.out.println("--- Apoio da tela Responder Avaliação ---");
         confere("Tempo 0 -> 00:00:00", ApoioResposta.formatarTempo(0).equals("00:00:00"));
@@ -184,7 +197,7 @@ public class TesteRealizacao {
                 ApoioResposta.montarRespostaColunas(pares, java.util.Arrays.asList(null, "Padrão", " ")).equals("MVC → Padrão"));
         confere("Ligar colunas: nada escolhido -> resposta vazia (apaga a anterior)",
                 ApoioResposta.montarRespostaColunas(pares, java.util.Arrays.asList(null, null, null)).isEmpty());
-        Avaliacao deColunas = repoAval.salvar("Colunas", List.of(new Questao("Ligue", "Ligar Colunas", null, null, null, pares)), "1A",
+        Avaliacao deColunas = repoAval.salvar("Colunas", List.of(new Questao("Ligue", "Ligar Colunas", null, null, null, pares)), T1A,
                 LocalDate.of(2026, 11, 5), LocalDate.of(2026, 11, 6));
         deColunas.setDisponibilizada(true);
         relogio.irPara(LocalDateTime.of(2026, 11, 5, 1, 0));

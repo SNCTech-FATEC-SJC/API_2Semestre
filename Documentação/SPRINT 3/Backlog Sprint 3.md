@@ -9,6 +9,8 @@
 |ID|Épico|User Story|Critério de Aceitação|Prioridade|Status|
 |-|-|-|-|-|-|
 |PB-04|Embaralhamento de Respostas|Como professor, desejo que as respostas de questões de múltipla escolha e associação sejam embaralhadas para reduzir a possibilidade de compartilhamento da ordem das respostas entre os alunos.|Ao abrir a prova, as alternativas são aleatorizadas|🟡 Média|Status: ❌|
+|PB-09|Gerenciamento de Turmas|Como professor, desejo cadastrar e editar turmas ativas e já concluídas para gerenciamento e organização das avaliações|O professor consegue enviar e editar as informações de turmas ativas, e visualizar membros e avaliações de turmas concluídas, ao enviar uma nova turma a turma atual se torna concluída|🟡 Média|Status: ❌|
+|PB-10|Gerenciamento de Alunos|Como professor, desejo adicionar, editar e visualizar os alunos pertencentes a minhas turmas ativas para organização das minhas turmas|O professor consegue adicionar, remover e visualizar os alunos dentro das turmas que estão ativas.|🟡 Média|Status: ❌|
 |PB-16|Média Final|Como professor, desejo que o cálculo da média seja feito de forma automática para facilitar o acesso a essa informação.|A média final é definida corretamente com base nas notas e nos pesos das provas|🟡 Média|Status: ❌|
 |PB-17|Média Final|Como professor, desejo visualizar as médias finais dos alunos para ter controle de aprovação e desempenho.|Com a liberação da média final pelo sistema, o professor consegue visualizá-la|🟡 Média|Status: ❌|
 |PB-18|Prazo Das Avaliações|Como professor, desejo definir um prazo para as avaliações a fim de evitar que alunos façam antes da hora ou depois do prazo.|O professor, após criar uma avaliação, pode definir um prazo para uma turma respondê-la|🟡 Média|Status: ❌|
@@ -64,14 +66,14 @@ Uma User Story está Done quando foi implementada, validada e integrada ao siste
 
 |ID|Requisitos de Entrega e Conclusão (DoD)|
 |-|-|
-|**PB-04**|• As alternativas devem aparecer em ordem diferente para diferentes alunos.<br />• A identificação da resposta correta mantém-se ao conteúdo e não à sua posição visual.<br />• O sistema deve validar a alternativa correta após o embaralhamento.<br />• Não é preciso garantir uma ordem diferente para todos os alunos quando não houver possibilidades suficientes.|
+|**PB-04**|• As alternativas devem aparecer em ordem diferente para diferentes alunos.<br><br />• A identificação da resposta correta mantém-se ao conteúdo e não à sua posição visual.<br><br />• O sistema deve validar a alternativa correta após o embaralhamento.<br><br />• Não é preciso garantir uma ordem diferente para todos os alunos quando não houver possibilidades suficientes.|
 |**PB-13**|• O aluno visualiza somente as suas próprias notas.|
 |**PB-14**|• O professor visualiza somente as notas dos alunos das suas turmas.|
-|**PB-15**|• A média só é liberada após todas as avaliações previstas estarem encerradas e corrigidas.<br />• A situação acadêmica é calculada a partir da média final.<br />• Regras de aprovação: - `Nota >= 6`: Aprovado - `4 <= Nota < 6`: Exame Fina - `Nota < 4`: Reprovado|
-|**PB-16**|• A média considera as notas de cada avaliação com seus respectivos pesos.<br />• A média é recalculada automaticamente quando uma nota é alterada por correção manual.|
+|**PB-15**|• A média só é liberada após todas as avaliações previstas estarem encerradas e corrigidas.<br><br />• A situação acadêmica é calculada a partir da média final.<br><br />• Regras de aprovação:<br>  - `Nota >= 6`: Aprovado<br>  - `4 <= Nota < 6`: Exame Final<br>  - `Nota < 4`: Reprovado|
+|**PB-16**|• A média considera as notas de cada avaliação com seus respectivos pesos.<br><br />• A média é recalculada automaticamente quando uma nota é alterada por correção manual.|
 |**PB-17**|• O professor visualiza a média final e a situação de cada aluno.|
-|**PB-18**|• O prazo é definido por turma.<br />• O aluno não consegue iniciar a avaliação fora do prazo.<br />• O aluno que não responder dentro do prazo recebe nota 0.|
-|**PB-19**|• O acesso só é liberado com credenciais válidas.<br />• Cada perfil (professor ou aluno) acessa apenas as funcionalidades correspondentes.|
+|**PB-18**|• O prazo é definido por turma.<br><br />• O aluno não consegue iniciar a avaliação fora do prazo.<br><br />• O aluno que não responder dentro do prazo recebe nota 0.|
+|**PB-19**|• O acesso só é liberado com credenciais válidas.<br><br />• Cada perfil (professor ou aluno) acessa apenas as funcionalidades correspondentes.|
 
 \---
 

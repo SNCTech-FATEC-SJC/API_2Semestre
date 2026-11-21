@@ -3,6 +3,9 @@ package br.snctech.questoes.controller;
 
 
 import br.snctech.util.NavegacaoUtil;
+import br.snctech.banco.Conexao;
+import br.snctech.banco.QuestaoDAO;
+import br.snctech.banco.SessaoUsuario;
 import br.snctech.questoes.model.Questao;
 import br.snctech.questoes.service.BancoQuestoes;
 import java.io.File;
@@ -424,7 +427,36 @@ public class QuestaoController {
         boolean editando = questaoEmEdicao != null
                 && BancoQuestoes.contem(questaoEmEdicao);
 
+        Questao questaoSalva = new Questao(
+                enunciado,
+                tipo,
+                caminhoImagem,
+                alternativas,
+                respostaCorreta,
+                pares
+        );
+        if (editando) questaoSalva.setId(questaoEmEdicao.getId());
+
+        try {
+            if (!Conexao.modoMemoria()) {
+                int professorId = SessaoUsuario.getProfessorId();
+                if (questaoSalva.getId() > 0) {
+                    Conexao.emTransacao(c -> {
+                        QuestaoDAO.atualizar(c, questaoSalva, professorId);
+                        return null;
+                    });
+                } else {
+                    int id = Conexao.emTransacao(c -> QuestaoDAO.inserir(c, questaoSalva, professorId));
+                    questaoSalva.setId(id);
+                }
+            }
+        } catch (RuntimeException erro) {
+            exibirErro("Não foi possível salvar a questão: " + erro.getMessage());
+            return;
+        }
+
         if (editando) {
+            questaoEmEdicao.setId(questaoSalva.getId());
             questaoEmEdicao.setEnunciado(enunciado);
             questaoEmEdicao.setTipo(tipo);
             questaoEmEdicao.setImagemPath(caminhoImagem);
@@ -432,16 +464,7 @@ public class QuestaoController {
             questaoEmEdicao.setRespostaCorreta(respostaCorreta);
             questaoEmEdicao.setPares(pares);
         } else {
-            Questao novaQuestao = new Questao(
-                    enunciado,
-                    tipo,
-                    caminhoImagem,
-                    alternativas,
-                    respostaCorreta,
-                    pares
-            );
-
-            BancoQuestoes.adicionar(novaQuestao);
+            BancoQuestoes.adicionar(questaoSalva);
         }
 
         limparFormulario();

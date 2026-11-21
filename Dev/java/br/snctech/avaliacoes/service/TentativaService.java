@@ -36,6 +36,9 @@ public class TentativaService {
         if (aluno == null || aluno.isBlank()) return "Informe o e-mail cadastrado do aluno.";
         if (!tentativas.alunoExiste(aluno)) return "Não encontramos um aluno cadastrado com esse e-mail.";
         if (!avaliacao.isDisponibilizada()) return "A avaliação ainda não foi disponibilizada.";
+        if (avaliacao.getTurmaId() > 0 && !tentativas.alunoNaTurma(aluno, avaliacao.getTurmaId())) {
+            return "Você não está matriculado na turma desta avaliação.";
+        }
 
         LocalDateTime inicio = inicioDa(avaliacao);
         LocalDateTime fim = fimDa(avaliacao);

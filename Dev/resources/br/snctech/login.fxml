@@ -1,56 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.geometry.Insets?>
 
 <StackPane xmlns="http://javafx.com/javafx/21"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="br.snctech.autenticacao.controller.LoginController"
            styleClass="fundo"
-           prefWidth="800" prefHeight="600">
+           prefWidth="900" prefHeight="700">
 
-    <VBox fx:id="cartao" styleClass="cartao" alignment="CENTER_LEFT"
-          maxWidth="320" maxHeight="-Infinity" spacing="6">
-
+    <VBox styleClass="cartao" alignment="CENTER_LEFT" spacing="10" maxWidth="420" maxHeight="-Infinity">
         <padding>
-            <Insets top="32" right="32" bottom="32" left="32"/>
+            <Insets top="34" right="34" bottom="34" left="34"/>
         </padding>
 
-        <Label text="SNCTECH" styleClass="titulo" maxWidth="Infinity"/>
-        <Label text="Sistema de avaliações" styleClass="subtitulo" maxWidth="Infinity"/>
+        <Label text="SNCTECH" styleClass="titulo"/>
+        <Label text="Acesse sua conta para continuar" styleClass="subtitulo"/>
 
-        <Label text="Usuário" styleClass="rotulo">
-            <VBox.margin><Insets top="24"/></VBox.margin>
+        <Label text="E-mail" styleClass="rotulo">
+            <VBox.margin>
+                <Insets top="14"/>
+            </VBox.margin>
         </Label>
-        <TextField fx:id="campoUsuario" promptText="professor@escola.br"/>
+        <TextField fx:id="campoEmail" promptText="seu@email.com" styleClass="campo-texto"/>
 
-        <Label text="Senha" styleClass="rotulo">
-            <VBox.margin><Insets top="12"/></VBox.margin>
-        </Label>
-        <PasswordField fx:id="campoSenha" promptText="Digite sua senha"/>
+        <Label text="Senha" styleClass="rotulo"/>
+        <PasswordField fx:id="campoSenha" promptText="Sua senha" onAction="#aoClicarEntrar" styleClass="campo-texto"/>
 
-        <Label text="Perfil" styleClass="rotulo">
-            <VBox.margin><Insets top="12"/></VBox.margin>
-        </Label>
-        <ComboBox fx:id="campoPerfil" maxWidth="Infinity"/>
+        <Label fx:id="labelErro" text="" styleClass="erro" wrapText="true"/>
 
-        <Label fx:id="mensagemErro" styleClass="erro" visible="false" managed="false"/>
-
-        <Button fx:id="botaoEntrar" text="Entrar" onAction="#aoClicarEntrar"
-                defaultButton="true" styleClass="botao-primario" maxWidth="Infinity">
-            <VBox.margin><Insets top="24"/></VBox.margin>
-        </Button>
-
-        <Hyperlink text="Esqueci minha senha" styleClass="link" maxWidth="Infinity">
-            <VBox.margin><Insets top="8"/></VBox.margin>
-        </Hyperlink>
-
+        <Button fx:id="botaoEntrar" text="Entrar" onAction="#aoClicarEntrar" defaultButton="true"
+                maxWidth="Infinity" styleClass="botao-primario"/>
     </VBox>
 </StackPane>

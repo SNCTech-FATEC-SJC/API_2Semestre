@@ -143,8 +143,63 @@ public final class QuestaoDAO {
             }
         }
 
-        String insertAlternativa = "INSERT INTO alternativas (questao_id, texto, correta, par_associacao) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement ps = c.prepareStatement(insertAlternativa)) {
+        gravarAlternativas(c, questao, id);
+        return id;
+    }
+
+    /** Atualiza uma questão ainda não vinculada a provas ou respostas. Quem chama é dono da transação. */
+    public static void atualizar(Connection c, Questao questao, int professorId) throws SQLException {
+        int id = questao.getId();
+        if (id <= 0) throw new SQLException("A questão ainda não possui ID no banco.");
+        garantirNaoUtilizada(c, id, "editada");
+
+        String sql = "UPDATE questoes SET tipo = CAST(? AS tipo_questao), enunciado = ?, imagem_url = ? "
+                + "WHERE id = ? AND professor_id = ?";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, tipoParaBanco(questao.getTipo()));
+            ps.setString(2, questao.getEnunciado());
+            ps.setString(3, questao.getImagemPath());
+            ps.setInt(4, id);
+            ps.setInt(5, professorId);
+            if (ps.executeUpdate() != 1) throw new SQLException("Questão não encontrada para este professor.");
+        }
+
+        try (PreparedStatement ps = c.prepareStatement("DELETE FROM alternativas WHERE questao_id = ?")) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+        gravarAlternativas(c, questao, id);
+    }
+
+    /** Exclui apenas questões ainda não vinculadas a provas ou respostas. Quem chama é dono da transação. */
+    public static void excluir(Connection c, int questaoId, int professorId) throws SQLException {
+        garantirNaoUtilizada(c, questaoId, "excluída");
+        try (PreparedStatement ps = c.prepareStatement(
+                "DELETE FROM questoes WHERE id = ? AND professor_id = ?")) {
+            ps.setInt(1, questaoId);
+            ps.setInt(2, professorId);
+            if (ps.executeUpdate() != 1) throw new SQLException("Questão não encontrada para este professor.");
+        }
+    }
+
+    private static void garantirNaoUtilizada(Connection c, int questaoId, String acao) throws SQLException {
+        String sql = "SELECT EXISTS (SELECT 1 FROM avaliacao_questoes WHERE questao_id = ?) "
+                + "OR EXISTS (SELECT 1 FROM respostas_aluno WHERE questao_id = ?)";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, questaoId);
+            ps.setInt(2, questaoId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next() && rs.getBoolean(1)) {
+                    throw new SQLException("A questão não pode ser " + acao
+                            + " porque já está vinculada a uma prova ou resposta.");
+                }
+            }
+        }
+    }
+
+    private static void gravarAlternativas(Connection c, Questao questao, int id) throws SQLException {
+        String sql = "INSERT INTO alternativas (questao_id, texto, correta, par_associacao) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
             switch (questao.getTipo()) {
                 case "Múltipla Escolha" -> {
                     for (String opcao : questao.getAlternativas()) {
@@ -161,14 +216,13 @@ public final class QuestaoDAO {
                         gravarAlternativa(ps, id, par.getTermoA(), true, par.getTermoB());
                     }
                 }
-                default -> { // Dissertativa: a resposta esperada
+                default -> {
                     if (questao.getRespostaCorreta() != null && !questao.getRespostaCorreta().isBlank()) {
                         gravarAlternativa(ps, id, questao.getRespostaCorreta(), true, null);
                     }
                 }
             }
         }
-        return id;
     }
 
     private static void gravarAlternativa(PreparedStatement ps, int questaoId, String texto, boolean correta, String par)
