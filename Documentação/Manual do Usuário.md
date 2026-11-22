@@ -1,8 +1,8 @@
-# Manual do Usuário — SNCTECH
+# Manual do Usuário — SNCTECH — Avalia +
 
 ## 1. Sobre o sistema
 
-O **SNCTECH** é um sistema para criar, aplicar e corrigir avaliações escolares. O professor cadastra questões, monta as provas, acompanha as respostas, faz a correção e libera as médias. O aluno responde às provas liberadas para ele e consulta suas respostas, correções e notas.
+O **Avalia +** é um sistema para criar, aplicar e corrigir avaliações escolares. O professor cadastra questões, monta as provas, acompanha as respostas, faz a correção e libera as médias. O aluno responde às provas liberadas para ele e consulta suas respostas, correções e notas.
 
 O sistema tem três perfis de acesso:
 
