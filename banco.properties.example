@@ -1,0 +1,15 @@
+# Copie para "banco.properties" e informe as credenciais do seu ambiente.
+# O arquivo banco.properties e ignorado pelo Git.
+# Tambem e possivel configurar por variaveis de ambiente ou propriedades Java.
+#
+# db.url      -> SNCTECH_DB_URL / -Dsnctech.db.url
+# db.usuario  -> SNCTECH_DB_USUARIO / -Dsnctech.db.usuario
+# db.senha    -> SNCTECH_DB_SENHA / -Dsnctech.db.senha
+# modo        -> SNCTECH_MODO / -Dsnctech.modo
+
+db.url=jdbc:postgresql://localhost:5432/SNCTech_DB
+db.usuario=postgres
+db.senha=COLOQUE_SUA_SENHA
+
+# Use "memoria" para executar sem persistencia no banco.
+modo=banco
