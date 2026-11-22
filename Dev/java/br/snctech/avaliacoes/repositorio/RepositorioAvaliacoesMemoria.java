@@ -2,7 +2,6 @@ package br.snctech.avaliacoes.repositorio;
 
 import br.snctech.questoes.model.Questao;
 import br.snctech.avaliacoes.model.Avaliacao;
-import br.snctech.avaliacoes.model.TurmaAvaliacao;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -20,16 +19,16 @@ public class RepositorioAvaliacoesMemoria implements RepositorioAvaliacoes {
     }
 
     @Override
-    public Avaliacao salvar(String nome, List<Questao> questoes, TurmaAvaliacao turma, LocalDate data, LocalDate prazo) {
+    public Avaliacao salvar(String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo) {
         Avaliacao nova = salvar(nome, questoes);
-        aplicarTurma(nova, turma);
+        nova.setTurma(turma);
         nova.setData(data);
         nova.setPrazo(prazo);
         return nova;
     }
 
     @Override
-    public Avaliacao salvar(String nome, List<Questao> questoes, TurmaAvaliacao turma, LocalDate data, LocalDate prazo,
+    public Avaliacao salvar(String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo,
                             LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos) {
         Avaliacao nova = salvar(nome, questoes, turma, data, prazo);
         nova.setHoraInicio(horaInicio);
@@ -39,7 +38,15 @@ public class RepositorioAvaliacoesMemoria implements RepositorioAvaliacoes {
     }
 
     @Override
-    public Avaliacao salvarNovaVersao(Avaliacao original, String nome, List<Questao> questoes, TurmaAvaliacao turma,
+    public Avaliacao salvar(String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo,
+                            LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos, double peso) {
+        Avaliacao nova = salvar(nome, questoes, turma, data, prazo, horaInicio, horaFim, duracaoMinutos);
+        nova.setPeso(peso);
+        return nova;
+    }
+
+    @Override
+    public Avaliacao salvarNovaVersao(Avaliacao original, String nome, List<Questao> questoes, String turma,
                                       LocalDate data, LocalDate prazo, LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos) {
         Avaliacao nova = salvar(nome, questoes, turma, data, prazo, horaInicio, horaFim, duracaoMinutos);
         int maiorVersaoIrma = original.getVersao();
@@ -53,9 +60,14 @@ public class RepositorioAvaliacoesMemoria implements RepositorioAvaliacoes {
         return nova;
     }
 
-    private static void aplicarTurma(Avaliacao avaliacao, TurmaAvaliacao turma) {
-        avaliacao.setTurma(turma == null ? "" : turma.nome());
-        avaliacao.setTurmaId(turma == null ? 0 : turma.id());
+    @Override
+    public Avaliacao salvarNovaVersao(Avaliacao original, String nome, List<Questao> questoes, String turma,
+                                      LocalDate data, LocalDate prazo, LocalTime horaInicio, LocalTime horaFim,
+                                      int duracaoMinutos, double peso) {
+        Avaliacao nova = salvarNovaVersao(original, nome, questoes, turma, data, prazo,
+                horaInicio, horaFim, duracaoMinutos);
+        nova.setPeso(peso);
+        return nova;
     }
 
     @Override
@@ -66,17 +78,22 @@ public class RepositorioAvaliacoesMemoria implements RepositorioAvaliacoes {
         return avaliacoes.stream().filter(a -> a.getId() == id).findFirst().orElse(null);
     }
 
+    @Override
+    public void excluir(int id) {
+        avaliacoes.removeIf(avaliacao -> avaliacao.getId() == id);
+    }
+
     public void atualizar(Avaliacao avaliacao, String nome, List<Questao> questoes,
-                          TurmaAvaliacao turma, LocalDate data, LocalDate prazo) {
+                          String turma, LocalDate data, LocalDate prazo) {
         avaliacao.setNome(nome);
         avaliacao.setQuestoes(questoes);
-        aplicarTurma(avaliacao, turma);
+        avaliacao.setTurma(turma);
         avaliacao.setData(data);
         avaliacao.setPrazo(prazo);
     }
 
     @Override
-    public void atualizar(Avaliacao avaliacao, String nome, List<Questao> questoes, TurmaAvaliacao turma, LocalDate data, LocalDate prazo,
+    public void atualizar(Avaliacao avaliacao, String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo,
                           LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos) {
         atualizar(avaliacao, nome, questoes, turma, data, prazo);
         avaliacao.setHoraInicio(horaInicio);
@@ -85,7 +102,21 @@ public class RepositorioAvaliacoesMemoria implements RepositorioAvaliacoes {
     }
 
     @Override
+    public void atualizar(Avaliacao avaliacao, String nome, List<Questao> questoes, String turma,
+                          LocalDate data, LocalDate prazo, LocalTime horaInicio, LocalTime horaFim,
+                          int duracaoMinutos, double peso) {
+        atualizar(avaliacao, nome, questoes, turma, data, prazo, horaInicio, horaFim, duracaoMinutos);
+        avaliacao.setPeso(peso);
+    }
+
+    @Override
     public void atualizarDisponibilizacao(Avaliacao avaliacao, boolean disponibilizada) {
         avaliacao.setDisponibilizada(disponibilizada);
     }
+
+    @Override
+    public void configurarAlunos(Avaliacao avaliacao, java.util.List<Integer> alunosIds) {
+        avaliacao.setAlunosSelecionados(alunosIds);
+    }
+
 }

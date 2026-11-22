@@ -35,7 +35,6 @@ import javafx.util.Duration;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -126,11 +125,15 @@ public class ResponderAvaliacaoController {
     /** Múltipla escolha e verdadeiro/falso: uma opção por vez; a resposta é o texto da opção marcada. */
     private void montarEscolhaUnica(VBox cartao, Questao questao, List<String> opcoes) {
         ToggleGroup grupo = new ToggleGroup();
-        for (String opcao : opcoes) {
+        List<String> opcoesEmbaralhadas = ApoioResposta.embaralharAlternativas(
+                opcoes, tentativaAtual.getId(), questao.getId());
+        for (String opcao : opcoesEmbaralhadas) {
             RadioButton botao = new RadioButton(opcao);
             botao.setWrapText(true);
             botao.setToggleGroup(grupo);
             botao.setOnAction(evento -> salvarResposta(questao, opcao));
+            String respostaAnterior = tentativaAtual.getResposta(questao);
+            botao.setSelected(opcao.equals(respostaAnterior));
             camposDeResposta.add(botao);
             cartao.getChildren().add(botao);
         }
@@ -141,6 +144,7 @@ public class ResponderAvaliacaoController {
         campo.setPromptText("Digite sua resposta");
         campo.setWrapText(true);
         campo.setPrefRowCount(4);
+        campo.setText(tentativaAtual.getResposta(questao) == null ? "" : tentativaAtual.getResposta(questao));
         // Registra a cada alteração: o que foi digitado antes do limite de tempo não se perde.
         campo.textProperty().addListener((observado, antes, depois) -> salvarResposta(questao, depois));
         camposDeResposta.add(campo);
@@ -152,7 +156,8 @@ public class ResponderAvaliacaoController {
         List<Questao.ParColuna> pares = questao.getPares();
         List<String> opcoes = new ArrayList<>();
         for (Questao.ParColuna par : pares) opcoes.add(par.getTermoB());
-        Collections.shuffle(opcoes);
+        opcoes = ApoioResposta.embaralharAlternativas(
+                opcoes, tentativaAtual.getId(), questao.getId());
 
         List<ComboBox<String>> escolhas = new ArrayList<>();
         for (Questao.ParColuna par : pares) {
@@ -162,6 +167,13 @@ public class ResponderAvaliacaoController {
             ComboBox<String> escolha = new ComboBox<>();
             escolha.getItems().addAll(opcoes);
             escolha.setPromptText("Escolha a correspondência");
+            String respostaAnterior = tentativaAtual.getResposta(questao);
+            if (respostaAnterior != null) {
+                String prefixo = par.getTermoA() + " → ";
+                for (String parte : respostaAnterior.split(";\\s*")) {
+                    if (parte.startsWith(prefixo)) escolha.setValue(parte.substring(prefixo.length()).trim());
+                }
+            }
             escolha.setOnAction(evento -> {
                 List<String> valores = new ArrayList<>();
                 for (ComboBox<String> outra : escolhas) valores.add(outra.getValue());
@@ -216,7 +228,7 @@ public class ResponderAvaliacaoController {
     private void atualizarCronometro() {
         if (travada) return;
         long restante = segundosRestantesNaTela();
-        if (restante <= 0) {
+        if (restante == 0) {
             tempoEsgotado();
             return;
         }
@@ -321,19 +333,14 @@ public class ResponderAvaliacaoController {
                 "Depois de entregar, não será possível alterar as respostas.")) {
             return;
         }
-        try {
-            Tentativa resultado = servico.finalizar(tentativaAtual.getId());
-            travarTela();
-            if (resultado.getStatus() == Tentativa.Status.FINALIZADA) {
-                informar("Avaliação entregue", "Suas respostas foram registradas com sucesso.");
-            } else {
-                informar("Avaliação encerrada", "Esta tentativa já estava encerrada e não pôde ser entregue.");
-            }
-            voltarParaAsAvaliacoes(evento);
-        } catch (br.snctech.banco.ErroBanco erro) {
-            mensagem.setText("Não foi possível salvar a entrega. Verifique a conexão e tente novamente. Detalhe: "
-                    + erro.getMessage());
+        Tentativa resultado = servico.finalizar(tentativaAtual.getId());
+        travarTela();
+        if (resultado.getStatus() == Tentativa.Status.FINALIZADA) {
+            informar("Avaliação entregue", "Suas respostas foram registradas com sucesso.");
+        } else {
+            informar("Tempo esgotado", "A prova foi entregue automaticamente com as respostas dadas até o limite.");
         }
+        voltarParaAsAvaliacoes(evento);
     }
 
     @FXML

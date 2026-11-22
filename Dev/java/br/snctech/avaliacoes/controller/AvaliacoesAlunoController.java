@@ -1,17 +1,14 @@
 package br.snctech.avaliacoes.controller;
 
 
-import br.snctech.alunos.repositorio.AlunoDAO;
-import br.snctech.autenticacao.modelo.Perfil;
-import br.snctech.autenticacao.modelo.UsuarioLogado;
-import br.snctech.banco.Conexao;
-import br.snctech.banco.ErroBanco;
-import br.snctech.banco.SessaoUsuario;
-import br.snctech.turmas.modelo.Turma;
 import br.snctech.util.NavegacaoUtil;
 import br.snctech.infraestrutura.DadosAplicacao;
+import br.snctech.autenticacao.modelo.Perfil;
+import br.snctech.autenticacao.modelo.UsuarioLogado;
+import br.snctech.banco.SessaoUsuario;
 import br.snctech.correcao.model.NotaDoAluno;
 import br.snctech.correcao.repositorio.postgres.NotasDoAlunoPostgres;
+import br.snctech.notas.controller.PainelMediaDoAluno;
 import br.snctech.avaliacoes.model.Avaliacao;
 import br.snctech.avaliacoes.model.Tentativa;
 import br.snctech.avaliacoes.service.TentativaService;
@@ -22,14 +19,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Lista as avaliações disponibilizadas e deixa o aluno abrir uma para responder.
@@ -37,45 +30,32 @@ import java.util.stream.Collectors;
  */
 public class AvaliacoesAlunoController {
     @FXML private VBox listaAvaliacoes;
-    @FXML private TextField campoAluno;
     @FXML private VBox listaNotas;
     private static final DateTimeFormatter FORMATO_DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
-
-    // Logado como ALUNO: vale o e-mail do login. Professor/administrador (visualização do aluno): informam o e-mail.
-    private static String alunoAtual = "";
+    private UsuarioLogado usuarioAtual;
 
     private final TentativaService servico = new TentativaService(
             DadosAplicacao.getRepositorioTentativas(), DadosAplicacao.getRepositorioAvaliacoes());
 
     @FXML
     private void initialize() {
-        UsuarioLogado usuario = SessaoUsuario.getUsuario();
-        boolean logadoComoAluno = usuario != null && usuario.perfil() == Perfil.ALUNO;
-        if (logadoComoAluno) {
-            alunoAtual = usuario.email();
-            campoAluno.setText(alunoAtual);
-            campoAluno.setEditable(false);
-            campoAluno.setFocusTraversable(false);
+        usuarioAtual = SessaoUsuario.getUsuario();
+        if (listaNotas != null) {
+            mostrarNotas();
         } else {
-            campoAluno.setText(alunoAtual);
+            atualizarListaAvaliacoes();
         }
-        mostrarNotas();
-        listaAvaliacoes.getChildren().clear();
+    }
 
-        final Set<Integer> turmasPermitidas;
-        try {
-            turmasPermitidas = logadoComoAluno
-                    ? Conexao.executar(c -> AlunoDAO.listarTurmasDoAluno(c, usuario.id())).stream()
-                            .map(Turma::id).collect(Collectors.toSet())
-                    : null;
-        } catch (ErroBanco erro) {
-            listaAvaliacoes.getChildren().add(
-                    mensagem("Não foi possível carregar suas turmas. Detalhe: " + erro.getMessage()));
+    private void atualizarListaAvaliacoes() {
+        listaAvaliacoes.getChildren().clear();
+        if (usuarioAtual == null) {
+            listaAvaliacoes.getChildren().add(mensagem("Faça login para consultar as avaliações."));
             return;
         }
-
+        boolean alunoLogado = usuarioAtual.perfil() == Perfil.ALUNO;
         LocalDateTime agora = LocalDateTime.now();
-        String email = campoAluno.getText() == null ? "" : campoAluno.getText().trim();
+        String email = usuarioAtual.email();
 
         java.util.List<Avaliacao> futuras = new java.util.ArrayList<>();
         java.util.List<Avaliacao> disponiveis = new java.util.ArrayList<>();
@@ -84,13 +64,14 @@ public class AvaliacoesAlunoController {
 
         for (Avaliacao avaliacao : DadosAplicacao.getRepositorioAvaliacoes().listarTodas()) {
             if (!avaliacao.isDisponibilizada()) continue;
-            if (turmasPermitidas != null && !turmasPermitidas.contains(avaliacao.getTurmaId())) continue;
+            if (alunoLogado && !DadosAplicacao.getRepositorioTentativas()
+                    .alunoMatriculadoNaAvaliacao(avaliacao.getId(), email)) continue;
 
             LocalDateTime inicio = inicioDa(avaliacao);
             LocalDateTime fim = fimDa(avaliacao);
             if (inicio == null || fim == null) continue;
 
-            Tentativa tentativa = email.isBlank() ? null
+            Tentativa tentativa = !alunoLogado ? null
                     : DadosAplicacao.getRepositorioTentativas()
                             .buscarPorAvaliacaoEAluno(avaliacao.getId(), email);
 
@@ -107,59 +88,56 @@ public class AvaliacoesAlunoController {
             }
         }
 
-        adicionarSecao("Avaliações disponíveis", disponiveis, agora, true);
-        adicionarSecao("Avaliações futuras", futuras, agora, false);
-        adicionarSecao("Avaliações respondidas / em andamento", respondidas, agora, false);
-        adicionarSecao("Avaliações encerradas", encerradas, agora, false);
+        adicionarSecao("Avaliações disponíveis", disponiveis, true);
+        adicionarSecao("Avaliações futuras", futuras, false);
+        adicionarSecao("Avaliações respondidas / em andamento", respondidas, false);
+        adicionarSecao("Avaliações encerradas", encerradas, false);
     }
 
-    private void adicionarSecao(String titulo, java.util.List<Avaliacao> avaliacoes,
-                                LocalDateTime agora, boolean permitirAbrir) {
+    private void adicionarSecao(String titulo, java.util.List<Avaliacao> avaliacoes, boolean permitirAbrir) {
         Label cabecalho = new Label(titulo);
         cabecalho.getStyleClass().add("section-label");
         listaAvaliacoes.getChildren().add(cabecalho);
 
-        GridPane grade = new GridPane();
+        FlowPane grade = new FlowPane();
         grade.setHgap(16);
         grade.setVgap(16);
         grade.getStyleClass().add("card-grid");
-        for (int i = 0; i < 3; i++) {
-            ColumnConstraints coluna = new ColumnConstraints();
-            coluna.setPercentWidth(100.0 / 3.0);
-            grade.getColumnConstraints().add(coluna);
-        }
 
         if (avaliacoes.isEmpty()) {
             Label vazio = new Label("Nenhuma avaliação nesta categoria.");
             vazio.getStyleClass().add("mensagem");
-            grade.add(vazio, 0, 0);
+            grade.getChildren().add(vazio);
         } else {
-            int coluna = 0;
-            int linha = 0;
             for (Avaliacao avaliacao : avaliacoes) {
                 VBox cartao = new VBox(8);
                 cartao.getStyleClass().add("prova-card-aluno");
+                cartao.setPrefWidth(240);
+                cartao.setMaxWidth(300);
                 java.util.List<Node> conteudo = new java.util.ArrayList<>();
                 conteudo.add(new Label(avaliacao.getNome()));
                 conteudo.add(new Label("Turma(s): " + avaliacao.getTurma()));
                 conteudo.add(new Label("Início: " + formatarDataHora(avaliacao, true)));
                 conteudo.add(new Label("Prazo: " + formatarDataHora(avaliacao, false)));
                 conteudo.add(new Label("Questões: " + avaliacao.getQuestoes().size()));
-                conteudo.add(new Label("Duração: " + (avaliacao.getDuracaoMinutos() > 0
-                        ? avaliacao.getDuracaoMinutos() + " min" : "até o prazo")));
-                if (permitirAbrir) {
+                if (permitirAbrir && usuarioAtual != null && usuarioAtual.perfil() == Perfil.ALUNO) {
                     Button responder = new Button("Responder avaliação");
                     responder.getStyleClass().add("top-action");
                     responder.setOnAction(evento -> abrirAvaliacao(avaliacao, (Node) evento.getSource()));
                     conteudo.add(responder);
                 }
-                cartao.getChildren().addAll(conteudo);
-                grade.add(cartao, coluna, linha);
-                coluna++;
-                if (coluna == 3) {
-                    coluna = 0;
-                    linha++;
+                else if ("Avaliações respondidas / em andamento".equals(titulo)) {
+                    Tentativa tentativaAtiva = usuarioAtual == null || usuarioAtual.perfil() != Perfil.ALUNO ? null
+                            : DadosAplicacao.getRepositorioTentativas().buscarPorAvaliacaoEAluno(avaliacao.getId(), usuarioAtual.email());
+                    if (tentativaAtiva != null && tentativaAtiva.isEmAndamento()) {
+                        Button retomar = new Button("Retomar avaliação");
+                        retomar.getStyleClass().add("top-action");
+                        retomar.setOnAction(evento -> retomarAvaliacao(avaliacao, (Node) evento.getSource()));
+                        conteudo.add(retomar);
+                    }
                 }
+                cartao.getChildren().addAll(conteudo);
+                grade.getChildren().add(cartao);
             }
         }
         listaAvaliacoes.getChildren().add(grade);
@@ -172,13 +150,13 @@ public class AvaliacoesAlunoController {
     @FXML
     private void mostrarNotas() {
         listaNotas.getChildren().clear();
-        String email = emailDoAluno();
-        if (email.isEmpty()) {
-            listaNotas.getChildren().add(mensagem("Informe o e-mail do aluno e clique em \"Ver minhas notas\"."));
+        if (usuarioAtual == null || usuarioAtual.perfil() != Perfil.ALUNO) {
+            listaNotas.getChildren().add(mensagem("Entre com uma conta de aluno para consultar suas notas."));
             return;
         }
+        String email = usuarioAtual.email();
+        listaNotas.getChildren().addAll(PainelMediaDoAluno.linhas(email));
         try {
-            alunoAtual = email;
             var notas = NotasDoAlunoPostgres.listar(email);
             if (notas.isEmpty()) {
                 listaNotas.getChildren().add(mensagem("Nenhuma avaliação realizada ou encerrada para este aluno."));
@@ -188,7 +166,10 @@ public class AvaliacoesAlunoController {
                 Label linha = new Label(nota.titulo() + "  •  prazo " + nota.prazo().format(FORMATO_DATA_HORA)
                         + "  •  Nota: " + nota.textoDaNota());
                 linha.setWrapText(true);
-                listaNotas.getChildren().add(linha);
+                Button detalhes = new Button("Consultar respostas e correção");
+                detalhes.setOnAction(evento -> mostrarDetalhesNota(email, nota.idAvaliacao(), nota.titulo()));
+                VBox itemNota = new VBox(5, linha, detalhes);
+                listaNotas.getChildren().add(itemNota);
             }
         } catch (RuntimeException erro) {
             listaNotas.getChildren().add(mensagem("Não foi possível carregar as notas. Confira a conexão com o PostgreSQL. "
@@ -196,13 +177,19 @@ public class AvaliacoesAlunoController {
         }
     }
 
-    /** Aluno logado: sempre o e-mail do login (não dá para trocar na tela). Demais perfis: o campo digitado. */
-    private String emailDoAluno() {
-        UsuarioLogado usuario = SessaoUsuario.getUsuario();
-        if (usuario != null && usuario.perfil() == Perfil.ALUNO) {
-            return usuario.email();
+    private void mostrarDetalhesNota(String email, int idAvaliacao, String titulo) {
+        try {
+            var itens = NotasDoAlunoPostgres.detalhar(email, idAvaliacao);
+            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+            alerta.setTitle("Resultado da avaliação");
+            alerta.setHeaderText(titulo);
+            alerta.setContentText(itens.isEmpty() ? "Ainda não há respostas disponíveis para consulta."
+                    : String.join("\n\n", itens));
+            alerta.getDialogPane().setMinWidth(560);
+            alerta.showAndWait();
+        } catch (RuntimeException erro) {
+            avisar("Não foi possível consultar as respostas: " + erro.getMessage());
         }
-        return campoAluno.getText() == null ? "" : campoAluno.getText().trim();
     }
 
     private Label mensagem(String texto) {
@@ -214,12 +201,15 @@ public class AvaliacoesAlunoController {
 
     /** Confere as regras, pede confirmação (só dá para abrir uma vez) e vai para a tela de resposta. */
     private void abrirAvaliacao(Avaliacao avaliacao, Node origem) {
-        alunoAtual = emailDoAluno();
+        if (usuarioAtual == null || usuarioAtual.perfil() != Perfil.ALUNO) {
+            avisar("Somente alunos autenticados podem responder avaliações.");
+            return;
+        }
+        String email = usuarioAtual.email();
 
-        String motivo = servico.motivoDeBloqueio(avaliacao.getId(), alunoAtual);
+        String motivo = servico.motivoDeBloqueio(avaliacao.getId(), email);
         if (motivo != null) {
             avisar(motivo);
-            campoAluno.requestFocus();
             return;
         }
 
@@ -227,16 +217,13 @@ public class AvaliacoesAlunoController {
         confirmacao.setTitle("Abrir avaliação");
         confirmacao.setHeaderText("Abrir \"" + avaliacao.getNome() + "\" agora?");
         confirmacao.setContentText("Você só pode abrir esta avaliação uma vez. "
-                + (avaliacao.getDuracaoMinutos() > 0
-                ? "O tempo de " + avaliacao.getDuracaoMinutos() + " minutos começa a contar agora. "
-                : "")
                 + "Se fechar a janela ou sair sem entregar, a avaliação será encerrada com as respostas já dadas.");
         if (confirmacao.showAndWait().filter(botao -> botao == ButtonType.OK).isEmpty()) {
             return;
         }
 
         try {
-            Tentativa tentativa = servico.iniciar(avaliacao.getId(), alunoAtual);
+            Tentativa tentativa = servico.iniciar(avaliacao.getId(), email);
             ResponderAvaliacaoController.prepararResposta(avaliacao, tentativa);
             NavegacaoUtil.abrir(origem, "responder-avaliacao.fxml", "SNCTECH - " + avaliacao.getNome());
         } catch (IllegalArgumentException erro) {
@@ -247,6 +234,20 @@ public class AvaliacoesAlunoController {
             alerta.setHeaderText("Não foi possível iniciar a avaliação");
             alerta.setContentText("Confira a conexão com o PostgreSQL e tente novamente. Detalhe: " + erro.getMessage());
             alerta.showAndWait();
+        }
+    }
+
+    private void retomarAvaliacao(Avaliacao avaliacao, Node origem) {
+        try {
+            if (usuarioAtual == null || usuarioAtual.perfil() != Perfil.ALUNO) {
+                avisar("Somente alunos autenticados podem responder avaliações.");
+                return;
+            }
+            Tentativa tentativa = servico.retomar(avaliacao.getId(), usuarioAtual.email());
+            ResponderAvaliacaoController.prepararResposta(avaliacao, tentativa);
+            NavegacaoUtil.abrir(origem, "responder-avaliacao.fxml", "SNCTECH - " + avaliacao.getNome());
+        } catch (RuntimeException erro) {
+            avisar(erro.getMessage());
         }
     }
 
@@ -276,11 +277,14 @@ public class AvaliacoesAlunoController {
 
     @FXML
     private void aoClicarVoltar(ActionEvent evento) {
-        UsuarioLogado usuario = SessaoUsuario.getUsuario();
-        if (usuario != null && usuario.perfil() == Perfil.ALUNO) {
-            NavegacaoUtil.abrirInicio((Node) evento.getSource());
+        if (listaNotas != null) {
+            NavegacaoUtil.abrir((Node) evento.getSource(), "dashboard-aluno.fxml", "SNCTECH - Aluno");
         } else {
-            NavegacaoUtil.abrir((Node) evento.getSource(), "provas-aplicadas.fxml", "SNCTECH - Banco de Provas");
+            boolean professor = usuarioAtual != null && usuarioAtual.perfil() == Perfil.PROFESSOR;
+            NavegacaoUtil.abrir((Node) evento.getSource(),
+                    professor ? "dashboard-professor.fxml" : "dashboard-aluno.fxml",
+                    professor ? "SNCTECH - Professor" : "SNCTECH - Aluno");
         }
     }
+
 }

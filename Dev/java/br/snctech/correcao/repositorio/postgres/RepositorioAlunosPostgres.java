@@ -20,7 +20,7 @@ public class RepositorioAlunosPostgres implements RepositorioAlunos {
     public List<AlunoResumo> buscarPorAvaliacao(Integer idAvaliacao) {
         return Conexao.executar(c -> {
             String sql = "SELECT u.id, u.nome FROM usuarios u WHERE u.id IN ("
-                    + "SELECT m.aluno_id FROM matriculas m JOIN avaliacoes a ON a.turma_id = m.turma_id WHERE a.id = ? "
+                    + "SELECT m.aluno_id FROM matriculas m JOIN avaliacao_turmas avt ON avt.turma_id = m.turma_id WHERE avt.avaliacao_id = ? "
                     + "UNION SELECT t.aluno_id FROM tentativas_avaliacao t WHERE t.avaliacao_id = ?) "
                     + "ORDER BY u.nome";
             List<AlunoResumo> alunos = new ArrayList<>();

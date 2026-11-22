@@ -38,7 +38,7 @@ public final class Conexao {
 
     /** modo=memoria roda sem banco (nada é salvo). Útil para testes rápidos e demonstrações. */
     public static boolean modoMemoria() {
-        return "memoria".equalsIgnoreCase(config("modo", "snctech.modo", "SNCTECH_MODO", "memoria").trim());
+        return "memoria".equalsIgnoreCase(config("modo", "snctech.modo", "SNCTECH_MODO", "banco").trim());
     }
 
     public static synchronized Connection obter() {
@@ -104,6 +104,7 @@ public final class Conexao {
                     "SELECT id, professor_id, tipo, enunciado, imagem_url FROM questoes WHERE 1 = 0",
                     "SELECT id, questao_id, texto, correta, par_associacao FROM alternativas WHERE 1 = 0",
                     "SELECT avaliacao_id, questao_id, ordem FROM avaliacao_questoes WHERE 1 = 0",
+                    "SELECT avaliacao_id, turma_id FROM avaliacao_turmas WHERE 1 = 0",
                     "SELECT id, avaliacao_id, aluno_id, data_inicio, data_envio, limite, status FROM tentativas_avaliacao WHERE 1 = 0",
                     "SELECT id, tentativa_id, questao_id, alternativa_escolhida_id, resposta_discursiva, resposta_associacao FROM respostas_aluno WHERE 1 = 0"
                 };
@@ -118,8 +119,9 @@ public final class Conexao {
             });
             return null;
         } catch (ErroBanco e) {
-            return "O banco não está com o esquema esperado. Restaure o DB_SQL/snctech_backup.sql e rode o "
-                    + "DB_SQL/migracao_01_integracao_avaliacoes.sql. Detalhe: " + e.getMessage();
+            return "O banco não está com o esquema esperado. Restaure o DB_SQL/snctech_backup.sql e rode as "
+                    + "migrações necessárias, incluindo DB_SQL/migracao_01_integracao_avaliacoes.sql e "
+                    + "DB_SQL/migracao_03_peso_e_multiplas_turmas.sql. Detalhe: " + e.getMessage();
         }
     }
 

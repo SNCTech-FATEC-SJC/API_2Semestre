@@ -13,11 +13,17 @@
       fx:controller="br.snctech.correcao.controller.CorrecaoAlunosController"
       styleClass="border-pane, corr-raiz" stylesheets="@correcao.css" prefWidth="1100" prefHeight="720">
 
-    <HBox styleClass="top-bar">
-        <Label text="Professor" styleClass="top-bar-title"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Label fx:id="tituloAvaliacao" text="Correção da prova" styleClass="top-bar-title"/>
-    </HBox>
+    <VBox styleClass="top-bar" spacing="12">
+        <HBox spacing="10">
+            <Label text="Professor" styleClass="top-bar-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="tituloAvaliacao" text="Correção da prova" styleClass="top-bar-title"
+                   wrapText="true" HBox.hgrow="ALWAYS"/>
+        </HBox>
+        <HBox alignment="CENTER_RIGHT">
+            <Button fx:id="botaoVoltar" text="Voltar" onAction="#aoClicarVoltar" styleClass="top-action"/>
+        </HBox>
+    </VBox>
 
     <VBox spacing="14" styleClass="page-shell" VBox.vgrow="ALWAYS">
         <Label text="Correção da prova" styleClass="titulo-pagina"/>
@@ -33,8 +39,5 @@
             <GridPane fx:id="tabela" hgap="12"/>
         </VBox>
 
-        <HBox spacing="12">
-            <Button fx:id="botaoVoltar" text="Voltar" onAction="#aoClicarVoltar" styleClass="secondary-button"/>
-        </HBox>
     </VBox>
 </VBox>

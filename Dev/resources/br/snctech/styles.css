@@ -15,6 +15,19 @@
     -fx-cor-sombra: rgba(0, 0, 0, 0.12);
 }
 
+.delete-action {
+    -fx-background-color: #9c1c1c;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 14 8 14;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.delete-action:hover {
+    -fx-background-color: #761313;
+}
+
 .border-pane {
     -fx-background-color: -fx-cor-fundo;
 }
@@ -161,17 +174,20 @@
 }
 
 .top-action {
-    -fx-background-color: -fx-cor-azul;
+     -fx-background-color: #9c1c1c;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-padding: 8 14 8 14;
     -fx-background-radius: 8;
+    -fx-padding: 6 14 6 14;
     -fx-cursor: hand;
 }
 
+.top-action:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+}
+
 .prova-card {
-    -fx-pref-width: 170px;
-    -fx-pref-height: 90px;
+    -fx-pref-width: 220px;
     -fx-background-color: -fx-cor-cartao;
     -fx-border-color: -fx-cor-borda;
     -fx-border-radius: 9;

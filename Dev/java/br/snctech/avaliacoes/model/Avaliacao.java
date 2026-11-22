@@ -14,15 +14,16 @@ public class Avaliacao {
     private List<Questao> questoes;
     private boolean respondida;
     private String turma;
-    private int turmaId;   // id da turma real (tabela turmas); 0 = sem vínculo
     private LocalDate data;
     private LocalDate prazo;
     private LocalTime horaInicio;
     private LocalTime horaFim;
     private boolean disponibilizada;
-    private int duracaoMinutos; // limite de tempo por aluno; 0 = sem limite além do prazo
+    private int duracaoMinutos; // limite individual; zero significa usar somente o prazo geral
+    private double peso = 1.0; // peso da avaliação na composição da nota
     private int versao = 1;                // 1 = original; 2, 3... = versões criadas ao editar uma avaliação já respondida
     private Integer avaliacaoPaiId = null; // avaliação da qual esta versão foi criada (null na original)
+    private final java.util.Set<Integer> alunosSelecionados = new java.util.LinkedHashSet<>(); // avaliação da qual esta versão foi criada (null na original)
 
     public Avaliacao(int id, String nome, List<Questao> questoes) {
         this.id = id;
@@ -45,23 +46,28 @@ public class Avaliacao {
     public void setNome(String nome) { this.nome = nome; }
     public void setQuestoes(List<Questao> questoes) { this.questoes = new ArrayList<>(questoes); }
     public String getTurma() { return turma; }
-    public int getTurmaId() { return turmaId; }
     public LocalDate getData() { return data; }
     public LocalDate getPrazo() { return prazo; }
     public LocalTime getHoraInicio() { return horaInicio; }
     public LocalTime getHoraFim() { return horaFim; }
     public boolean isDisponibilizada() { return disponibilizada; }
     public int getDuracaoMinutos() { return duracaoMinutos; }
+    public double getPeso() { return peso; }
     public void setTurma(String turma) { this.turma = turma; }
-    public void setTurmaId(int turmaId) { this.turmaId = turmaId; }
     public void setData(LocalDate data) { this.data = data; }
     public void setPrazo(LocalDate prazo) { this.prazo = prazo; }
     public void setHoraInicio(LocalTime horaInicio) { this.horaInicio = horaInicio; }
     public void setHoraFim(LocalTime horaFim) { this.horaFim = horaFim; }
     public void setDisponibilizada(boolean disponibilizada) { this.disponibilizada = disponibilizada; }
     public void setDuracaoMinutos(int duracaoMinutos) { this.duracaoMinutos = duracaoMinutos; }
+    public void setPeso(double peso) { this.peso = peso; }
     public int getVersao() { return versao; }
     public void setVersao(int versao) { this.versao = versao; }
     public Integer getAvaliacaoPaiId() { return avaliacaoPaiId; }
     public void setAvaliacaoPaiId(Integer avaliacaoPaiId) { this.avaliacaoPaiId = avaliacaoPaiId; }
+    public java.util.Set<Integer> getAlunosSelecionados() { return new java.util.LinkedHashSet<>(alunosSelecionados); }
+    public void setAlunosSelecionados(java.util.Collection<Integer> ids) {
+        alunosSelecionados.clear();
+        if (ids != null) alunosSelecionados.addAll(ids);
+    }
 }

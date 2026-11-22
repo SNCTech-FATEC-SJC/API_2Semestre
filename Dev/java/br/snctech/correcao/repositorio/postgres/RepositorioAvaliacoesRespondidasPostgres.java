@@ -7,6 +7,7 @@ import br.snctech.correcao.model.AvaliacaoRespondida;
 import br.snctech.correcao.model.RespostaQuestao;
 import br.snctech.correcao.model.StatusCorrecao;
 import br.snctech.correcao.repositorio.RepositorioAvaliacoesRespondidas;
+import br.snctech.turmas.repositorio.TurmaDAO;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -93,15 +94,28 @@ public class RepositorioAvaliacoesRespondidasPostgres implements RepositorioAval
                 }
                 ps.executeBatch();
             }
+            // O valor das questões permanece bruto em respostas_aluno; o peso é aplicado
+            // somente ao total consolidado, evitando multiplicação repetida em recorreções.
+            BigDecimal peso;
+            try (PreparedStatement ps = c.prepareStatement(
+                    "SELECT a.peso FROM avaliacoes a JOIN tentativas_avaliacao t ON t.avaliacao_id=a.id WHERE t.id=?")) {
+                ps.setInt(1, prova.getId());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) throw new SQLException("Avaliação da tentativa não encontrada.");
+                    peso = rs.getBigDecimal(1);
+                }
+            }
+            BigDecimal notaPonderada = prova.notaTotal().multiply(peso).setScale(2, java.math.RoundingMode.HALF_UP);
             try (PreparedStatement ps = c.prepareStatement(
                     "UPDATE tentativas_avaliacao SET nota_total = ?, corrigida_completamente = ? WHERE id = ?")) {
-                ps.setBigDecimal(1, prova.notaTotal());
+                ps.setBigDecimal(1, notaPonderada);
                 ps.setBoolean(2, prova.notaFinalConfirmada());
                 ps.setInt(3, prova.getId());
                 if (ps.executeUpdate() != 1) {
                     throw new SQLException("Tentativa não encontrada: " + prova.getId());
                 }
             }
+            TurmaDAO.atualizarRecuperacoesDaAvaliacao(c, prova.getIdAvaliacao());
             return null;
         });
     }

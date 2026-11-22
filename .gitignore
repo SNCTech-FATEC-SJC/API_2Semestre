@@ -37,6 +37,7 @@ hs_err_pid*
 # Configuracao sensivel/local do banco
 ############################################
 banco.properties
+**/snctech_backup.sql
 
 ############################################
 # Arquivos temporarios e de sistema

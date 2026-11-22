@@ -5,7 +5,6 @@ import br.snctech.questoes.model.Questao;
 import br.snctech.avaliacoes.repositorio.RepositorioAvaliacoes;
 import br.snctech.avaliacoes.repositorio.RepositorioAvaliacoesMemoria;
 import br.snctech.avaliacoes.model.Avaliacao;
-import br.snctech.avaliacoes.model.TurmaAvaliacao;
 import br.snctech.avaliacoes.service.AvaliacaoService;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -34,8 +33,8 @@ public class TesteAvaliacao {
         }
     }
 
-    static final TurmaAvaliacao T1A = new TurmaAvaliacao(1, "1A");
-    static final TurmaAvaliacao T1B = new TurmaAvaliacao(2, "1B");
+    static final String T1A = "1A";
+    static final String T1B = "1B";
 
     static final LocalDate DATA = LocalDate.of(2026, 10, 26);
     static final LocalDate PRAZO = LocalDate.of(2026, 10, 28);
@@ -50,8 +49,8 @@ public class TesteAvaliacao {
         RepositorioAvaliacoes repo = new RepositorioAvaliacoesMemoria();
         AvaliacaoService service = new AvaliacaoService(repo);
         Avaliacao prova = service.criar("  Prova 1  ", questoes, T1A, DATA, PRAZO);
-        confere("Nome é salvo sem espaços sobrando e a turma fica vinculada (id e nome)",
-                prova.getNome().equals("Prova 1") && prova.getTurma().equals("1A") && prova.getTurmaId() == 1);
+        confere("Nome é salvo sem espaços sobrando e a turma fica vinculada",
+                prova.getNome().equals("Prova 1") && prova.getTurma().equals("1A"));
         confere("Guarda data, prazo e as questões escolhidas",
                 prova.getData().equals(DATA) && prova.getPrazo().equals(PRAZO) && prova.getQuestoes().size() == 2);
         confere("Começa não respondida e não disponibilizada", !prova.isRespondida() && !prova.isDisponibilizada());
@@ -67,7 +66,7 @@ public class TesteAvaliacao {
         exigeErro("Sem questão", "pelo menos uma questão", () -> service.criar("P", List.of(), T1A, DATA, PRAZO));
         exigeErro("Lista de questões nula", "pelo menos uma questão", () -> service.criar("P", null, T1A, DATA, PRAZO));
         exigeErro("Sem turma", "turma", () -> service.criar("P", questoes, null, DATA, PRAZO));
-        exigeErro("Turma sem id válido", "turma", () -> service.criar("P", questoes, new TurmaAvaliacao(0, "X"), DATA, PRAZO));
+        exigeErro("Turma vazia", "turma", () -> service.criar("P", questoes, " ", DATA, PRAZO));
         exigeErro("Sem data", "data", () -> service.criar("P", questoes, T1A, null, PRAZO));
         exigeErro("Sem prazo", "prazo", () -> service.criar("P", questoes, T1A, DATA, null));
         exigeErro("Prazo antes da data", "anterior", () -> service.criar("P", questoes, T1A, PRAZO, DATA));
@@ -79,7 +78,7 @@ public class TesteAvaliacao {
         confere("Novo nome, turma, prazo e questões",
                 prova.getNome().equals("Prova 1 revisada") && prova.getTurma().equals("1B")
                         && prova.getPrazo().equals(PRAZO.plusDays(1)) && prova.getQuestoes().size() == 3);
-        confere("A turma nova (id 2) fica vinculada", prova.getTurmaId() == 2);
+        confere("A turma nova fica vinculada", prova.getTurma().equals("1B"));
         confere("Não cria avaliação nova", repo.listarTodas().size() == antes);
         exigeErro("Editar para nome vazio", "nome", () -> service.editar(prova.getId(), " ", questoes, T1B, DATA, PRAZO));
         exigeErro("Editar sem questões", "pelo menos uma questão", () -> service.editar(prova.getId(), "P", List.of(), T1B, DATA, PRAZO));

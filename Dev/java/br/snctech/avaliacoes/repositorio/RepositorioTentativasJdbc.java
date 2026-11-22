@@ -96,13 +96,27 @@ public class RepositorioTentativasJdbc implements RepositorioTentativas {
         return Conexao.executar(c -> UsuarioDAO.buscarAlunoPorEmail(c, aluno) != null);
     }
 
-    @Override public boolean alunoNaTurma(String aluno, int turmaId) {
+    @Override public boolean alunoMatriculadoNaAvaliacao(int avaliacaoId, String aluno) {
         if (aluno == null || aluno.isBlank()) return false;
         return Conexao.executar(c -> {
-            String sql = "SELECT 1 FROM matriculas m JOIN usuarios u ON u.id = m.aluno_id WHERE m.turma_id = ? AND lower(u.email) = lower(?)";
+            try (PreparedStatement selecionados = c.prepareStatement(
+                    "SELECT EXISTS (SELECT 1 FROM avaliacao_alunos aa JOIN usuarios u ON u.id=aa.aluno_id "
+                            + "WHERE aa.avaliacao_id=? AND lower(u.email)=lower(?))")) {
+                selecionados.setInt(1, avaliacaoId);
+                selecionados.setString(2, aluno.trim());
+                try (ResultSet rs = selecionados.executeQuery()) {
+                    if (rs.next() && rs.getBoolean(1)) return true;
+                    if (rs.next()) return false;
+                }
+            } catch (SQLException ignorado) {
+                // Banco antigo sem a tabela: usa somente matrícula na turma.
+            }
+            String sql = "SELECT EXISTS (SELECT 1 FROM usuarios u JOIN matriculas m ON m.aluno_id=u.id "
+                    + "JOIN avaliacao_turmas avt ON avt.turma_id=m.turma_id "
+                    + "WHERE avt.avaliacao_id=? AND lower(u.email)=lower(?))";
             try (PreparedStatement ps = c.prepareStatement(sql)) {
-                ps.setInt(1, turmaId); ps.setString(2, aluno.trim());
-                try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
+                ps.setInt(1, avaliacaoId); ps.setString(2, aluno.trim());
+                try (ResultSet rs = ps.executeQuery()) { rs.next(); return rs.getBoolean(1); }
             }
         });
     }
