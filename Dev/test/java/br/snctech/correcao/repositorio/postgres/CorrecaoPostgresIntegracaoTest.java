@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Teste de integração: só roda se houver banco com a migração 02 e o seed de exemplo
- * (DB_SQL/seed_02_correcao_exemplo.sql). Sem banco, é ignorado — não quebra o build de ninguém.
+ * (Avisos.e.Banco/DB_SQL/seed_02_correcao_exemplo.sql). Sem banco, é ignorado — não quebra o build de ninguém.
  * Só LÊ dados; não altera o banco.
  */
 class CorrecaoPostgresIntegracaoTest {

@@ -1,5 +1,6 @@
 package br.snctech.correcao.controller;
 
+import br.snctech.notas.DadosNotas;
 import br.snctech.util.NavegacaoUtil;
 import br.snctech.correcao.DadosCorrecao;
 import br.snctech.correcao.controller.PecasVisuais.Cor;
@@ -30,15 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Tela 7 - Correção manual do aluno (PB-03).
- *
- * <p>Só desenha e chama os serviços; a regra de correção está em {@code CorrecaoManualService}.
- * O professor pode validar a nota sugerida ou alterar a nota de QUALQUER questão
- * (inclusive as que o sistema corrigiu sozinho); cada ação é salva na hora.
- */
 public class CorrecaoManualController {
-
     @FXML private Label tituloTela;
     @FXML private ComboBox<LinhaAluno> seletorAluno;
     @FXML private VBox colunaResumo;
@@ -89,8 +82,6 @@ public class CorrecaoManualController {
         seletorAluno.getSelectionModel().select(inicial);
     }
 
-    // ------------------------------------------------------------------ conteúdo
-
     private void mostrar(Integer idProva, String nomeAluno) {
         idProvaAtual = idProva;
         nomeAlunoAtual = nomeAluno;
@@ -114,11 +105,14 @@ public class CorrecaoManualController {
 
     private VBox cartaoResumo(String nomeAluno, String nomeTurma, AvaliacaoRespondida ar) {
         boolean fechada = ar.notaFinalConfirmada();
+        boolean finalizada = ar.isCorrecaoFinalizada();
 
         Label nota = new Label(PecasVisuais.formatar(ar.notaTotal()));
         nota.getStyleClass().add("corr-nota-grande");
 
-        Label aviso = new Label("Cada \"Validar nota\" ou \"Alterar nota\" é salvo na hora.");
+        Label aviso = new Label(finalizada
+                ? "Correção finalizada: o aluno já vê a nota. Alterações continuam sendo salvas na hora."
+                : "Cada \"Validar nota\" ou \"Alterar nota\" é salvo na hora. O aluno só vê a nota depois de \"Finalizar correção\".");
         aviso.setWrapText(true);
         aviso.getStyleClass().add("corr-aviso");
 
@@ -128,9 +122,26 @@ public class CorrecaoManualController {
                 new Label("Turma: " + nomeTurma),
                 new Label(fechada ? "Nota final:" : "Nota parcial:"),
                 nota,
-                PecasVisuais.selo(fechada ? "Corrigida" : "Parcial", fechada ? Cor.VERDE : Cor.LARANJA),
+                seloDoResumo(fechada, finalizada),
+                botaoFinalizar(fechada, finalizada),
                 aviso);
         return cartao;
+    }
+
+    private Label seloDoResumo(boolean fechada, boolean finalizada) {
+        if (finalizada) {
+            return PecasVisuais.selo("Finalizada", Cor.VERDE);
+        }
+        return fechada ? PecasVisuais.selo("Falta finalizar", Cor.AZUL) : PecasVisuais.selo("Parcial", Cor.LARANJA);
+    }
+
+    private Button botaoFinalizar(boolean fechada, boolean finalizada) {
+        Button botao = new Button(finalizada ? "Correção finalizada" : "Finalizar correção");
+        botao.getStyleClass().add("primary-button");
+        botao.setMaxWidth(Double.MAX_VALUE);
+        botao.setDisable(!fechada || finalizada);
+        botao.setOnAction(e -> executar(() -> DadosCorrecao.correcaoManual().finalizarCorrecao(idProvaAtual)));
+        return botao;
     }
 
     private VBox cartaoQuestao(int numero, QuestaoCorrecao q, RespostaQuestao r, AvaliacaoRespondida ar) {
@@ -198,7 +209,6 @@ public class CorrecaoManualController {
         return linha;
     }
 
-    /** Roda a ação do serviço; se a regra recusar (nota inválida etc.), mostra o motivo. Depois redesenha. */
     private void executar(Runnable acao) {
         try {
             acao.run();
@@ -206,6 +216,7 @@ public class CorrecaoManualController {
             PecasVisuais.alerta(ex.getMessage());
             return;
         }
+        DadosNotas.recalcularAposCorrecao(DadosCorrecao.contexto().idAvaliacao());
         mostrar(idProvaAtual, nomeAlunoAtual);
     }
 
@@ -213,8 +224,6 @@ public class CorrecaoManualController {
     private void aoClicarVoltar(ActionEvent evento) {
         NavegacaoUtil.abrir((Node) evento.getSource(), "correcao-alunos.fxml", "SNCTECH - Correção da prova");
     }
-
-    // ------------------------------------------------------------------ textos
 
     private Label seloDaQuestao(QuestaoCorrecao q, RespostaQuestao r) {
         if (r.getStatus() == StatusCorrecao.PENDENTE_MANUAL || r.getStatus() == null) {
@@ -232,7 +241,6 @@ public class CorrecaoManualController {
         };
     }
 
-    /** Texto da resposta do aluno (gabarito=false) ou do gabarito (gabarito=true) de uma questão objetiva. */
     private static String descrever(QuestaoCorrecao q, RespostaQuestao r, boolean gabarito) {
         return switch (q.tipo()) {
             case MULTIPLA_ESCOLHA -> alternativa(q, gabarito ? q.gabaritoAlternativaId() : r.getAlternativaId());

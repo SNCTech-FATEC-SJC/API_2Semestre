@@ -14,15 +14,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * Dados da tela "Correção da prova" (lista de alunos da avaliação).
- * A média da turma NÃO está aqui: é do PB-12 (outro integrante).
- */
 public class ResumoCorrecaoService {
+    public enum SituacaoAluno { NAO_RESPONDEU, PENDENTE, CORRIGIDA, FINALIZADA }
 
-    public enum SituacaoAluno { NAO_RESPONDEU, PENDENTE, CORRIGIDA }
-
-    /** nota: null = "–" (ainda pendente); NAO_RESPONDEU vale 0 só depois do prazo. */
     public record LinhaAluno(Integer idAluno, String nome, SituacaoAluno situacao,
                              long discursivasPendentes, BigDecimal nota, Integer idAvaliacaoRespondida) {}
 
@@ -36,11 +30,6 @@ public class ResumoCorrecaoService {
         this.repoAlunos = repoAlunos;
     }
 
-    /**
-     * @param prazoEncerrado informado por quem controla o prazo (PB-18). Só depois do prazo
-     *                       quem não respondeu recebe 0 e conta como concluído.
-     *                       "Total corrigido" = (corrigidas + sem resposta com prazo encerrado) / alunos.
-     */
     public ResumoAvaliacao resumir(Integer idAvaliacao, boolean prazoEncerrado) {
         Map<Integer, AvaliacaoRespondida> porAluno = repoRespondidas.buscarPorAvaliacao(idAvaliacao).stream()
                 .collect(Collectors.toMap(AvaliacaoRespondida::getIdAluno, Function.identity(), (a, b) -> b));
@@ -52,8 +41,8 @@ public class ResumoCorrecaoService {
                 linhas.add(new LinhaAluno(aluno.id(), aluno.nome(), SituacaoAluno.NAO_RESPONDEU, 0,
                         prazoEncerrado ? BigDecimal.ZERO : null, null));
             } else if (ar.notaFinalConfirmada()) {
-                linhas.add(new LinhaAluno(aluno.id(), aluno.nome(), SituacaoAluno.CORRIGIDA, 0,
-                        ar.notaTotal(), ar.getId()));
+                SituacaoAluno situacao = ar.isCorrecaoFinalizada() ? SituacaoAluno.FINALIZADA : SituacaoAluno.CORRIGIDA;
+                linhas.add(new LinhaAluno(aluno.id(), aluno.nome(), situacao, 0, ar.notaTotal(), ar.getId()));
             } else {
                 long pendentes = ar.respostas().values().stream()
                         .filter(r -> r.getStatus() == null || r.getStatus() == StatusCorrecao.PENDENTE_MANUAL)
@@ -65,7 +54,7 @@ public class ResumoCorrecaoService {
         linhas.sort(Comparator.comparing(LinhaAluno::nome));
 
         long concluidos = linhas.stream()
-                .filter(l -> l.situacao() == SituacaoAluno.CORRIGIDA
+                .filter(l -> l.situacao() == SituacaoAluno.CORRIGIDA || l.situacao() == SituacaoAluno.FINALIZADA
                         || (l.situacao() == SituacaoAluno.NAO_RESPONDEU && prazoEncerrado))
                 .count();
         int percentual = linhas.isEmpty() ? 0 : (int) Math.round(100.0 * concluidos / linhas.size());

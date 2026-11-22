@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import br.snctech.banco.Conexao;
 import br.snctech.banco.ErroBanco;
+import br.snctech.banco.InicioDoBanco;
 import br.snctech.banco.QuestaoDAO;
 import br.snctech.banco.SessaoUsuario;
 import java.util.ArrayList;
@@ -18,6 +19,10 @@ public class App extends Application {
 
     @Override
     public void start(Stage palco) throws Exception {
+        if (!InicioDoBanco.preparar()) {
+            Conexao.fechar();
+            return;
+        }
         if (!Conexao.modoMemoria()) {
             String problema = Conexao.verificarEsquema();
             if (problema != null) {

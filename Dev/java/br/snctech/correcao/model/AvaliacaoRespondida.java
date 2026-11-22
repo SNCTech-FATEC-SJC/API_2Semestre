@@ -6,13 +6,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/** Prova respondida por um aluno (no banco: tabela tentativas_avaliacao). */
 public class AvaliacaoRespondida {
-
     private final Integer id;
     private final Integer idAvaliacao;
     private final Integer idAluno;
     private final Map<Integer, RespostaQuestao> respostas = new LinkedHashMap<>();
+    private boolean correcaoFinalizada;
 
     public AvaliacaoRespondida(Integer id, Integer idAvaliacao, Integer idAluno) {
         this.id = id;
@@ -28,7 +27,6 @@ public class AvaliacaoRespondida {
         return Optional.ofNullable(respostas.get(idQuestao));
     }
 
-    /** Se o aluno deixou a questão em branco, cria uma resposta vazia para ela poder ser corrigida (nota 0). */
     public RespostaQuestao respostaOuVazia(Integer idQuestao) {
         return respostas.computeIfAbsent(idQuestao, RespostaQuestao::new);
     }
@@ -37,13 +35,11 @@ public class AvaliacaoRespondida {
         return Collections.unmodifiableMap(respostas);
     }
 
-    /** Ainda existe questão sem correção ou aguardando o professor. */
     public boolean temPendencias() {
         return respostas.values().stream()
                 .anyMatch(r -> r.getStatus() == null || r.getStatus() == StatusCorrecao.PENDENTE_MANUAL);
     }
 
-    /** Soma das notas já lançadas (ignora pendentes). */
     public BigDecimal notaTotal() {
         return respostas.values().stream()
                 .map(RespostaQuestao::getNota)
@@ -51,9 +47,23 @@ public class AvaliacaoRespondida {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    /** A nota só vira "nota final" quando não há mais nada pendente. */
     public boolean notaFinalConfirmada() {
         return !respostas.isEmpty() && !temPendencias();
+    }
+
+    public boolean isCorrecaoFinalizada() {
+        return correcaoFinalizada;
+    }
+
+    public void setCorrecaoFinalizada(boolean correcaoFinalizada) {
+        this.correcaoFinalizada = correcaoFinalizada;
+    }
+
+    public void finalizarCorrecao() {
+        if (!notaFinalConfirmada()) {
+            throw new IllegalStateException("Ainda há questões sem nota. Corrija todas antes de finalizar a correção.");
+        }
+        correcaoFinalizada = true;
     }
 
     public Integer getId() { return id; }
