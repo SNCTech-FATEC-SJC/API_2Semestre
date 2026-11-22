@@ -2,7 +2,7 @@
 # SNCTECH - Gerenciamento e Aplicação de Avaliações Escolares
 ## Projeto API - 2º Semestre 2026
 <p align="center">
-  <img src="Documentação/logo_snctech.png" width="400" heigth="3000"/>
+  <img src="Documentação/logo_snctech.png" alt="Logo SNCTECH" width="400"/>
 </p>
 <p align="center">
     <a href="#sobre"> Sobre</a> |
@@ -97,18 +97,27 @@ Ao atingir 00:00, a avaliação é entregue automaticamente com as respostas reg
 
 ### 📄 Documentação <a id="documentacao"></a>
 
-A documentação completa pode ser consultada na pasta <a href="https://github.com/SNCTech-FATEC-SJC/API_2Semestre/tree/main/Documenta%C3%A7%C3%A3o">Documentação</a>.
+A documentação completa está na pasta [Documentação](<./Documentação/>).
 
 ##### Conteúdo:
-- <a href="https://github.com/SNCTech-FATEC-SJC/API_2Semestre/blob/main/Documenta%C3%A7%C3%A3o/Backlog.MD">Product Backlog completo</a>
-- <a href="https://github.com/SNCTech-FATEC-SJC/API_2Semestre/blob/main/Documenta%C3%A7%C3%A3o/Definition%20of%20Ready.MD">Definition of Ready (DoR)</a>
-- <a href="https://github.com/SNCTech-FATEC-SJC/API_2Semestre/blob/main/Documenta%C3%A7%C3%A3o/Definition%20of%20Done.MD">Definition of Done (DoD)</a>
+- [Product Backlog completo](<./Documentação/Backlog.MD>)
+- [Critérios de Permanência](<./Documentação/Criterios_de_Permanencia.md>)
+- [Definition of Ready (DoR)](<./Documentação/Definition of Ready.MD>)
+- [Definition of Done (DoD)](<./Documentação/Definition of Done.MD>)
+- [Estratégia de Branch](<./Documentação/Estratégia de Branch.md>)
+- [Manual de Instalação](<./Documentação/Manual de Instalação.md>)
+- [Sprint 2 - Backlog](<./Documentação/SPRINT 2/Backlog Sprint 2.md>)
+- [Sprint 2 - Critérios de Aceitação](<./Documentação/SPRINT 2/Critérios de Aceitação.md>)
+- [Sprint 3 - Backlog](<./Documentação/SPRINT 3/Backlog Sprint 3.md>)
+- [Sprint 3 - Critérios de Aceitação](<./Documentação/SPRINT 3/Critérios de Aceitação.md>)
+- [Guia de Execução e Testes - Notas e Médias](<./Documentação/SPRINT 3/Guia de Execucao e Testes - Notas e Medias.md>)
+- [Telas do sistema (PDF)](<./Documentação/Telas-SNCTECH.pdf>)
 
 ---
 
 ### 📖 Manual do usuário <a id="manual"></a>
 
-Consulte o arquivo <a href="https://github.com/SNCTech-FATEC-SJC/API_2Semestre/blob/main/Documenta%C3%A7%C3%A3o/Manual%20do%20Usu%C3%A1rio.md">Manual do Usuário</a> para obter orientações de uso da aplicação.
+Consulte o [Manual do Usuário](<./Documentação/Manual do Usuário.md>) para obter orientações de uso da aplicação.
 
 
 ---
