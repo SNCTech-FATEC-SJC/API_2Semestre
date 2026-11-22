@@ -174,12 +174,16 @@
 }
 
 .top-action {
-    -fx-background-color: -fx-cor-azul;
+     -fx-background-color: #9c1c1c;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-padding: 8 14 8 14;
     -fx-background-radius: 8;
+    -fx-padding: 6 14 6 14;
     -fx-cursor: hand;
+}
+
+.top-action:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
 }
 
 .prova-card {

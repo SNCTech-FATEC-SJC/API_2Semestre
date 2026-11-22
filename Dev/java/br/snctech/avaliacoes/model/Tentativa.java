@@ -15,8 +15,8 @@ import java.util.Map;
  */
 public class Tentativa {
 
-    /** EM_ANDAMENTO: aluno respondendo. FINALIZADA: aluno entregou.
-     *  ENCERRADA: o tempo acabou ou o aluno fechou a prova sem entregar. */
+    /** EM_ANDAMENTO: aluno respondendo. FINALIZADA: aluno entregou ou o tempo acabou.
+     *  ENCERRADA: aluno fechou a prova antes do limite sem entregar. */
     public enum Status { EM_ANDAMENTO, FINALIZADA, ENCERRADA }
 
     private final int id;

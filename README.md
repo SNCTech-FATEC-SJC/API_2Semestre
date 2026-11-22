@@ -49,11 +49,13 @@ A SNCTECH busca automatizar o ciclo completo de uma avaliação escolar, do cada
 
 O sistema permite que o professor crie avaliações com questões de múltipla escolha, associação e discursivas, podendo adicionar imagens aos enunciados e definir o peso de cada prova. Após uma avaliação ser respondida, qualquer alteração gera uma nova versão, mantendo a versão original para preservar as respostas dos alunos.
 
-Na aplicação da prova, as alternativas das questões objetivas são embaralhadas a cada acesso do aluno, dificultando o compartilhamento do gabarito. A avaliação só fica disponível após a liberação do professor e deve ser respondida dentro do prazo definido; caso contrário, a nota é registrada automaticamente como 0.
+Na aplicação da prova, as alternativas das questões objetivas são embaralhadas a cada acesso do aluno, dificultando o compartilhamento do gabarito. A avaliação só fica disponível após a liberação do professor e deve ser respondida dentro do prazo definido; ao chegar a 00:00, é entregue automaticamente com as respostas já salvas. Avaliações não realizadas recebem nota 0.
 
 A correção de questões de múltipla escolha e associação é automática, com base no gabarito informado pelo professor; questões discursivas são corrigidas manualmente, avaliação por avaliação. A nota só se torna "nota final" depois que todas as questões discursivas forem validadas, e a média final é calculada automaticamente, ponderando as notas pelos pesos de cada avaliação (≥ 6: aprovado; < 4: reprovado; faixa intermediária: EXF).
 
 O professor também gerencia turmas e alunos, encerrando automaticamente a turma atual ao cadastrar uma nova, sem perder o histórico. O aluno pode acompanhar suas notas, média final e avaliações futuras, sem acessar as questões antes da liberação. Todo o acesso é controlado por login, conforme o perfil do usuário.
+
+Ao atingir 00:00, a avaliação é entregue automaticamente com as respostas registradas até o limite. Ao concluir uma turma, o sistema calcula as médias ponderadas e cria ou reutiliza uma turma de recuperação para alunos com média estritamente maior que 4 e menor que 6. Um aluno já associado a uma recuperação não é incluído em outra. Esses registros usam as tabelas existentes de turmas e matrículas.
 
 ---
 ### 📋 Backlog do Produto <a id="backlog"></a>

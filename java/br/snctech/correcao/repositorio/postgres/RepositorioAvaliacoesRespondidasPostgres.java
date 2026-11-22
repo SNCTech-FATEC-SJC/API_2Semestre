@@ -7,6 +7,7 @@ import br.snctech.correcao.model.AvaliacaoRespondida;
 import br.snctech.correcao.model.RespostaQuestao;
 import br.snctech.correcao.model.StatusCorrecao;
 import br.snctech.correcao.repositorio.RepositorioAvaliacoesRespondidas;
+import br.snctech.turmas.repositorio.TurmaDAO;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -114,6 +115,7 @@ public class RepositorioAvaliacoesRespondidasPostgres implements RepositorioAval
                     throw new SQLException("Tentativa não encontrada: " + prova.getId());
                 }
             }
+            TurmaDAO.atualizarRecuperacoesDaAvaliacao(c, prova.getIdAvaliacao());
             return null;
         });
     }

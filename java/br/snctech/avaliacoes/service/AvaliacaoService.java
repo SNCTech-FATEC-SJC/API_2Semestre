@@ -22,7 +22,7 @@ public class AvaliacaoService {
         return repositorio.salvar(nome.trim(), questoes, turma.trim(), data, prazo);
     }
 
-    /** Compatibilidade com o campo legado de duração; a realização usa somente o prazo geral. */
+    /** Valida a duração individual; zero significa que só vale o prazo geral. */
     public Avaliacao criar(String nome, List<Questao> questoes, String turma, LocalDate data, LocalDate prazo,
                            LocalTime horaInicio, LocalTime horaFim, int duracaoMinutos) {
         return criar(nome, questoes, turma, data, prazo, horaInicio, horaFim, duracaoMinutos, 1.0);

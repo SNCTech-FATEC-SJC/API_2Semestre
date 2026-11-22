@@ -38,7 +38,7 @@ public final class Conexao {
 
     /** modo=memoria roda sem banco (nada é salvo). Útil para testes rápidos e demonstrações. */
     public static boolean modoMemoria() {
-        return "memoria".equalsIgnoreCase(config("modo", "snctech.modo", "SNCTECH_MODO", "banco").trim());
+        return "memoria".equalsIgnoreCase(config("modo", "snctech.modo", "SNCTECH_MODO", "memoria").trim());
     }
 
     public static synchronized Connection obter() {

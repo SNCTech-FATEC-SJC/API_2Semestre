@@ -91,7 +91,7 @@ public class TentativaService {
         tentativas.registrarResposta(tentativa, questao, resposta);
     }
 
-    /** O aluno clicou em entregar. Se o tempo já tinha acabado, fica ENCERRADA com as respostas já registradas. */
+    /** Entrega a tentativa; ao vencer o tempo, a entrega automática usa o limite como horário. */
     public Tentativa finalizar(int tentativaId) {
         Tentativa tentativa = buscar(tentativaId);
         encerrarSeTempoAcabou(tentativa);
@@ -99,9 +99,10 @@ public class TentativaService {
         return tentativa;
     }
 
-    /** O aluno fechou a prova (ou o cronômetro chegou a zero) sem entregar. Mantém as respostas já registradas. */
+    /** O aluno fechou a prova antes do prazo. Se o limite venceu, entrega automaticamente. */
     public Tentativa encerrar(int tentativaId) {
         Tentativa tentativa = buscar(tentativaId);
+        encerrarSeTempoAcabou(tentativa);
         if (tentativa.isEmAndamento()) {
             LocalDateTime agora = agora();
             tentativas.concluir(tentativa, Tentativa.Status.ENCERRADA, agora.isBefore(tentativa.getLimite()) ? agora : tentativa.getLimite());
@@ -109,17 +110,18 @@ public class TentativaService {
         return tentativa;
     }
 
-    /** Segundos que faltam para o tempo acabar (0 se a tentativa não está em andamento). Para o cronômetro da tela. */
+    /** Segundos restantes (0 quando a tentativa deixa de estar em andamento). Para o cronômetro da tela. */
     public long segundosRestantes(int tentativaId) {
         Tentativa tentativa = buscar(tentativaId);
         encerrarSeTempoAcabou(tentativa);
         if (!tentativa.isEmAndamento()) return 0;
-        return Duration.between(agora(), tentativa.getLimite()).getSeconds();
+        Duration restante = Duration.between(agora(), tentativa.getLimite());
+        return restante.getSeconds() + (restante.getNano() > 0 ? 1 : 0);
     }
 
     private void encerrarSeTempoAcabou(Tentativa tentativa) {
         if (tentativa.isEmAndamento() && !agora().isBefore(tentativa.getLimite())) {
-            tentativas.concluir(tentativa, Tentativa.Status.ENCERRADA, tentativa.getLimite());
+            tentativas.concluir(tentativa, Tentativa.Status.FINALIZADA, tentativa.getLimite());
         }
     }
 

@@ -7,8 +7,8 @@ import br.snctech.avaliacoes.repositorio.RepositorioAvaliacoesMemoria;
 import br.snctech.avaliacoes.repositorio.RepositorioTentativas;
 import br.snctech.avaliacoes.repositorio.RepositorioTentativasMemoria;
 import br.snctech.avaliacoes.model.Avaliacao;
-import br.snctech.avaliacoes.model.TurmaAvaliacao;
 import br.snctech.avaliacoes.model.Tentativa;
+import br.snctech.avaliacoes.model.TurmaAvaliacao;
 import br.snctech.avaliacoes.service.ApoioResposta;
 import br.snctech.avaliacoes.service.AvaliacaoService;
 import br.snctech.avaliacoes.service.TentativaService;
@@ -121,7 +121,7 @@ public class TesteRealizacao {
         relogio.irPara(em(26, 15, 1));
         exigeErro("Responder depois do limite", "tempo da avaliação acabou", () -> service.responder(caio.getId(), q2, "Falso"));
         Tentativa depois = service.finalizar(caio.getId());
-        confere("Status ENCERRADA por tempo", depois.getStatus() == Tentativa.Status.ENCERRADA);
+        confere("Status FINALIZADA automaticamente por tempo", depois.getStatus() == Tentativa.Status.FINALIZADA);
         confere("Fim registrado no limite", depois.getFim().equals(em(26, 15, 0)));
         confere("Manteve as 2 respostas dadas antes do limite", depois.getRespostas().size() == 2);
         confere("Cronômetro zerado", service.segundosRestantes(caio.getId()) == 0);
@@ -163,8 +163,8 @@ public class TesteRealizacao {
         service.responder(gabi.getId(), q1, "4");
         relogio.irPara(LocalDateTime.of(2026, 11, 2, 9, 30));
         confere("Ao chegar no limite, o cronômetro zera", service.segundosRestantes(gabi.getId()) == 0);
-        confere("...e a tentativa fica ENCERRADA com a resposta salva",
-                gabi.getStatus() == Tentativa.Status.ENCERRADA && "4".equals(gabi.getResposta(q1)));
+        confere("...e a tentativa fica FINALIZADA com a resposta salva",
+                gabi.getStatus() == Tentativa.Status.FINALIZADA && "4".equals(gabi.getResposta(q1)));
         confere("Avaliação criada pela tela conta como respondida depois que alguém abre", daTela.isRespondida());
         Avaliacao v2daTela = criador.editar(daTela.getId(), "Prova da tela", List.of(q1), T1A,
                 LocalDate.of(2026, 11, 2), LocalDate.of(2026, 11, 3), LocalTime.of(8, 0), LocalTime.of(10, 0), 30);

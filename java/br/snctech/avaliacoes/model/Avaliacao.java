@@ -19,7 +19,7 @@ public class Avaliacao {
     private LocalTime horaInicio;
     private LocalTime horaFim;
     private boolean disponibilizada;
-    private int duracaoMinutos; // campo legado do banco; novas avaliações usam apenas o prazo geral
+    private int duracaoMinutos; // limite individual; zero significa usar somente o prazo geral
     private double peso = 1.0; // peso da avaliação na composição da nota
     private int versao = 1;                // 1 = original; 2, 3... = versões criadas ao editar uma avaliação já respondida
     private Integer avaliacaoPaiId = null; // avaliação da qual esta versão foi criada (null na original)

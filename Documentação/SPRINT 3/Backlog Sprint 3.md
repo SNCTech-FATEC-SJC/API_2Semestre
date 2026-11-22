@@ -83,6 +83,3 @@ Uma User Story está Done quando foi implementada, validada e integrada ao siste
 |-|-|
 |🟡|Média|
 |🟢|Baixa|
-
-
-

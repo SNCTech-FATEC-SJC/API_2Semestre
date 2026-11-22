@@ -37,6 +37,7 @@
                 <Button fx:id="botaoAvaliacoes" onAction="#aoClicarAvaliacoes" text="Provas Aplicadas" styleClass="menu-button"/>
                 <Button fx:id="botaoTurmas" onAction="#aoClicarTurmas" text="Gerenciamento de Turmas" styleClass="menu-button"/>
                 <Button fx:id="botaoAlunos" onAction="#aoClicarAlunos" text="Gerenciamento de Alunos" styleClass="menu-button"/>
+                <Button fx:id="botaoNotas" onAction="#aoClicarNotas" text="Notas e Médias" styleClass="menu-button"/>
             </VBox>
             <VBox spacing="18" styleClass="content-panel" HBox.hgrow="ALWAYS">
                 <Label text="Professor" styleClass="titulo-pagina"/>

@@ -73,7 +73,10 @@ public class AvaliacaoService {
                     nomeNovo = base + versao++;
                 } while (nomeJaExiste(nomeNovo));
             }
-            return repositorio.salvar(nomeNovo, questoes, turma, data, prazo, horaInicio, horaFim, duracaoMinutos);
+            Avaliacao nova = repositorio.salvarNovaVersao(existente, nomeNovo, questoes, turma,
+                    data, prazo, horaInicio, horaFim, duracaoMinutos);
+            nova.setRespondida(false);
+            return nova;
         }
         repositorio.atualizar(existente, nome.trim(), questoes, turma, data, prazo, horaInicio, horaFim, duracaoMinutos);
         return existente;

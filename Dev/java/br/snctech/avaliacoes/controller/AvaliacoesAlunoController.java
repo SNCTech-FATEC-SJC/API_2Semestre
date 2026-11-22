@@ -24,6 +24,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.VBox;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
  * As questões só aparecem na tela Responder Avaliação, depois que o aluno confirma a abertura.
  */
 public class AvaliacoesAlunoController {
-    @FXML private GridPane listaAvaliacoes;
+    @FXML private VBox listaAvaliacoes;
     @FXML private TextField campoAluno;
     @FXML private VBox listaNotas;
     private static final DateTimeFormatter FORMATO_DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
@@ -61,7 +62,6 @@ public class AvaliacoesAlunoController {
         mostrarNotas();
         listaAvaliacoes.getChildren().clear();
 
-        // O aluno só vê avaliações das turmas em que está matriculado.
         final Set<Integer> turmasPermitidas;
         try {
             turmasPermitidas = logadoComoAluno
@@ -69,51 +69,100 @@ public class AvaliacoesAlunoController {
                             .map(Turma::id).collect(Collectors.toSet())
                     : null;
         } catch (ErroBanco erro) {
-            listaAvaliacoes.add(mensagem("Não foi possível carregar suas turmas. Detalhe: " + erro.getMessage()), 0, 0, 3, 1);
+            listaAvaliacoes.getChildren().add(
+                    mensagem("Não foi possível carregar suas turmas. Detalhe: " + erro.getMessage()));
             return;
         }
-        int coluna = 0;
-        int linha = 0;
+
         LocalDateTime agora = LocalDateTime.now();
-        var avaliacoes = DadosAplicacao.getRepositorioAvaliacoes().listarTodas().stream()
-                .filter(Avaliacao::isDisponibilizada)
-                .filter(avaliacao -> turmasPermitidas == null || turmasPermitidas.contains(avaliacao.getTurmaId()))
-                .filter(avaliacao -> avaliacao.getPrazo() != null
-                        && avaliacao.getHoraFim() != null
-                        && !avaliacao.getPrazo().atTime(avaliacao.getHoraFim()).isBefore(agora))
-                .toList();
+        String email = campoAluno.getText() == null ? "" : campoAluno.getText().trim();
 
-        if (avaliacoes.isEmpty()) {
-            Label vazio = new Label("Nenhuma avaliação disponível ou dentro do prazo.");
-            vazio.setWrapText(true);
-            vazio.getStyleClass().add("mensagem");
-            listaAvaliacoes.add(vazio, 0, 0, 3, 1);
-            return;
-        }
+        java.util.List<Avaliacao> futuras = new java.util.ArrayList<>();
+        java.util.List<Avaliacao> disponiveis = new java.util.ArrayList<>();
+        java.util.List<Avaliacao> respondidas = new java.util.ArrayList<>();
+        java.util.List<Avaliacao> encerradas = new java.util.ArrayList<>();
 
-        for (Avaliacao avaliacao : avaliacoes) {
-            VBox cartao = new VBox(8);
-            cartao.getStyleClass().add("prova-card-aluno");
-            Button responder = new Button("Responder avaliação");
-            responder.getStyleClass().add("top-action");
-            responder.setOnAction(evento -> abrirAvaliacao(avaliacao, (Node) evento.getSource()));
-            cartao.getChildren().addAll(
-                    new Label(avaliacao.getNome()),
-                    new Label("Turma(s): " + avaliacao.getTurma()),
-                    new Label("Início: " + formatarDataHora(avaliacao, true)),
-                    new Label("Prazo: " + formatarDataHora(avaliacao, false)),
-                    new Label("Questões: " + avaliacao.getQuestoes().size()),
-                    new Label("Duração: " + (avaliacao.getDuracaoMinutos() > 0
-                            ? avaliacao.getDuracaoMinutos() + " min" : "até o prazo")),
-                    responder
-            );
-            listaAvaliacoes.add(cartao, coluna, linha);
-            coluna++;
-            if (coluna == 3) {
-                coluna = 0;
-                linha++;
+        for (Avaliacao avaliacao : DadosAplicacao.getRepositorioAvaliacoes().listarTodas()) {
+            if (!avaliacao.isDisponibilizada()) continue;
+            if (turmasPermitidas != null && !turmasPermitidas.contains(avaliacao.getTurmaId())) continue;
+
+            LocalDateTime inicio = inicioDa(avaliacao);
+            LocalDateTime fim = fimDa(avaliacao);
+            if (inicio == null || fim == null) continue;
+
+            Tentativa tentativa = email.isBlank() ? null
+                    : DadosAplicacao.getRepositorioTentativas()
+                            .buscarPorAvaliacaoEAluno(avaliacao.getId(), email);
+
+            if (tentativa != null) {
+                if (tentativa.isEmAndamento() && agora.isBefore(tentativa.getLimite())) respondidas.add(avaliacao);
+                else if (tentativa.getStatus() == Tentativa.Status.FINALIZADA) respondidas.add(avaliacao);
+                else encerradas.add(avaliacao);
+            } else if (agora.isBefore(inicio)) {
+                futuras.add(avaliacao);
+            } else if (!agora.isBefore(fim)) {
+                encerradas.add(avaliacao);
+            } else {
+                disponiveis.add(avaliacao);
             }
         }
+
+        adicionarSecao("Avaliações disponíveis", disponiveis, agora, true);
+        adicionarSecao("Avaliações futuras", futuras, agora, false);
+        adicionarSecao("Avaliações respondidas / em andamento", respondidas, agora, false);
+        adicionarSecao("Avaliações encerradas", encerradas, agora, false);
+    }
+
+    private void adicionarSecao(String titulo, java.util.List<Avaliacao> avaliacoes,
+                                LocalDateTime agora, boolean permitirAbrir) {
+        Label cabecalho = new Label(titulo);
+        cabecalho.getStyleClass().add("section-label");
+        listaAvaliacoes.getChildren().add(cabecalho);
+
+        GridPane grade = new GridPane();
+        grade.setHgap(16);
+        grade.setVgap(16);
+        grade.getStyleClass().add("card-grid");
+        for (int i = 0; i < 3; i++) {
+            ColumnConstraints coluna = new ColumnConstraints();
+            coluna.setPercentWidth(100.0 / 3.0);
+            grade.getColumnConstraints().add(coluna);
+        }
+
+        if (avaliacoes.isEmpty()) {
+            Label vazio = new Label("Nenhuma avaliação nesta categoria.");
+            vazio.getStyleClass().add("mensagem");
+            grade.add(vazio, 0, 0);
+        } else {
+            int coluna = 0;
+            int linha = 0;
+            for (Avaliacao avaliacao : avaliacoes) {
+                VBox cartao = new VBox(8);
+                cartao.getStyleClass().add("prova-card-aluno");
+                java.util.List<Node> conteudo = new java.util.ArrayList<>();
+                conteudo.add(new Label(avaliacao.getNome()));
+                conteudo.add(new Label("Turma(s): " + avaliacao.getTurma()));
+                conteudo.add(new Label("Início: " + formatarDataHora(avaliacao, true)));
+                conteudo.add(new Label("Prazo: " + formatarDataHora(avaliacao, false)));
+                conteudo.add(new Label("Questões: " + avaliacao.getQuestoes().size()));
+                conteudo.add(new Label("Duração: " + (avaliacao.getDuracaoMinutos() > 0
+                        ? avaliacao.getDuracaoMinutos() + " min" : "até o prazo")));
+                if (permitirAbrir) {
+                    Button responder = new Button("Responder avaliação");
+                    responder.getStyleClass().add("top-action");
+                    responder.setOnAction(evento -> abrirAvaliacao(avaliacao, (Node) evento.getSource()));
+                    conteudo.add(responder);
+                }
+                cartao.getChildren().addAll(conteudo);
+                grade.add(cartao, coluna, linha);
+                coluna++;
+                if (coluna == 3) {
+                    coluna = 0;
+                    linha++;
+                }
+            }
+        }
+        listaAvaliacoes.getChildren().add(grade);
     }
 
     /**
@@ -213,6 +262,16 @@ public class AvaliacoesAlunoController {
         var data = inicio ? avaliacao.getData() : avaliacao.getPrazo();
         var hora = inicio ? avaliacao.getHoraInicio() : avaliacao.getHoraFim();
         return data == null ? "Não definida" : data.atTime(hora).format(FORMATO_DATA_HORA);
+    }
+
+    private LocalDateTime inicioDa(Avaliacao avaliacao) {
+        return avaliacao.getData() == null || avaliacao.getHoraInicio() == null
+                ? null : avaliacao.getData().atTime(avaliacao.getHoraInicio());
+    }
+
+    private LocalDateTime fimDa(Avaliacao avaliacao) {
+        return avaliacao.getPrazo() == null || avaliacao.getHoraFim() == null
+                ? null : avaliacao.getPrazo().atTime(avaliacao.getHoraFim());
     }
 
     @FXML

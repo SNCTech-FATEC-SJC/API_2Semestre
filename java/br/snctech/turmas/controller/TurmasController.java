@@ -225,7 +225,7 @@ public class TurmasController {
             if (DialogoUtil.confirmar(botaoVoltar, "Concluir turma",
                     "Concluir a turma \"" + turma.nome() + "\"? Ela passará para o histórico de turmas concluídas.")) {
                 executarAcao(() -> Conexao.emTransacao(c -> TurmaDAO.concluir(c, turma.id())),
-                        "Turma concluída com sucesso.");
+                        "Turma concluída. O sistema verificou automaticamente as médias e associou à recuperação os alunos elegíveis.");
             }
         } else if (DialogoUtil.confirmar(botaoVoltar, "Reativar turma",
                 "Reativar a turma \"" + turma.nome() + "\"? A turma ativa atual do professor será concluída.")) {

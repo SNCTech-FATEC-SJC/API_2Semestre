@@ -20,6 +20,9 @@ import java.util.List;
  */
 public class TurmaDAO {
 
+    private static final String PREFIXO_RECUPERACAO = "Recuperação turma #";
+    private record TurmaConcluida(int id, String nome) { }
+
     private static final String SELECT_TURMA =
             "SELECT t.id, t.nome, t.professor_id, COALESCE(p.nome, '') AS professor_nome, t.ativa, t.criado_em, "
                     + "(SELECT COUNT(*) FROM matriculas m WHERE m.turma_id = t.id) AS total_alunos "
@@ -109,9 +112,41 @@ public class TurmaDAO {
 
     /** Conclui a turma (ativa = false). */
     public static int concluir(Connection conexao, int turmaId) throws SQLException {
+        String nome;
+        try (PreparedStatement ps = conexao.prepareStatement("SELECT nome FROM turmas WHERE id = ?")) {
+            ps.setInt(1, turmaId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    throw new IllegalArgumentException("A turma não foi encontrada (pode ter sido removida).");
+                }
+                nome = rs.getString("nome");
+            }
+        }
+        int linhas;
         try (PreparedStatement ps = conexao.prepareStatement("UPDATE turmas SET ativa = FALSE WHERE id = ?")) {
             ps.setInt(1, turmaId);
-            return ps.executeUpdate();
+            linhas = ps.executeUpdate();
+        }
+        RecuperacaoTurmaDAO.criarSeNecessario(conexao, turmaId, nome);
+        return linhas;
+    }
+
+    /** Reavalia as turmas concluídas quando uma correção altera a nota de uma avaliação. */
+    public static void atualizarRecuperacoesDaAvaliacao(Connection conexao, int avaliacaoId) throws SQLException {
+        String sql = "SELECT DISTINCT t.id, t.nome FROM turmas t "
+                + "JOIN avaliacao_turmas avt ON avt.turma_id = t.id "
+                + "WHERE avt.avaliacao_id = ? AND NOT t.ativa";
+        List<TurmaConcluida> turmasConcluidas = new ArrayList<>();
+        try (PreparedStatement ps = conexao.prepareStatement(sql)) {
+            ps.setInt(1, avaliacaoId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    turmasConcluidas.add(new TurmaConcluida(rs.getInt("id"), rs.getString("nome")));
+                }
+            }
+        }
+        for (TurmaConcluida turma : turmasConcluidas) {
+            RecuperacaoTurmaDAO.criarSeNecessario(conexao, turma.id(), turma.nome());
         }
     }
 
@@ -135,11 +170,25 @@ public class TurmaDAO {
     }
 
     private static void encerrarOutrasAtivas(Connection conexao, int professorId, int exceto) throws SQLException {
+        List<TurmaConcluida> turmasEncerradas = new ArrayList<>();
+        try (PreparedStatement ps = conexao.prepareStatement(
+                "SELECT id, nome FROM turmas WHERE professor_id = ? AND ativa = TRUE AND id <> ?")) {
+            ps.setInt(1, professorId);
+            ps.setInt(2, exceto);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    turmasEncerradas.add(new TurmaConcluida(rs.getInt("id"), rs.getString("nome")));
+                }
+            }
+        }
         try (PreparedStatement ps = conexao.prepareStatement(
                 "UPDATE turmas SET ativa = FALSE WHERE professor_id = ? AND ativa = TRUE AND id <> ?")) {
             ps.setInt(1, professorId);
             ps.setInt(2, exceto);
             ps.executeUpdate();
+        }
+        for (TurmaConcluida turma : turmasEncerradas) {
+            RecuperacaoTurmaDAO.criarSeNecessario(conexao, turma.id(), turma.nome());
         }
     }
 

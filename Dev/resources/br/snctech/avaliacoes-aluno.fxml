@@ -28,13 +28,7 @@
         </HBox>
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="fundo">
             <content>
-                <GridPane fx:id="listaAvaliacoes" hgap="16" vgap="16" styleClass="card-grid">
-                    <columnConstraints>
-                        <ColumnConstraints percentWidth="33.33"/>
-                        <ColumnConstraints percentWidth="33.33"/>
-                        <ColumnConstraints percentWidth="33.34"/>
-                    </columnConstraints>
-                </GridPane>
+                <VBox fx:id="listaAvaliacoes" spacing="12"/>
             </content>
         </ScrollPane>
         <Label text="Minhas notas" styleClass="section-label strong"/>

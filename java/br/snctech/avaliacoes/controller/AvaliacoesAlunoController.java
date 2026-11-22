@@ -8,6 +8,7 @@ import br.snctech.autenticacao.modelo.UsuarioLogado;
 import br.snctech.banco.SessaoUsuario;
 import br.snctech.correcao.model.NotaDoAluno;
 import br.snctech.correcao.repositorio.postgres.NotasDoAlunoPostgres;
+import br.snctech.notas.controller.PainelMediaDoAluno;
 import br.snctech.avaliacoes.model.Avaliacao;
 import br.snctech.avaliacoes.model.Tentativa;
 import br.snctech.avaliacoes.service.TentativaService;
@@ -154,6 +155,7 @@ public class AvaliacoesAlunoController {
             return;
         }
         String email = usuarioAtual.email();
+        listaNotas.getChildren().addAll(PainelMediaDoAluno.linhas(email));
         try {
             var notas = NotasDoAlunoPostgres.listar(email);
             if (notas.isEmpty()) {

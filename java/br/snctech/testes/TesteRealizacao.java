@@ -120,7 +120,7 @@ public class TesteRealizacao {
         relogio.irPara(em(28, 18, 1));
         exigeErro("Responder depois do limite", "tempo da avaliação acabou", () -> service.responder(caio.getId(), q2, "Falso"));
         Tentativa depois = service.finalizar(caio.getId());
-        confere("Status ENCERRADA por tempo", depois.getStatus() == Tentativa.Status.ENCERRADA);
+        confere("Status FINALIZADA automaticamente por tempo", depois.getStatus() == Tentativa.Status.FINALIZADA);
         confere("Fim registrado no prazo geral", depois.getFim().equals(em(28, 18, 0)));
         confere("Manteve as 2 respostas dadas antes do limite", depois.getRespostas().size() == 2);
         confere("Cronômetro zerado", service.segundosRestantes(caio.getId()) == 0);
@@ -157,14 +157,14 @@ public class TesteRealizacao {
         exigeErro("Antes do horário de início (02/11 08:00)", "ainda não começou", () -> service.iniciar(daTela.getId(), "gabi"));
         relogio.irPara(LocalDateTime.of(2026, 11, 2, 9, 0));
         Tentativa gabi = service.iniciar(daTela.getId(), "gabi");
-        confere("Campo legado de duração não reduz o prazo geral",
-                gabi.getLimite().equals(LocalDateTime.of(2026, 11, 3, 10, 0)));
-        confere("Cronômetro considera o prazo geral", service.segundosRestantes(gabi.getId()) == 90000);
+        confere("Duração individual de 30 minutos limita a tentativa",
+                gabi.getLimite().equals(LocalDateTime.of(2026, 11, 2, 9, 30)));
+        confere("Cronômetro considera a duração individual", service.segundosRestantes(gabi.getId()) == 1800);
         service.responder(gabi.getId(), q1, "4");
         relogio.irPara(LocalDateTime.of(2026, 11, 3, 10, 1));
         confere("Ao chegar no limite, o cronômetro zera", service.segundosRestantes(gabi.getId()) == 0);
-        confere("...e a tentativa fica ENCERRADA com a resposta salva",
-                gabi.getStatus() == Tentativa.Status.ENCERRADA && "4".equals(gabi.getResposta(q1)));
+        confere("...e a tentativa fica FINALIZADA com a resposta salva",
+                gabi.getStatus() == Tentativa.Status.FINALIZADA && "4".equals(gabi.getResposta(q1)));
         confere("Avaliação criada pela tela conta como respondida depois que alguém abre", daTela.isRespondida());
         Avaliacao v2daTela = criador.editar(daTela.getId(), "Prova da tela", List.of(q1), T1A,
                 LocalDate.of(2026, 11, 2), LocalDate.of(2026, 11, 3), LocalTime.of(8, 0), LocalTime.of(10, 0), 30);

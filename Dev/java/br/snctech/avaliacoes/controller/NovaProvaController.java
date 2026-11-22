@@ -4,7 +4,6 @@ package br.snctech.avaliacoes.controller;
 
 import br.snctech.autenticacao.modelo.Perfil;
 import br.snctech.autenticacao.modelo.UsuarioLogado;
-import br.snctech.avaliacoes.model.TurmaAvaliacao;
 import br.snctech.banco.Conexao;
 import br.snctech.banco.ErroBanco;
 import br.snctech.banco.SessaoUsuario;
@@ -15,6 +14,7 @@ import br.snctech.infraestrutura.DadosAplicacao;
 import br.snctech.questoes.model.Questao;
 import br.snctech.questoes.service.BancoQuestoes;
 import br.snctech.avaliacoes.model.Avaliacao;
+import br.snctech.avaliacoes.model.TurmaAvaliacao;
 import br.snctech.avaliacoes.service.AvaliacaoService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
