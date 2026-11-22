@@ -1,6 +1,5 @@
 package br.snctech.correcao.repositorio.postgres;
 
-
 import br.snctech.avaliacoes.model.Tentativa;
 import br.snctech.banco.Conexao;
 import br.snctech.correcao.model.AvaliacaoRespondida;
@@ -18,21 +17,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Provas respondidas e suas notas, no PostgreSQL.
- *
- * <ul>
- *   <li>Uma prova respondida é uma linha de {@code tentativas_avaliacao} (só entram as já entregues:
- *       status {@code enviada} ou {@code nao_realizada_prazo}; {@code em_andamento} ainda não pode ser corrigida).</li>
- *   <li>Cada resposta é uma linha de {@code respostas_aluno}. As colunas da resposta do aluno
- *       (alternativa escolhida, texto, associação) são gravadas pela tela de realização e <b>nunca são alteradas aqui</b>;
- *       a correção só grava nota, status, nota sugerida e quem corrigiu.</li>
- *   <li>{@code salvar} grava também {@code nota_total} e {@code corrigida_completamente} da tentativa.</li>
- * </ul>
- * Precisa da migração 02 (colunas {@code status_correcao}, {@code nota_sugerida}, {@code corrigido_por}).
- */
 public class RepositorioAvaliacoesRespondidasPostgres implements RepositorioAvaliacoesRespondidas {
-
     @Override
     public AvaliacaoRespondida buscar(Integer id) {
         return Conexao.executar(c -> {
@@ -107,10 +92,14 @@ public class RepositorioAvaliacoesRespondidasPostgres implements RepositorioAval
             }
             BigDecimal notaPonderada = prova.notaTotal().multiply(peso).setScale(2, java.math.RoundingMode.HALF_UP);
             try (PreparedStatement ps = c.prepareStatement(
-                    "UPDATE tentativas_avaliacao SET nota_total = ?, corrigida_completamente = ? WHERE id = ?")) {
+                    "UPDATE tentativas_avaliacao SET nota_total = ?, corrigida_completamente = ?, "
+                            + "correcao_finalizada = ?, correcao_finalizada_em = CASE WHEN ? "
+                            + "THEN COALESCE(correcao_finalizada_em, now()) ELSE NULL END WHERE id = ?")) {
                 ps.setBigDecimal(1, notaPonderada);
                 ps.setBoolean(2, prova.notaFinalConfirmada());
-                ps.setInt(3, prova.getId());
+                ps.setBoolean(3, prova.isCorrecaoFinalizada());
+                ps.setBoolean(4, prova.isCorrecaoFinalizada());
+                ps.setInt(5, prova.getId());
                 if (ps.executeUpdate() != 1) {
                     throw new SQLException("Tentativa não encontrada: " + prova.getId());
                 }
@@ -123,13 +112,14 @@ public class RepositorioAvaliacoesRespondidasPostgres implements RepositorioAval
     private static AvaliacaoRespondida carregar(Connection c, int id) throws SQLException {
         AvaliacaoRespondida prova;
         try (PreparedStatement ps = c.prepareStatement(
-                "SELECT id, avaliacao_id, aluno_id FROM tentativas_avaliacao WHERE id = ?")) {
+                "SELECT id, avaliacao_id, aluno_id, correcao_finalizada FROM tentativas_avaliacao WHERE id = ?")) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
                     return null;
                 }
                 prova = new AvaliacaoRespondida(rs.getInt("id"), rs.getInt("avaliacao_id"), rs.getInt("aluno_id"));
+                prova.setCorrecaoFinalizada(rs.getBoolean("correcao_finalizada"));
             }
         }
 

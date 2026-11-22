@@ -9,23 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.sql.SQLException;
 
-/**
- * Lê do PostgreSQL as notas de um aluno (identificado pelo e-mail, como no resto do sistema).
- * Entram as avaliações liberadas da turma dele que já foram abertas por ele ou que já encerraram.
- */
 public final class NotasDoAlunoPostgres {
-
     private NotasDoAlunoPostgres() {
     }
 
-    /** Lista vazia se o e-mail não existe ou se o sistema está em modo memória (sem banco). */
     public static List<NotaDoAluno> listar(String emailDoAluno) {
         if (emailDoAluno == null || emailDoAluno.isBlank() || Conexao.modoMemoria()) {
             return List.of();
         }
         return Conexao.executar(c -> {
             String sql = "SELECT DISTINCT a.id, a.titulo, a.prazo_fim, t.status::text AS status, t.nota_total, "
-                    + "COALESCE(t.corrigida_completamente, false) AS corrigida "
+                    + "COALESCE(t.corrigida_completamente, false) AS corrigida, "
+                    + "COALESCE(t.correcao_finalizada, false) AS finalizada "
                     + "FROM usuarios u "
                     + "JOIN matriculas m ON m.aluno_id = u.id "
                     + "JOIN avaliacao_turmas avt ON avt.turma_id = m.turma_id "
@@ -40,7 +35,8 @@ public final class NotasDoAlunoPostgres {
                     while (rs.next()) {
                         notas.add(NotaDoAluno.de(rs.getInt("id"), rs.getString("titulo"),
                                 rs.getTimestamp("prazo_fim").toLocalDateTime(), rs.getString("status"),
-                                rs.getBigDecimal("nota_total"), rs.getBoolean("corrigida")));
+                                rs.getBigDecimal("nota_total"), rs.getBoolean("corrigida"),
+                                rs.getBoolean("finalizada")));
                     }
                 }
             }

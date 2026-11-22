@@ -1,6 +1,5 @@
 package br.snctech.avaliacoes.controller;
 
-
 import br.snctech.util.NavegacaoUtil;
 import br.snctech.infraestrutura.DadosAplicacao;
 import br.snctech.autenticacao.modelo.Perfil;

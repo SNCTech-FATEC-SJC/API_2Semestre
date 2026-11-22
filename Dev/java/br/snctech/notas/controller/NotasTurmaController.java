@@ -68,10 +68,10 @@ public class NotasTurmaController {
             return;
         }
         Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacao.setTitle("Concluir turma e liberar médias");
-        confirmacao.setHeaderText("Concluir a turma \"" + turma.nome() + "\" e liberar as médias?");
-        confirmacao.setContentText("Os alunos passam a ver a média final quando todas as avaliações estiverem corrigidas. "
-                + "A conclusão também verifica se há alunos elegíveis para recuperação.");
+        confirmacao.setTitle("Liberar médias");
+        confirmacao.setHeaderText("Liberar as médias da turma \"" + turma.nome() + "\"?");
+        confirmacao.setContentText("Depois de liberadas, os alunos passam a ver a média final e a situação. "
+                + "Se uma nota for alterada na correção manual, a média é recalculada automaticamente.");
         if (confirmacao.showAndWait().filter(botao -> botao == ButtonType.OK).isEmpty()) {
             return;
         }
@@ -139,7 +139,7 @@ public class NotasTurmaController {
         if (quadro.todasLiberadas()) {
             return "Médias liberadas: os alunos já veem a média final e a situação.";
         }
-        return "Todas as médias foram calculadas. Conclua a turma para os alunos verem os resultados.";
+        return "Todas as médias foram calculadas. Clique em \"Liberar médias\" para os alunos verem.";
     }
 
     private TableColumn<LinhaDoQuadro, String> coluna(String titulo, double largura,

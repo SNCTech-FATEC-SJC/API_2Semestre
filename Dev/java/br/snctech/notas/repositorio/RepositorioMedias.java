@@ -8,12 +8,11 @@ import br.snctech.notas.model.TentativaRegistrada;
 import br.snctech.notas.model.TurmaResumo;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RepositorioMedias {
 
     List<TurmaResumo> turmasDoProfessor(int idProfessor);
-
-    List<TurmaResumo> turmasDoAluno(String email);
 
     List<AvaliacaoDaTurma> avaliacoesDaTurma(int idTurma);
 
@@ -21,7 +20,18 @@ public interface RepositorioMedias {
 
     List<TentativaRegistrada> tentativasDaTurma(int idTurma);
 
-    boolean turmaConcluida(int idTurma);
+    void sincronizar(int idTurma, List<MediaFinal> mediasProntas);
+
+    Map<Integer, Boolean> liberacaoPorAluno(int idTurma);
 
     void liberar(int idTurma);
+
+    Integer turmaDaAvaliacao(int idAvaliacao);
+
+    default List<TurmaResumo> turmasDaAvaliacao(int idAvaliacao) {
+        Integer turmaId = turmaDaAvaliacao(idAvaliacao);
+        return turmaId == null ? List.of() : List.of(new TurmaResumo(turmaId, ""));
+    }
+
+    List<MediaLiberada> mediasLiberadasDoAluno(String email);
 }

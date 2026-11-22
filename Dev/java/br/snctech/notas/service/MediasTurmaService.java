@@ -43,12 +43,11 @@ public class MediasTurmaService {
 
     public QuadroDaTurma montarQuadro(TurmaResumo turma) {
         LocalDateTime agora = relogio.get();
-        boolean turmaConcluida = repositorio.turmaConcluida(turma.id());
         List<AvaliacaoDaTurma> avaliacoes = repositorio.avaliacoesDaTurma(turma.id());
         avaliacoes.forEach(avaliacao -> correcaoAutomatica.accept(avaliacao.id()));
         List<AlunoDaTurma> alunos = repositorio.alunosDaTurma(turma.id());
 
-        Map<String, TentativaRegistrada> tentativas = new java.util.HashMap<>();
+        Map<String, TentativaRegistrada> tentativas = new HashMap<>();
         for (TentativaRegistrada t : repositorio.tentativasDaTurma(turma.id())) {
             tentativas.put(chave(t.idAluno(), t.idAvaliacao()), t);
         }
@@ -67,9 +66,9 @@ public class MediasTurmaService {
                     continue;
                 }
                 NotaDoAluno nota = t == null
-                        ? NotaDoAluno.de(avaliacao.id(), avaliacao.titulo(), avaliacao.prazo(), null, null, false)
+                        ? NotaDoAluno.de(avaliacao.id(), avaliacao.titulo(), avaliacao.prazo(), null, null, false, false)
                         : NotaDoAluno.de(avaliacao.id(), avaliacao.titulo(), avaliacao.prazo(), t.status(),
-                        t.notaTotal(), t.corrigidaCompletamente() && t.correcaoFinalizada());
+                        t.notaTotal(), t.corrigidaCompletamente(), t.correcaoFinalizada());
                 notas.put(avaliacao.id(), nota);
                 ponderadas.add(NotaPonderada.de(nota, avaliacao.peso(), encerrada));
             }
@@ -77,11 +76,14 @@ public class MediasTurmaService {
             notasPorAluno.put(aluno.id(), notas);
         }
 
+        repositorio.sincronizar(turma.id(), medias.stream().filter(MediaFinal::estaPronta).toList());
+        Map<Integer, Boolean> liberacao = repositorio.liberacaoPorAluno(turma.id());
+
         List<LinhaDoQuadro> linhas = new ArrayList<>();
         for (int i = 0; i < alunos.size(); i++) {
             AlunoDaTurma aluno = alunos.get(i);
             linhas.add(new LinhaDoQuadro(aluno, notasPorAluno.get(aluno.id()), medias.get(i),
-                    turmaConcluida && medias.get(i).estaPronta()));
+                    liberacao.getOrDefault(aluno.id(), false)));
         }
         return new QuadroDaTurma(turma, avaliacoes, linhas, calculo.podeLiberar(medias));
     }
@@ -97,23 +99,14 @@ public class MediasTurmaService {
         return montarQuadro(turma);
     }
 
-    public List<MediaLiberada> mediasLiberadasDoAluno(String email) {
-        List<MediaLiberada> medias = new ArrayList<>();
-        for (TurmaResumo turma : repositorio.turmasDoAluno(email)) {
-            if (!repositorio.turmaConcluida(turma.id())) {
-                continue;
-            }
-            QuadroDaTurma quadro = montarQuadro(turma);
-            if (!quadro.todasLiberadas()) {
-                continue;
-            }
-            quadro.linhas().stream()
-                    .filter(linha -> linha.aluno().email().equalsIgnoreCase(email.trim()))
-                    .findFirst()
-                    .ifPresent(linha -> medias.add(new MediaLiberada(turma.nome(),
-                            linha.media().media(), linha.media().situacao())));
+    public void recalcularPelaAvaliacao(int idAvaliacao) {
+        for (TurmaResumo turma : repositorio.turmasDaAvaliacao(idAvaliacao)) {
+            montarQuadro(turma);
         }
-        return List.copyOf(medias);
+    }
+
+    public List<MediaLiberada> mediasLiberadasDoAluno(String email) {
+        return repositorio.mediasLiberadasDoAluno(email);
     }
 
     private static String chave(int idAluno, int idAvaliacao) {

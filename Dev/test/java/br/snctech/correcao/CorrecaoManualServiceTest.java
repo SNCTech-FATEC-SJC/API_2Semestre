@@ -12,7 +12,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CorrecaoManualServiceTest {
-
     private Fakes.RespondidaEmMemoria respondidas;
     private CorrecaoManualService service;
 
@@ -55,6 +54,23 @@ class CorrecaoManualServiceTest {
         assertEquals(StatusCorrecao.CORRIGIDA_MANUALMENTE, ar.resposta(2).get().getStatus());
         assertEquals(99, ar.resposta(2).get().getCorrigidoPor());
         assertTrue(service.listarPendentes(100).isEmpty());
+    }
+
+    @Test
+    void naoFinalizaACorrecaoComQuestaoPendente() {
+        assertThrows(IllegalStateException.class, () -> service.finalizarCorrecao(10));
+        assertFalse(respondidas.buscar(10).isCorrecaoFinalizada());
+    }
+
+    @Test
+    void finalizaACorrecaoDepoisDeTodasAsNotas() {
+        service.lancarNota(10, 2, new BigDecimal("3.5"), 99);
+        assertFalse(respondidas.buscar(10).isCorrecaoFinalizada());
+
+        AvaliacaoRespondida ar = service.finalizarCorrecao(10);
+
+        assertTrue(ar.isCorrecaoFinalizada());
+        assertTrue(respondidas.buscar(10).isCorrecaoFinalizada());
     }
 
     @Test

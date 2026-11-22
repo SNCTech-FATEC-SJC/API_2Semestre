@@ -1,7 +1,6 @@
 package br.snctech.avaliacoes;
 
 import br.snctech.avaliacoes.model.Avaliacao;
-import br.snctech.avaliacoes.model.TurmaAvaliacao;
 import br.snctech.avaliacoes.repositorio.RepositorioAvaliacoes;
 import br.snctech.avaliacoes.repositorio.RepositorioAvaliacoesMemoria;
 import br.snctech.avaliacoes.service.AvaliacaoService;
@@ -29,7 +28,7 @@ class AvaliacaoVersaoTest {
         Avaliacao avaliacao = service.criar(
                 "Prova",
                 List.of(original),
-                new TurmaAvaliacao(1, "1A"),
+                "1A",
                 LocalDate.of(2026, 11, 20),
                 LocalDate.of(2026, 11, 20),
                 LocalTime.of(8, 0),
@@ -41,7 +40,7 @@ class AvaliacaoVersaoTest {
                 avaliacao.getId(),
                 "Prova",
                 List.of(alterada),
-                new TurmaAvaliacao(1, "1A"),
+                "1A",
                 LocalDate.of(2026, 11, 21),
                 LocalDate.of(2026, 11, 21),
                 LocalTime.of(8, 0),

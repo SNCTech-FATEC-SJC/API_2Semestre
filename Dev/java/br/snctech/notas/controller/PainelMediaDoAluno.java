@@ -18,15 +18,14 @@ public final class PainelMediaDoAluno {
         Label titulo = new Label("Média final");
         titulo.getStyleClass().addAll("section-label", "strong");
         linhas.add(titulo);
-        String problema = DadosNotas.verificarTabela();
-        if (problema != null) {
-            linhas.add(mensagem(problema));
+        if (DadosNotas.verificarTabela() != null) {
+            linhas.add(mensagem("A média final ainda não está disponível."));
             return linhas;
         }
         try {
             List<MediaLiberada> medias = DadosNotas.servico().mediasLiberadasDoAluno(email);
             if (medias.isEmpty()) {
-                linhas.add(mensagem("A média final será exibida quando a turma for concluída e todas as avaliações estiverem corrigidas."));
+                linhas.add(mensagem("A média final ainda não foi liberada pelo professor."));
                 return linhas;
             }
             for (MediaLiberada media : medias) {

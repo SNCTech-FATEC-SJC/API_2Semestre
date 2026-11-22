@@ -36,18 +36,22 @@ public final class DadosNotas {
             return "As notas e médias da turma só funcionam com o banco de dados (modo=banco no banco.properties).";
         }
         try {
-            Conexao.executar(c -> {
-                try (var consulta = c.createStatement();
-                     var resultado = consulta.executeQuery("SELECT 1")) {
-                    if (!resultado.next()) {
-                        throw new java.sql.SQLException("Não foi possível validar a conexão com o banco.");
-                    }
-                }
-                return null;
-            });
-            return null;
+            boolean existe = Conexao.executar(RepositorioMediasPostgres::tabelaExiste);
+            return existe ? null
+                    : "Falta a tabela medias_finais no banco. Feche e abra o programa de novo para ele aplicar o script migracao_05_notas_e_medias.sql.";
         } catch (RuntimeException erro) {
             return "Não foi possível acessar o banco de dados. Detalhe: " + erro.getMessage();
+        }
+    }
+
+    public static void recalcularAposCorrecao(int idAvaliacao) {
+        if (!disponivel() || verificarTabela() != null) {
+            return;
+        }
+        try {
+            servico().recalcularPelaAvaliacao(idAvaliacao);
+        } catch (RuntimeException erro) {
+            System.err.println("Não foi possível recalcular a média: " + erro.getMessage());
         }
     }
 }

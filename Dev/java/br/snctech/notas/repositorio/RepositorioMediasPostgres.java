@@ -3,27 +3,27 @@ package br.snctech.notas.repositorio;
 import br.snctech.banco.Conexao;
 import br.snctech.notas.model.AlunoDaTurma;
 import br.snctech.notas.model.AvaliacaoDaTurma;
+import br.snctech.notas.model.MediaFinal;
+import br.snctech.notas.model.MediaLiberada;
+import br.snctech.notas.model.SituacaoFinal;
 import br.snctech.notas.model.TentativaRegistrada;
 import br.snctech.notas.model.TurmaResumo;
-import br.snctech.turmas.repositorio.TurmaDAO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RepositorioMediasPostgres implements RepositorioMedias {
 
     @Override
     public List<TurmaResumo> turmasDoProfessor(int idProfessor) {
         return Conexao.executar(c -> turmasDoProfessor(c, idProfessor));
-    }
-
-    @Override
-    public List<TurmaResumo> turmasDoAluno(String email) {
-        return Conexao.executar(c -> turmasDoAluno(c, email));
     }
 
     @Override
@@ -42,13 +42,49 @@ public class RepositorioMediasPostgres implements RepositorioMedias {
     }
 
     @Override
-    public boolean turmaConcluida(int idTurma) {
-        return Conexao.executar(c -> turmaConcluida(c, idTurma));
+    public void sincronizar(int idTurma, List<MediaFinal> mediasProntas) {
+        Conexao.emTransacao(c -> {
+            sincronizar(c, idTurma, mediasProntas);
+            return null;
+        });
+    }
+
+    @Override
+    public Map<Integer, Boolean> liberacaoPorAluno(int idTurma) {
+        return Conexao.executar(c -> liberacaoPorAluno(c, idTurma));
     }
 
     @Override
     public void liberar(int idTurma) {
-        Conexao.emTransacao(c -> TurmaDAO.concluir(c, idTurma));
+        Conexao.executar(c -> {
+            liberar(c, idTurma);
+            return null;
+        });
+    }
+
+    @Override
+    public Integer turmaDaAvaliacao(int idAvaliacao) {
+        return Conexao.executar(c -> turmaDaAvaliacao(c, idAvaliacao));
+    }
+
+    @Override
+    public List<TurmaResumo> turmasDaAvaliacao(int idAvaliacao) {
+        return Conexao.executar(c -> turmasDaAvaliacao(c, idAvaliacao));
+    }
+
+    @Override
+    public List<MediaLiberada> mediasLiberadasDoAluno(String email) {
+        if (email == null || email.isBlank()) {
+            return List.of();
+        }
+        return Conexao.executar(c -> mediasLiberadasDoAluno(c, email.trim()));
+    }
+
+    public static boolean tabelaExiste(Connection c) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT to_regclass('public.medias_finais') IS NOT NULL");
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() && rs.getBoolean(1);
+        }
     }
 
     public static List<TurmaResumo> turmasDoProfessor(Connection c, int idProfessor) throws SQLException {
@@ -65,25 +101,8 @@ public class RepositorioMediasPostgres implements RepositorioMedias {
         return turmas;
     }
 
-    public static List<TurmaResumo> turmasDoAluno(Connection c, String email) throws SQLException {
-        String sql = "SELECT DISTINCT t.id, t.nome FROM turmas t "
-                + "JOIN matriculas m ON m.turma_id = t.id "
-                + "JOIN usuarios u ON u.id = m.aluno_id "
-                + "WHERE lower(u.email) = lower(?) ORDER BY t.nome, t.id";
-        List<TurmaResumo> turmas = new ArrayList<>();
-        try (PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, email == null ? "" : email.trim());
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    turmas.add(new TurmaResumo(rs.getInt("id"), rs.getString("nome")));
-                }
-            }
-        }
-        return turmas;
-    }
-
     public static List<AvaliacaoDaTurma> avaliacoesDaTurma(Connection c, int idTurma) throws SQLException {
-        String sql = "SELECT a.id, a.titulo, a.peso, a.prazo_fim FROM avaliacao_turmas avt "
+        String sql = "SELECT DISTINCT a.id, a.titulo, a.peso, a.prazo_fim FROM avaliacao_turmas avt "
                 + "JOIN avaliacoes a ON a.id = avt.avaliacao_id "
                 + "WHERE avt.turma_id = ? AND COALESCE(a.liberada, false) ORDER BY a.prazo_fim, a.id";
         List<AvaliacaoDaTurma> avaliacoes = new ArrayList<>();
@@ -91,7 +110,7 @@ public class RepositorioMediasPostgres implements RepositorioMedias {
             ps.setInt(1, idTurma);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    java.sql.Timestamp prazo = rs.getTimestamp("prazo_fim");
+                    Timestamp prazo = rs.getTimestamp("prazo_fim");
                     avaliacoes.add(new AvaliacaoDaTurma(rs.getInt("id"), rs.getString("titulo"),
                             rs.getBigDecimal("peso"), prazo == null ? null : prazo.toLocalDateTime()));
                 }
@@ -116,10 +135,10 @@ public class RepositorioMediasPostgres implements RepositorioMedias {
     }
 
     public static List<TentativaRegistrada> tentativasDaTurma(Connection c, int idTurma) throws SQLException {
-        String sql = "SELECT t.aluno_id, t.avaliacao_id, t.status::text AS status, "
+        String sql = "SELECT DISTINCT t.aluno_id, t.avaliacao_id, t.status::text AS status, "
                 + "t.nota_total / NULLIF(a.peso, 0) AS nota_total, "
                 + "COALESCE(t.corrigida_completamente, false) AS corrigida, "
-                + "COALESCE(t.corrigida_completamente, false) AS finalizada "
+                + "COALESCE(t.correcao_finalizada, false) AS finalizada "
                 + "FROM avaliacao_turmas avt JOIN avaliacoes a ON a.id = avt.avaliacao_id "
                 + "JOIN tentativas_avaliacao t ON t.avaliacao_id = a.id "
                 + "WHERE avt.turma_id = ? AND COALESCE(a.liberada, false)";
@@ -137,13 +156,90 @@ public class RepositorioMediasPostgres implements RepositorioMedias {
         return tentativas;
     }
 
-    public static boolean turmaConcluida(Connection c, int idTurma) throws SQLException {
-        try (PreparedStatement ps = c.prepareStatement("SELECT NOT ativa FROM turmas WHERE id = ?")) {
-            ps.setInt(1, idTurma);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() && rs.getBoolean(1);
+    public static void sincronizar(Connection c, int idTurma, List<MediaFinal> mediasProntas) throws SQLException {
+        String upsert = "INSERT INTO medias_finais (turma_id, aluno_id, media, situacao, calculada_em) "
+                + "VALUES (?, ?, ?, ?, now()) ON CONFLICT (turma_id, aluno_id) DO UPDATE SET "
+                + "media = EXCLUDED.media, situacao = EXCLUDED.situacao, calculada_em = EXCLUDED.calculada_em";
+        try (PreparedStatement ps = c.prepareStatement(upsert)) {
+            for (MediaFinal media : mediasProntas) {
+                if (!media.estaPronta()) {
+                    continue;
+                }
+                ps.setInt(1, idTurma);
+                ps.setInt(2, media.idAluno());
+                ps.setBigDecimal(3, media.media());
+                ps.setString(4, media.situacao().name());
+                ps.addBatch();
             }
+            ps.executeBatch();
+        }
+        Integer[] mantidos = mediasProntas.stream().filter(MediaFinal::estaPronta)
+                .map(MediaFinal::idAluno).toArray(Integer[]::new);
+        try (PreparedStatement ps = c.prepareStatement(
+                "DELETE FROM medias_finais WHERE turma_id = ? AND NOT (aluno_id = ANY (?))")) {
+            ps.setInt(1, idTurma);
+            ps.setArray(2, c.createArrayOf("integer", mantidos));
+            ps.executeUpdate();
         }
     }
 
+    public static Map<Integer, Boolean> liberacaoPorAluno(Connection c, int idTurma) throws SQLException {
+        Map<Integer, Boolean> liberacao = new HashMap<>();
+        try (PreparedStatement ps = c.prepareStatement(
+                "SELECT aluno_id, liberada FROM medias_finais WHERE turma_id = ?")) {
+            ps.setInt(1, idTurma);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    liberacao.put(rs.getInt("aluno_id"), rs.getBoolean("liberada"));
+                }
+            }
+        }
+        return liberacao;
+    }
+
+    public static void liberar(Connection c, int idTurma) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement(
+                "UPDATE medias_finais SET liberada = true, liberada_em = now() WHERE turma_id = ? AND NOT liberada")) {
+            ps.setInt(1, idTurma);
+            ps.executeUpdate();
+        }
+    }
+
+    public static Integer turmaDaAvaliacao(Connection c, int idAvaliacao) throws SQLException {
+        List<TurmaResumo> turmas = turmasDaAvaliacao(c, idAvaliacao);
+        return turmas.isEmpty() ? null : turmas.get(0).id();
+    }
+
+    public static List<TurmaResumo> turmasDaAvaliacao(Connection c, int idAvaliacao) throws SQLException {
+        String sql = "SELECT DISTINCT t.id, t.nome FROM avaliacao_turmas avt "
+                + "JOIN turmas t ON t.id = avt.turma_id WHERE avt.avaliacao_id = ? "
+                + "ORDER BY t.nome, t.id";
+        List<TurmaResumo> turmas = new ArrayList<>();
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, idAvaliacao);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    turmas.add(new TurmaResumo(rs.getInt("id"), rs.getString("nome")));
+                }
+            }
+        }
+        return turmas;
+    }
+
+    public static List<MediaLiberada> mediasLiberadasDoAluno(Connection c, String email) throws SQLException {
+        String sql = "SELECT t.nome, mf.media, mf.situacao FROM medias_finais mf "
+                + "JOIN turmas t ON t.id = mf.turma_id JOIN usuarios u ON u.id = mf.aluno_id "
+                + "WHERE lower(u.email) = lower(?) AND mf.liberada ORDER BY t.nome";
+        List<MediaLiberada> medias = new ArrayList<>();
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    medias.add(new MediaLiberada(rs.getString("nome"), rs.getBigDecimal("media"),
+                            SituacaoFinal.valueOf(rs.getString("situacao"))));
+                }
+            }
+        }
+        return medias;
+    }
 }

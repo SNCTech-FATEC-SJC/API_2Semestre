@@ -2,7 +2,6 @@ package br.snctech.avaliacoes;
 
 import br.snctech.avaliacoes.model.Avaliacao;
 import br.snctech.avaliacoes.model.Tentativa;
-import br.snctech.avaliacoes.model.TurmaAvaliacao;
 import br.snctech.avaliacoes.repositorio.RepositorioAvaliacoesMemoria;
 import br.snctech.avaliacoes.repositorio.RepositorioTentativasMemoria;
 import br.snctech.avaliacoes.service.TentativaService;
@@ -32,7 +31,7 @@ class EntregaAutomaticaTest {
         Avaliacao avaliacao = avaliacoes.salvar(
                 "Prova",
                 List.of(questao),
-                new TurmaAvaliacao(1, "1A"),
+                "1A",
                 LocalDate.of(2026, 11, 20),
                 LocalDate.of(2026, 11, 20),
                 LocalTime.of(8, 0),

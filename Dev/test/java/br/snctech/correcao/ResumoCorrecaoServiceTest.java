@@ -12,7 +12,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ResumoCorrecaoServiceTest {
-
     private ResumoCorrecaoService service;
 
     private AvaliacaoRespondida prova(Integer id, Integer idAluno, String notaMc, StatusCorrecao statusDisc, String notaDisc) {
@@ -31,10 +30,10 @@ class ResumoCorrecaoServiceTest {
     @BeforeEach
     void preparar() {
         Fakes.RespondidaEmMemoria respondidas = new Fakes.RespondidaEmMemoria();
-        respondidas.salvar(prova(1, 1, "5.0", StatusCorrecao.PENDENTE_MANUAL, null));          // Ana: pendente
-        respondidas.salvar(prova(2, 2, "5.0", StatusCorrecao.CORRIGIDA_MANUALMENTE, "3.0"));   // Bruno: 8,0
+        respondidas.salvar(prova(1, 1, "5.0", StatusCorrecao.PENDENTE_MANUAL, null));
+        respondidas.salvar(prova(2, 2, "5.0", StatusCorrecao.CORRIGIDA_MANUALMENTE, "3.0"));
         Fakes.AlunoEmMemoria alunos = new Fakes.AlunoEmMemoria(List.of(
-                new AlunoResumo(3, "Diego Rocha"),   // não respondeu
+                new AlunoResumo(3, "Diego Rocha"),
                 new AlunoResumo(1, "Ana Souza"),
                 new AlunoResumo(2, "Bruno Lima")));
         service = new ResumoCorrecaoService(respondidas, alunos);
@@ -69,7 +68,22 @@ class ResumoCorrecaoServiceTest {
 
     @Test
     void percentualCorrigidoConsideraPrazo() {
-        assertEquals(67, service.resumir(100, true).percentualCorrigido());  // Bruno + Diego de 3
-        assertEquals(33, service.resumir(100, false).percentualCorrigido()); // só Bruno de 3
+        assertEquals(67, service.resumir(100, true).percentualCorrigido());
+        assertEquals(33, service.resumir(100, false).percentualCorrigido());
+    }
+
+    @Test
+    void provaFinalizadaPeloProfessorAparecaComoFinalizada() {
+        Fakes.RespondidaEmMemoria respondidas = new Fakes.RespondidaEmMemoria();
+        AvaliacaoRespondida bruno = prova(2, 2, "5.0", StatusCorrecao.CORRIGIDA_MANUALMENTE, "3.0");
+        bruno.finalizarCorrecao();
+        respondidas.salvar(bruno);
+        ResumoCorrecaoService servico = new ResumoCorrecaoService(respondidas,
+                new Fakes.AlunoEmMemoria(List.of(new AlunoResumo(2, "Bruno Lima"))));
+
+        LinhaAluno linha = servico.resumir(100, true).alunos().get(0);
+
+        assertEquals(SituacaoAluno.FINALIZADA, linha.situacao());
+        assertEquals(100, servico.resumir(100, true).percentualCorrigido());
     }
 }

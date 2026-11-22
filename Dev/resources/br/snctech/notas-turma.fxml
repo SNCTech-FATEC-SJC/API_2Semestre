@@ -24,7 +24,7 @@
             <ComboBox fx:id="comboTurma" prefWidth="320" promptText="Selecione a turma"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Button fx:id="botaoAtualizar" text="Atualizar" onAction="#aoClicarAtualizar" styleClass="secondary-button"/>
-            <Button fx:id="botaoLiberar" text="Concluir e liberar médias" onAction="#aoClicarLiberar" styleClass="primary-button"/>
+            <Button fx:id="botaoLiberar" text="Liberar médias" onAction="#aoClicarLiberar" styleClass="primary-button"/>
         </HBox>
         <Label fx:id="mensagem" wrapText="true" minHeight="-Infinity" styleClass="mensagem"/>
         <TableView fx:id="tabela" VBox.vgrow="ALWAYS"/>
