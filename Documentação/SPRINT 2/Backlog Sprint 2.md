@@ -6,19 +6,18 @@
 
 ## Itens do Backlog
 
-|ID|Épico|User Story|Critério de Aceitação|Prioridade|Status|
-|-|-|-|-|-|-|
-|PB-01|Gerenciamento de Avaliação|Como professor, desejo gerenciar as informações das avaliações para reutilizar avaliações já aplicadas e criar novas avaliações|O professor consegue visualizar e editar as avaliações já cadastradas, sem alterar as avaliações antigas já respondidas pelos alunos|🔴 Alta|Status: ❌|
-|PB-02|Gerenciamento de questões|Como professor, desejo gerenciar questões para centralizá-las em um único lugar|O professor consegue cadastrar e editar questões na ferramenta, sendo obrigatórios o enunciado e a definição da resposta correta|🔴 Alta|Status: ❌|
-|PB-03|Correção Manual|Como professor, desejo a correção manual para corrigir questões discursivas e verificar a nota final.|O professor acessa cada avaliação e consegue corrigi-la|🔴 Alta|Status: ❌|
-|PB-04|Embaralhamento de Respostas|Como professor, desejo que as respostas de questões de múltipla escolha e associação sejam embaralhadas para reduzir a possibilidade de compartilhamento da ordem das respostas entre os alunos.|Ao abrir a prova, as alternativas são aleatorizadas|🟡 Média|Status: ❌|
-|PB-05|Disponibilização de Avaliação|Como professor, desejo disponibilizar uma avaliação para uma ou mais turmas para que os alunos possam ter acesso a ela|O professor libera o acesso à data da avaliação e os alunos conseguem acessar a página da avaliação, porém sem conseguir abri-la|🟡 Média|Status: ❌|
-|PB-06|Realização das avaliações|Como professor, desejo que os alunos realizem a prova para centralizar todas as avaliações.|Após o professor definir o prazo da avaliação e esse prazo chegar, os alunos conseguem responder à avaliação|🟡 Média|Status: ❌|
-|PB-07|Realização das avaliações|Como aluno, desejo realizar as avaliações para registrar minhas respostas e ser avaliado|Após a liberação do professor, o aluno acessa a avaliação e consegue respondê-la.|🟡 Média|Status: ❌|
-|PB-08|Correção Automática|Como professor, desejo uma correção automática para as questões de múltipla escolha e assimilação para facilitar a correção das avaliações.|As questões respondidas estão corretas com base nas respostas registradas pelo professor.|🟡 Média|Status: ❌|
-|PB-11|Visualização Avaliação|Como aluno, desejo visualizar minhas avaliações já realizadas e as futuras para ter controle das minhas notas e planos de estudo|Após responder à prova, o aluno pode acessá-la e ver as datas de avaliações futuras|🟡 Média|Status: ❌|
-|PB-12|Notas|Como professor, desejo que o cálculo das notas seja gerado automaticamente para facilitar a correção.|Após a correção das questões, a nota é armazenada no sistema.|🟡 Média|Status: ❌|
-
+| ID | Épico | User Story | Critério de Aceitação | Status |
+|-|-|-|-|-|
+| PB-01 | Gerenciamento de Avaliação | Como professor, desejo gerenciar as informações das avaliações para reutilizar avaliações já aplicadas e criar novas avaliações | O professor consegue visualizar e editar as avaliações já cadastradas, sem alterar as avaliações antigas já respondidas pelos alunos | Status: ✅ Concluído |
+| PB-02 | Gerenciamento de questões | Como professor, desejo gerenciar questões para centralizá-las em um único lugar | O professor consegue cadastrar e editar questões na ferramenta, sendo obrigatórios o enunciado e a definição da resposta correta | Status: ✅ Concluído |
+| PB-03 | Correção Manual | Como professor, desejo a correção manual para corrigir questões discursivas e verificar a nota final. | O professor acessa cada avaliação e consegue corrigi-la | Status: ✅ Concluído |
+| PB-04 | Embaralhamento de Respostas | Como professor, desejo que as respostas de questões de múltipla escolha e associação sejam embaralhadas para reduzir a possibilidade de compartilhamento da ordem das respostas entre os alunos. | Ao abrir a prova, as alternativas são aleatorizadas | Status: ✅ Concluído |
+| PB-05 | Disponibilização de Avaliação | Como professor, desejo disponibilizar uma avaliação para uma ou mais turmas para que os alunos possam ter acesso a ela | O professor libera o acesso à data da avaliação e os alunos conseguem acessar a página da avaliação, porém sem conseguir abri-la | Status: ✅ Concluído |
+| PB-06 | Realização das avaliações | Como professor, desejo que os alunos realizem a prova para centralizar todas as avaliações. | Após o professor definir o prazo da avaliação e esse prazo chegar, os alunos conseguem responder à avaliação | Status: ✅ Concluído |
+| PB-07 | Realização das avaliações | Como aluno, desejo realizar as avaliações para registrar minhas respostas e ser avaliado | Após a liberação do professor, o aluno acessa a avaliação e consegue respondê-la. | Status: ✅ Concluído |
+| PB-08 | Correção Automática | Como professor, desejo uma correção automática para as questões de múltipla escolha e assimilação para facilitar a correção das avaliações. | As questões respondidas estão corretas com base nas respostas registradas pelo professor. | Status: ✅ Concluído |
+| PB-11 | Visualização Avaliação | Como aluno, desejo visualizar minhas avaliações já realizadas e as futuras para ter controle das minhas notas e planos de estudo | Após responder à prova, o aluno pode acessá-la e ver as datas de avaliações futuras | Status: ✅ Concluído |
+| PB-12 | Notas | Como professor, desejo que o cálculo das notas seja gerado automaticamente para facilitar a correção. | Após a correção das questões, a nota é armazenada no sistema. | Status: ✅ Concluído |
 
 
 \---
