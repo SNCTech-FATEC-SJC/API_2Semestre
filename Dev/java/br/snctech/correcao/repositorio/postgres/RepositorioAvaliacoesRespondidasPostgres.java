@@ -79,23 +79,12 @@ public class RepositorioAvaliacoesRespondidasPostgres implements RepositorioAval
                 }
                 ps.executeBatch();
             }
-            // O valor das questões permanece bruto em respostas_aluno; o peso é aplicado
-            // somente ao total consolidado, evitando multiplicação repetida em recorreções.
-            BigDecimal peso;
-            try (PreparedStatement ps = c.prepareStatement(
-                    "SELECT a.peso FROM avaliacoes a JOIN tentativas_avaliacao t ON t.avaliacao_id=a.id WHERE t.id=?")) {
-                ps.setInt(1, prova.getId());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (!rs.next()) throw new SQLException("Avaliação da tentativa não encontrada.");
-                    peso = rs.getBigDecimal(1);
-                }
-            }
-            BigDecimal notaPonderada = prova.notaTotal().multiply(peso).setScale(2, java.math.RoundingMode.HALF_UP);
+            BigDecimal nota = prova.notaTotal().setScale(2, java.math.RoundingMode.HALF_UP);
             try (PreparedStatement ps = c.prepareStatement(
                     "UPDATE tentativas_avaliacao SET nota_total = ?, corrigida_completamente = ?, "
                             + "correcao_finalizada = ?, correcao_finalizada_em = CASE WHEN ? "
                             + "THEN COALESCE(correcao_finalizada_em, now()) ELSE NULL END WHERE id = ?")) {
-                ps.setBigDecimal(1, notaPonderada);
+                ps.setBigDecimal(1, nota);
                 ps.setBoolean(2, prova.notaFinalConfirmada());
                 ps.setBoolean(3, prova.isCorrecaoFinalizada());
                 ps.setBoolean(4, prova.isCorrecaoFinalizada());

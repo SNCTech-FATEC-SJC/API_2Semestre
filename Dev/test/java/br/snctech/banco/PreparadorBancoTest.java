@@ -15,11 +15,13 @@ class PreparadorBancoTest {
         List<String> ordem = PreparadorBanco.scriptsEmOrdem(List.of(
                 "seed_05_medias_exemplo.sql", "migracao_10_futura.sql", "seed_02_correcao_exemplo.sql",
                 "migracao_05_notas_e_medias.sql", "migracao_02_correcao.sql", "migracao_01_integracao_avaliacoes.sql",
-                "migracao_03_peso_e_multiplas_turmas.sql", "migracao_04_alunos_selecionados.sql"));
+                "migracao_03_peso_e_multiplas_turmas.sql", "migracao_04_alunos_selecionados.sql",
+                "migracao_06_vincular_avaliacoes_seed.sql"));
         assertEquals(List.of(
                 "migracao_01_integracao_avaliacoes.sql", "migracao_02_correcao.sql", "seed_02_correcao_exemplo.sql",
                 "migracao_03_peso_e_multiplas_turmas.sql", "migracao_04_alunos_selecionados.sql",
-                "migracao_05_notas_e_medias.sql", "seed_05_medias_exemplo.sql", "migracao_10_futura.sql"), ordem);
+                "migracao_05_notas_e_medias.sql", "seed_05_medias_exemplo.sql",
+                "migracao_06_vincular_avaliacoes_seed.sql", "migracao_10_futura.sql"), ordem);
     }
 
     @Test

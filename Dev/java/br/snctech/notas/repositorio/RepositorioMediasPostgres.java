@@ -136,7 +136,7 @@ public class RepositorioMediasPostgres implements RepositorioMedias {
 
     public static List<TentativaRegistrada> tentativasDaTurma(Connection c, int idTurma) throws SQLException {
         String sql = "SELECT DISTINCT t.aluno_id, t.avaliacao_id, t.status::text AS status, "
-                + "t.nota_total / NULLIF(a.peso, 0) AS nota_total, "
+                + "t.nota_total, "
                 + "COALESCE(t.corrigida_completamente, false) AS corrigida, "
                 + "COALESCE(t.correcao_finalizada, false) AS finalizada "
                 + "FROM avaliacao_turmas avt JOIN avaliacoes a ON a.id = avt.avaliacao_id "

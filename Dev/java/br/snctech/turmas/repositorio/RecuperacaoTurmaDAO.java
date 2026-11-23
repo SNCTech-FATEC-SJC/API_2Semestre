@@ -90,7 +90,7 @@ final class RecuperacaoTurmaDAO {
     private static List<Integer> alunosElegiveis(Connection c, int idTurma) throws SQLException {
         String somaPonderada = "SUM(CASE WHEN t.status::text IN ('enviada', 'nao_realizada_prazo')"
                 + " AND COALESCE(t.corrigida_completamente, false)"
-                + " THEN COALESCE(t.nota_total, 0) ELSE 0 END) / NULLIF(SUM(a.peso), 0)";
+                + " THEN COALESCE(t.nota_total, 0) * a.peso ELSE 0 END) / NULLIF(SUM(a.peso), 0)";
         String sql = "WITH alunos AS ("
                 + " SELECT DISTINCT aluno_id FROM matriculas WHERE turma_id = ?"
                 + "), provas AS ("
