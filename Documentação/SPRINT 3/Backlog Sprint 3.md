@@ -6,18 +6,18 @@
 
 ## Itens do Backlog
 
-|ID|Épico|User Story|Critério de Aceitação|Prioridade|Status|
-|-|-|-|-|-|-|
-|PB-04|Embaralhamento de Respostas|Como professor, desejo que as respostas de questões de múltipla escolha e associação sejam embaralhadas para reduzir a possibilidade de compartilhamento da ordem das respostas entre os alunos.|Ao abrir a prova, as alternativas são aleatorizadas|🟡 Média|Status: ❌|
-|PB-09|Gerenciamento de Turmas|Como professor, desejo cadastrar e editar turmas ativas e já concluídas para gerenciamento e organização das avaliações|O professor consegue enviar e editar as informações de turmas ativas, e visualizar membros e avaliações de turmas concluídas, ao enviar uma nova turma a turma atual se torna concluída|🟡 Média|Status: ❌|
-|PB-10|Gerenciamento de Alunos|Como professor, desejo adicionar, editar e visualizar os alunos pertencentes a minhas turmas ativas para organização das minhas turmas|O professor consegue adicionar, remover e visualizar os alunos dentro das turmas que estão ativas.|🟡 Média|Status: ❌|
-|PB-16|Média Final|Como professor, desejo que o cálculo da média seja feito de forma automática para facilitar o acesso a essa informação.|A média final é definida corretamente com base nas notas e nos pesos das provas|🟡 Média|Status: ❌|
-|PB-17|Média Final|Como professor, desejo visualizar as médias finais dos alunos para ter controle de aprovação e desempenho.|Com a liberação da média final pelo sistema, o professor consegue visualizá-la|🟡 Média|Status: ❌|
-|PB-18|Prazo Das Avaliações|Como professor, desejo definir um prazo para as avaliações a fim de evitar que alunos façam antes da hora ou depois do prazo.|O professor, após criar uma avaliação, pode definir um prazo para uma turma respondê-la|🟡 Média|Status: ❌|
-|PB-13|Notas|Como aluno, desejo visualizar minhas notas para acompanhar meu desempenho.|Após a correção do sistema, o aluno consegue acessar sua nota|🟢 Baixa|Status: ❌|
-|PB-14|Notas|Como professor, desejo visualizar as notas dos alunos para ter controle de aprovação e desempenho.|Após a correção do sistema, o professor consegue visualizar a nota dos alunos|🟢 Baixa|Status: ❌|
-|PB-15|Média Final|Como aluno, desejo visualizar minha média final para ter conhecimento da minha aprovação ou reprovação|Com a liberação da média final pelo sistema, o aluno consegue visualizá-la|🟢 Baixa|Status: ❌|
-|PB-19|Autenticação|Como usuário, desejo realizar login no sistema para acessar as funcionalidades correspondentes ao meu perfil.|O usuário consegue acessar o sistema com suas credenciais, diferenciando cada usuário e se ele é professor ou aluno|🟢 Baixa|Status: ❌|
+| ID | Épico | User Story | Critério de Aceitação | Status |
+|-|-|-|-|-|
+| PB-04 | Embaralhamento de Respostas | Como professor, desejo que as respostas de questões de múltipla escolha e associação sejam embaralhadas para reduzir a possibilidade de compartilhamento da ordem das respostas entre os alunos. | Ao abrir a prova, as alternativas são aleatorizadas | ✅ Concluído |
+| PB-09 | Gerenciamento de Turmas | Como professor, desejo cadastrar e editar turmas ativas e já concluídas para gerenciamento e organização das avaliações | O professor consegue enviar e editar as informações de turmas ativas, e visualizar membros e avaliações de turmas concluídas, ao enviar uma nova turma a turma atual se torna concluída | ✅ Concluído |
+| PB-10 | Gerenciamento de Alunos | Como professor, desejo adicionar, editar e visualizar os alunos pertencentes a minhas turmas ativas para organização das minhas turmas | O professor consegue adicionar, remover e visualizar os alunos dentro das turmas que estão ativas. | ✅ Concluído |
+| PB-16 | Média Final | Como professor, desejo que o cálculo da média seja feito de forma automática para facilitar o acesso a essa informação. | A média final é definida corretamente com base nas notas e nos pesos das provas | ✅ Concluído |
+| PB-17 | Média Final | Como professor, desejo visualizar as médias finais dos alunos para ter controle de aprovação e desempenho. | Com a liberação da média final pelo sistema, o professor consegue visualizá-la | ✅ Concluído |
+| PB-18 | Prazo Das Avaliações | Como professor, desejo definir um prazo para as avaliações a fim de evitar que alunos façam antes da hora ou depois do prazo. | O professor, após criar uma avaliação, pode definir um prazo para uma turma respondê-la | ✅ Concluído |
+| PB-13 | Notas | Como aluno, desejo visualizar minhas notas para acompanhar meu desempenho. | Após a correção do sistema, o aluno consegue acessar sua nota | ✅ Concluído |
+| PB-14 | Notas | Como professor, desejo visualizar as notas dos alunos para ter controle de aprovação e desempenho. | Após a correção do sistema, o professor consegue visualizar a nota dos alunos | ✅ Concluído |
+| PB-15 | Média Final | Como aluno, desejo visualizar minha média final para ter conhecimento da minha aprovação ou reprovação | Com a liberação da média final pelo sistema, o aluno consegue visualizá-la | ✅ Concluído |
+| PB-19 | Autenticação | Como usuário, desejo realizar login no sistema para acessar as funcionalidades correspondentes ao meu perfil. | O usuário consegue acessar o sistema com suas credenciais, diferenciando cada usuário e se ele é professor ou aluno | ✅ Concluído |
 
 \---
 
@@ -83,6 +83,3 @@ Uma User Story está Done quando foi implementada, validada e integrada ao siste
 |-|-|
 |🟡|Média|
 |🟢|Baixa|
-
-
-

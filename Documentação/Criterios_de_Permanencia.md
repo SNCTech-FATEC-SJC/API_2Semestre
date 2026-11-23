@@ -59,7 +59,7 @@ O integrante poderá receber orientação ou advertência para que tenha conheci
 - Uma advertência por escrito, seguindo todos os padrões estabelecidos neste documento, onde poderá ser feita por forma de um documento em papel, ou validado por uma mensagem de WhatsApp, ficando a critério do aplicador e/ou membro que irá receber a advertência, esta ação apenas pode ser feita apenas após uma advertência verbal, independe de ser atitude reincidente ou uma nova advertência;
 - O processo de desligamento é iniciado caso seja necessário aplicar uma terceira advertência, sendo aplicada uma verbal, e uma por escrito, após isso caso seja definido uma terceira necessidade de advertência, será imediatamente iniciado o processo de desligamento do membro integrante.
 
-Quanto a orientações e advertências: 
+Quanto a orientações e advertências:
 
 - O integrante pode receber orientação caso não seja um ocorrido grave, e caso se repita segue o processo comum da advertência;
 - Caso a advertência verbal seja aplicada, contudo o integrante obtiver melhoria de desempenho, ela pode ser arquivada, reduzindo o número de advertência de 1/3 para 0/3, caso uma advertência por escrito seja feita, este item deve ser desconsiderado;

@@ -112,5 +112,3 @@
 * Considerando que o usuário informou credenciais válidas, ele consegue acessar o sistema
 * Considerando que o usuário informou credenciais inválidas, o acesso é negado e uma mensagem é exibida
 * Considerando que o usuário acessou o sistema, ele visualiza apenas as funcionalidades do seu perfil (professor ou aluno)
-
-

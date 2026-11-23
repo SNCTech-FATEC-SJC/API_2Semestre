@@ -28,5 +28,10 @@ public interface RepositorioMedias {
 
     Integer turmaDaAvaliacao(int idAvaliacao);
 
+    default List<TurmaResumo> turmasDaAvaliacao(int idAvaliacao) {
+        Integer turmaId = turmaDaAvaliacao(idAvaliacao);
+        return turmaId == null ? List.of() : List.of(new TurmaResumo(turmaId, ""));
+    }
+
     List<MediaLiberada> mediasLiberadasDoAluno(String email);
 }

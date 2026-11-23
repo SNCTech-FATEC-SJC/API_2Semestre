@@ -8,17 +8,17 @@
 
 
 
-De forma geral: Uma User Story está pronta para desenvolvimento quando existir informações o suficiente para a equipe iniciar o desenvolvimento sem precisar tomar decisões fundamentais sobre ela. 
+De forma geral: Uma User Story está pronta para desenvolvimento quando existir informações o suficiente para a equipe iniciar o desenvolvimento sem precisar tomar decisões fundamentais sobre ela.
 
 
 
-* Está claro que a funcionalidade deve permitir ao usuário 
-* Está claro o que faz e o que não faz parte da US 
+* Está claro que a funcionalidade deve permitir ao usuário
+* Está claro o que faz e o que não faz parte da US
 * Não existem decisões pendentes.
-* A US não depende de outra US não concluída 
-* Os critérios de aceitação estão claros 
-* O esboço da tela está feito e aprovado 
-* O esforço para a US está estimado 
+* A US não depende de outra US não concluída
+* Os critérios de aceitação estão claros
+* O esboço da tela está feito e aprovado
+* O esforço para a US está estimado
 
 ---
 

@@ -10,14 +10,14 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Alert;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import java.time.format.DateTimeFormatter;
 
 /** Mostra as avaliações realmente criadas durante a execução. */
 public class ProvasAplicadasController {
     @FXML private javafx.scene.control.Button botaoVoltar;
-    @FXML private GridPane listaProvas;
+    @FXML private FlowPane listaProvas;
     private static final DateTimeFormatter FORMATO_DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @FXML private void initialize() {
@@ -26,10 +26,9 @@ public class ProvasAplicadasController {
 
     private void atualizarLista() {
         listaProvas.getChildren().clear();
-        int coluna = 0, linha = 0;
         var avaliacoes = DadosAplicacao.getRepositorioAvaliacoes().listarTodas();
         if (avaliacoes.isEmpty()) {
-            listaProvas.add(new Label("Nenhuma avaliação cadastrada."), 0, 0);
+            listaProvas.getChildren().add(new Label("Nenhuma avaliação cadastrada."));
             return;
         }
         for (Avaliacao avaliacao : avaliacoes) {
@@ -58,16 +57,37 @@ public class ProvasAplicadasController {
                     alerta.showAndWait();
                 }
             });
+            Button excluir = new Button("Excluir prova");
+            excluir.getStyleClass().add("delete-action");
+            excluir.setOnAction(evento -> {
+                Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmacao.setTitle("Excluir prova");
+                confirmacao.setHeaderText("Excluir \"" + avaliacao.getNome() + "\"?");
+                confirmacao.setContentText("A prova e os dados de respostas associados serão removidos permanentemente.");
+                if (confirmacao.showAndWait().filter(botao -> botao == javafx.scene.control.ButtonType.OK).isEmpty()) return;
+                try {
+                    DadosAplicacao.getRepositorioAvaliacoes().excluir(avaliacao.getId());
+                    atualizarLista();
+                } catch (RuntimeException erro) {
+                    Alert alerta = new Alert(Alert.AlertType.ERROR);
+                    alerta.setTitle("Erro ao excluir prova");
+                    alerta.setHeaderText("Não foi possível excluir a avaliação.");
+                    alerta.setContentText(erro.getMessage() == null
+                            ? "Confira a conexão com o PostgreSQL e tente novamente."
+                            : erro.getMessage());
+                    alerta.showAndWait();
+                }
+            });
             cartao.getChildren().addAll(
                     new Label(avaliacao.getNome()),
                     new Label("Turma(s): " + avaliacao.getTurma()),
                     new Label("Início: " + formatarDataHora(avaliacao, true)),
                     new Label("Prazo: " + formatarDataHora(avaliacao, false)),
                     new Label("Questões: " + avaliacao.getQuestoes().size()),
-                    new Label("Duração: " + (avaliacao.getDuracaoMinutos() > 0 ? avaliacao.getDuracaoMinutos() + " min" : "sem limite além do prazo")),
                     new Label("Alunos que abriram: " + DadosAplicacao.getRepositorioTentativas().listarPorAvaliacao(avaliacao.getId()).size()),
                     status,
-                    disponibilizar
+                    disponibilizar,
+                    excluir
             );
             cartao.setOnMouseClicked(evento -> {
                 Node alvo = (Node) evento.getTarget();
@@ -78,9 +98,9 @@ public class ProvasAplicadasController {
                 ProvaDetalheController.prepararVisualizacao(avaliacao);
                 NavegacaoUtil.abrir(cartao, "prova-detalhe.fxml", "SNCTECH - " + avaliacao.getNome());
             });
-            listaProvas.add(cartao, coluna, linha);
-            coluna++;
-            if (coluna == 3) { coluna = 0; linha++; }
+            cartao.setPrefWidth(230);
+            cartao.setMaxWidth(280);
+            listaProvas.getChildren().add(cartao);
         }
     }
 
@@ -93,9 +113,6 @@ public class ProvasAplicadasController {
     @FXML private void aoClicarNovaProva(ActionEvent evento) {
         NovaProvaController.prepararEdicao(null);
         NavegacaoUtil.abrir((Node) evento.getSource(), "nova-prova.fxml", "SNCTECH - Nova Prova");
-    }
-    @FXML private void aoClicarVisualizacaoAluno(ActionEvent evento) {
-        NavegacaoUtil.abrir((Node) evento.getSource(), "avaliacoes-aluno.fxml", "SNCTECH - Avaliações do Aluno");
     }
     @FXML private void aoClicarVoltar(ActionEvent evento) {
         NavegacaoUtil.abrir((Node) evento.getSource(), "dashboard-professor.fxml", "SNCTECH - Professor");

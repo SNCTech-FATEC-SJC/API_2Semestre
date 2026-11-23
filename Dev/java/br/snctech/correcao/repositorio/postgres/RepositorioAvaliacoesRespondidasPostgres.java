@@ -6,6 +6,7 @@ import br.snctech.correcao.model.AvaliacaoRespondida;
 import br.snctech.correcao.model.RespostaQuestao;
 import br.snctech.correcao.model.StatusCorrecao;
 import br.snctech.correcao.repositorio.RepositorioAvaliacoesRespondidas;
+import br.snctech.turmas.repositorio.TurmaDAO;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -78,11 +79,12 @@ public class RepositorioAvaliacoesRespondidasPostgres implements RepositorioAval
                 }
                 ps.executeBatch();
             }
+            BigDecimal nota = prova.notaTotal().setScale(2, java.math.RoundingMode.HALF_UP);
             try (PreparedStatement ps = c.prepareStatement(
                     "UPDATE tentativas_avaliacao SET nota_total = ?, corrigida_completamente = ?, "
                             + "correcao_finalizada = ?, correcao_finalizada_em = CASE WHEN ? "
                             + "THEN COALESCE(correcao_finalizada_em, now()) ELSE NULL END WHERE id = ?")) {
-                ps.setBigDecimal(1, prova.notaTotal());
+                ps.setBigDecimal(1, nota);
                 ps.setBoolean(2, prova.notaFinalConfirmada());
                 ps.setBoolean(3, prova.isCorrecaoFinalizada());
                 ps.setBoolean(4, prova.isCorrecaoFinalizada());
@@ -91,6 +93,7 @@ public class RepositorioAvaliacoesRespondidasPostgres implements RepositorioAval
                     throw new SQLException("Tentativa não encontrada: " + prova.getId());
                 }
             }
+            TurmaDAO.atualizarRecuperacoesDaAvaliacao(c, prova.getIdAvaliacao());
             return null;
         });
     }

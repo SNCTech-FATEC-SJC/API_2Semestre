@@ -68,6 +68,11 @@ public class RepositorioMediasPostgres implements RepositorioMedias {
     }
 
     @Override
+    public List<TurmaResumo> turmasDaAvaliacao(int idAvaliacao) {
+        return Conexao.executar(c -> turmasDaAvaliacao(c, idAvaliacao));
+    }
+
+    @Override
     public List<MediaLiberada> mediasLiberadasDoAluno(String email) {
         if (email == null || email.isBlank()) {
             return List.of();
@@ -97,8 +102,9 @@ public class RepositorioMediasPostgres implements RepositorioMedias {
     }
 
     public static List<AvaliacaoDaTurma> avaliacoesDaTurma(Connection c, int idTurma) throws SQLException {
-        String sql = "SELECT id, titulo, peso, prazo_fim FROM avaliacoes "
-                + "WHERE turma_id = ? AND COALESCE(liberada, false) ORDER BY prazo_fim, id";
+        String sql = "SELECT DISTINCT a.id, a.titulo, a.peso, a.prazo_fim FROM avaliacao_turmas avt "
+                + "JOIN avaliacoes a ON a.id = avt.avaliacao_id "
+                + "WHERE avt.turma_id = ? AND COALESCE(a.liberada, false) ORDER BY a.prazo_fim, a.id";
         List<AvaliacaoDaTurma> avaliacoes = new ArrayList<>();
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, idTurma);
@@ -129,11 +135,13 @@ public class RepositorioMediasPostgres implements RepositorioMedias {
     }
 
     public static List<TentativaRegistrada> tentativasDaTurma(Connection c, int idTurma) throws SQLException {
-        String sql = "SELECT t.aluno_id, t.avaliacao_id, t.status::text AS status, t.nota_total, "
+        String sql = "SELECT DISTINCT t.aluno_id, t.avaliacao_id, t.status::text AS status, "
+                + "t.nota_total, "
                 + "COALESCE(t.corrigida_completamente, false) AS corrigida, "
                 + "COALESCE(t.correcao_finalizada, false) AS finalizada "
-                + "FROM tentativas_avaliacao t JOIN avaliacoes a ON a.id = t.avaliacao_id "
-                + "WHERE a.turma_id = ? AND COALESCE(a.liberada, false)";
+                + "FROM avaliacao_turmas avt JOIN avaliacoes a ON a.id = avt.avaliacao_id "
+                + "JOIN tentativas_avaliacao t ON t.avaliacao_id = a.id "
+                + "WHERE avt.turma_id = ? AND COALESCE(a.liberada, false)";
         List<TentativaRegistrada> tentativas = new ArrayList<>();
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, idTurma);
@@ -198,16 +206,24 @@ public class RepositorioMediasPostgres implements RepositorioMedias {
     }
 
     public static Integer turmaDaAvaliacao(Connection c, int idAvaliacao) throws SQLException {
-        try (PreparedStatement ps = c.prepareStatement("SELECT turma_id FROM avaliacoes WHERE id = ?")) {
+        List<TurmaResumo> turmas = turmasDaAvaliacao(c, idAvaliacao);
+        return turmas.isEmpty() ? null : turmas.get(0).id();
+    }
+
+    public static List<TurmaResumo> turmasDaAvaliacao(Connection c, int idAvaliacao) throws SQLException {
+        String sql = "SELECT DISTINCT t.id, t.nome FROM avaliacao_turmas avt "
+                + "JOIN turmas t ON t.id = avt.turma_id WHERE avt.avaliacao_id = ? "
+                + "ORDER BY t.nome, t.id";
+        List<TurmaResumo> turmas = new ArrayList<>();
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, idAvaliacao);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    int turma = rs.getInt(1);
-                    return rs.wasNull() ? null : turma;
+                while (rs.next()) {
+                    turmas.add(new TurmaResumo(rs.getInt("id"), rs.getString("nome")));
                 }
-                return null;
             }
         }
+        return turmas;
     }
 
     public static List<MediaLiberada> mediasLiberadasDoAluno(Connection c, String email) throws SQLException {

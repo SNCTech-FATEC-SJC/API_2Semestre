@@ -7,11 +7,17 @@
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="br.snctech.avaliacoes.controller.ResponderAvaliacaoController" styleClass="border-pane" prefWidth="900" prefHeight="700">
-    <HBox styleClass="top-bar" prefWidth="900">
-        <Label text="Aluno" styleClass="top-bar-title"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Label fx:id="tituloProva" text="Responder avaliação" styleClass="top-bar-title"/>
-    </HBox>
+    <VBox styleClass="top-bar" spacing="12">
+        <HBox spacing="10">
+            <Label text="Aluno" styleClass="top-bar-title"/>
+            <Label fx:id="tituloProva" text="Responder avaliação" styleClass="top-bar-title"
+                   wrapText="true" HBox.hgrow="ALWAYS"/>
+        </HBox>
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <Button fx:id="botaoSair" text="Sair sem entregar" onAction="#aoClicarSair" styleClass="top-action"/>
+            <Button fx:id="botaoEntregar" text="Entregar avaliação" onAction="#aoClicarEntregar" styleClass="top-action"/>
+        </HBox>
+    </VBox>
     <VBox spacing="14" styleClass="page-shell" VBox.vgrow="ALWAYS">
         <HBox alignment="CENTER_LEFT" spacing="12">
             <Label fx:id="rotuloAluno" styleClass="section-label strong"/>
@@ -24,9 +30,5 @@
             </content>
         </ScrollPane>
         <Label fx:id="mensagem" wrapText="true" styleClass="mensagem"/>
-        <HBox spacing="12" alignment="CENTER_RIGHT">
-            <Button fx:id="botaoSair" text="Sair sem entregar" onAction="#aoClicarSair" styleClass="secondary-button"/>
-            <Button fx:id="botaoEntregar" text="Entregar avaliação" onAction="#aoClicarEntregar" styleClass="primary-button"/>
-        </HBox>
     </VBox>
 </VBox>

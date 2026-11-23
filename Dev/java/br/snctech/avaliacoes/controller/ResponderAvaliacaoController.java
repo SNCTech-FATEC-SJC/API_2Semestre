@@ -12,6 +12,7 @@ import br.snctech.avaliacoes.service.TentativaService;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -32,8 +33,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -67,6 +68,7 @@ public class ResponderAvaliacaoController {
     private Timeline relogio;
     private Stage palco;
     private boolean travada = false;
+    private boolean avisoTempoExibido = false;
 
     @FXML
     private void initialize() {
@@ -123,11 +125,15 @@ public class ResponderAvaliacaoController {
     /** Múltipla escolha e verdadeiro/falso: uma opção por vez; a resposta é o texto da opção marcada. */
     private void montarEscolhaUnica(VBox cartao, Questao questao, List<String> opcoes) {
         ToggleGroup grupo = new ToggleGroup();
-        for (String opcao : opcoes) {
+        List<String> opcoesEmbaralhadas = ApoioResposta.embaralharAlternativas(
+                opcoes, tentativaAtual.getId(), questao.getId());
+        for (String opcao : opcoesEmbaralhadas) {
             RadioButton botao = new RadioButton(opcao);
             botao.setWrapText(true);
             botao.setToggleGroup(grupo);
             botao.setOnAction(evento -> salvarResposta(questao, opcao));
+            String respostaAnterior = tentativaAtual.getResposta(questao);
+            botao.setSelected(opcao.equals(respostaAnterior));
             camposDeResposta.add(botao);
             cartao.getChildren().add(botao);
         }
@@ -138,6 +144,7 @@ public class ResponderAvaliacaoController {
         campo.setPromptText("Digite sua resposta");
         campo.setWrapText(true);
         campo.setPrefRowCount(4);
+        campo.setText(tentativaAtual.getResposta(questao) == null ? "" : tentativaAtual.getResposta(questao));
         // Registra a cada alteração: o que foi digitado antes do limite de tempo não se perde.
         campo.textProperty().addListener((observado, antes, depois) -> salvarResposta(questao, depois));
         camposDeResposta.add(campo);
@@ -149,7 +156,8 @@ public class ResponderAvaliacaoController {
         List<Questao.ParColuna> pares = questao.getPares();
         List<String> opcoes = new ArrayList<>();
         for (Questao.ParColuna par : pares) opcoes.add(par.getTermoB());
-        Collections.shuffle(opcoes);
+        opcoes = ApoioResposta.embaralharAlternativas(
+                opcoes, tentativaAtual.getId(), questao.getId());
 
         List<ComboBox<String>> escolhas = new ArrayList<>();
         for (Questao.ParColuna par : pares) {
@@ -159,6 +167,13 @@ public class ResponderAvaliacaoController {
             ComboBox<String> escolha = new ComboBox<>();
             escolha.getItems().addAll(opcoes);
             escolha.setPromptText("Escolha a correspondência");
+            String respostaAnterior = tentativaAtual.getResposta(questao);
+            if (respostaAnterior != null) {
+                String prefixo = par.getTermoA() + " → ";
+                for (String parte : respostaAnterior.split(";\\s*")) {
+                    if (parte.startsWith(prefixo)) escolha.setValue(parte.substring(prefixo.length()).trim());
+                }
+            }
             escolha.setOnAction(evento -> {
                 List<String> valores = new ArrayList<>();
                 for (ComboBox<String> outra : escolhas) valores.add(outra.getValue());
@@ -189,11 +204,15 @@ public class ResponderAvaliacaoController {
 
     private void salvarResposta(Questao questao, String resposta) {
         if (travada) return;
+        if (tempoAcabou()) {
+            tempoEsgotado();
+            return;
+        }
         try {
             servico.responder(tentativaAtual.getId(), questao, resposta);
             mensagem.setText("");
         } catch (IllegalArgumentException erro) {
-            if (!tentativaAtual.isEmAndamento()) {
+            if (tempoAcabou()) {
                 tempoEsgotado(); // o tempo acabou entre um tique do cronômetro e outro
             } else {
                 mensagem.setText(erro.getMessage());
@@ -202,14 +221,14 @@ public class ResponderAvaliacaoController {
             // Uma falha no banco não pode derrubar o JavaFX nem fingir que a resposta foi salva.
             mensagem.setText("Falha ao salvar sua resposta no banco. A tela foi bloqueada para evitar novas alterações. Detalhe: "
                     + erro.getMessage());
-            travarTela();
+            bloquearCampos();
         }
     }
 
     private void atualizarCronometro() {
         if (travada) return;
-        long restante = servico.segundosRestantes(tentativaAtual.getId());
-        if (!tentativaAtual.isEmAndamento()) {
+        long restante = segundosRestantesNaTela();
+        if (restante == 0) {
             tempoEsgotado();
             return;
         }
@@ -223,13 +242,80 @@ public class ResponderAvaliacaoController {
         if (travada) return;
         travarTela();
         cronometro.setText("Tempo esgotado");
-        mensagem.setText("O tempo acabou. As respostas dadas até aqui foram salvas e a avaliação foi encerrada.");
+        mensagem.setText("O tempo acabou. As respostas foram bloqueadas e a entrega está sendo registrada.");
         botaoSair.setText("Voltar para as avaliações");
+        if (avisoTempoExibido) return;
+        avisoTempoExibido = true;
+
+        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+        alerta.setTitle("Tempo esgotado");
+        alerta.setHeaderText("As respostas foram bloqueadas");
+        alerta.setContentText("A entrega automática está sendo registrada. Aguarde a confirmação.");
+        alerta.getButtonTypes().setAll(ButtonType.OK);
+        Button botaoConfirmar = (Button) alerta.getDialogPane().lookupButton(ButtonType.OK);
+        botaoConfirmar.setText("Aguarde...");
+        botaoConfirmar.setDisable(true);
+        alerta.setOnCloseRequest(evento -> {
+            if (botaoConfirmar.isDisable()) evento.consume();
+        });
+
+        int idTentativa = tentativaAtual.getId();
+        Task<Tentativa> entrega = new Task<>() {
+            @Override
+            protected Tentativa call() {
+                return servico.finalizar(idTentativa);
+            }
+        };
+        entrega.setOnSucceeded(evento -> {
+            tentativaAtual = entrega.getValue();
+            if (tentativaAtual.getStatus() == Tentativa.Status.FINALIZADA) {
+                alerta.setHeaderText("Prova entregue automaticamente");
+                alerta.setContentText("O tempo esgotou e as respostas salvas foram enviadas.");
+                mensagem.setText("A prova foi entregue automaticamente.");
+            } else {
+                alerta.setHeaderText("Não foi possível entregar a prova");
+                alerta.setContentText("A tentativa já estava encerrada. As respostas permanecem bloqueadas.");
+                mensagem.setText("A tentativa foi encerrada sem entrega.");
+            }
+            botaoConfirmar.setText("Voltar para as avaliações");
+            botaoConfirmar.setDisable(false);
+        });
+        entrega.setOnFailed(evento -> {
+            Throwable erro = entrega.getException();
+            String detalhe = erro == null ? "Erro não identificado." : erro.getMessage();
+            alerta.setHeaderText("Não foi possível confirmar a entrega");
+            alerta.setContentText("As respostas continuam bloqueadas. Procure o professor. Detalhe: " + detalhe);
+            mensagem.setText("Falha ao registrar a entrega automática. As respostas continuam bloqueadas.");
+            botaoConfirmar.setText("Voltar para as avaliações");
+            botaoConfirmar.setDisable(false);
+        });
+        Thread thread = new Thread(entrega, "entrega-automatica-avaliacao");
+        thread.setDaemon(true);
+        thread.start();
+
+        alerta.showAndWait();
+        if (cronometro != null && cronometro.getScene() != null) {
+            voltarParaAsAvaliacoes(new ActionEvent(botaoSair, botaoSair));
+        }
+    }
+
+    private boolean tempoAcabou() {
+        return tentativaAtual != null && !LocalDateTime.now().isBefore(tentativaAtual.getLimite());
+    }
+
+    private long segundosRestantesNaTela() {
+        java.time.Duration restante = java.time.Duration.between(LocalDateTime.now(), tentativaAtual.getLimite());
+        if (restante.isNegative() || restante.isZero()) return 0;
+        return (restante.toMillis() + 999) / 1000;
     }
 
     private void travarTela() {
         travada = true;
         if (relogio != null) relogio.stop();
+        bloquearCampos();
+    }
+
+    private void bloquearCampos() {
         for (Control campo : camposDeResposta) campo.setDisable(true);
         botaoEntregar.setDisable(true);
     }
@@ -239,6 +325,10 @@ public class ResponderAvaliacaoController {
     @FXML
     private void aoClicarEntregar(ActionEvent evento) {
         if (travada) return;
+        if (tempoAcabou()) {
+            tempoEsgotado();
+            return;
+        }
         if (!confirmar("Entregar avaliação", "Deseja entregar a avaliação agora?",
                 "Depois de entregar, não será possível alterar as respostas.")) {
             return;
@@ -248,7 +338,7 @@ public class ResponderAvaliacaoController {
         if (resultado.getStatus() == Tentativa.Status.FINALIZADA) {
             informar("Avaliação entregue", "Suas respostas foram registradas com sucesso.");
         } else {
-            informar("Tempo esgotado", "O tempo acabou antes da entrega, mas as respostas dadas até o limite foram salvas.");
+            informar("Tempo esgotado", "A prova foi entregue automaticamente com as respostas dadas até o limite.");
         }
         voltarParaAsAvaliacoes(evento);
     }
@@ -271,7 +361,7 @@ public class ResponderAvaliacaoController {
         if (cronometro.getScene() == null) return;
         palco = (Stage) cronometro.getScene().getWindow();
         palco.setOnCloseRequest(evento -> {
-            if (tentativaAtual != null && tentativaAtual.isEmAndamento()) {
+            if (!travada && tentativaAtual != null && tentativaAtual.isEmAndamento()) {
                 servico.encerrar(tentativaAtual.getId());
             }
         });

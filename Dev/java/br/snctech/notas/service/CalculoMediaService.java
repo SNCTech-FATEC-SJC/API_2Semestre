@@ -15,6 +15,11 @@ public class CalculoMediaService {
     public static final BigDecimal MEDIA_EXAME_FINAL = new BigDecimal("4.00");
 
     public MediaFinal calcular(int idAluno, String nomeAluno, List<NotaPonderada> notas) {
+        return calcular(idAluno, nomeAluno, notas, false);
+    }
+
+    public MediaFinal calcular(int idAluno, String nomeAluno, List<NotaPonderada> notas,
+                               boolean turmaDeRecuperacao) {
         List<String> pendencias = new ArrayList<>();
         if (notas == null || notas.isEmpty()) {
             pendencias.add("Nenhuma avaliação desta turma entra na média ainda.");
@@ -35,13 +40,29 @@ public class CalculoMediaService {
             return new MediaFinal(idAluno, nomeAluno, null, SituacaoFinal.PENDENTE, pendencias);
         }
         BigDecimal media = somaNotasVezesPeso.divide(somaPesos, 2, RoundingMode.HALF_UP);
-        return new MediaFinal(idAluno, nomeAluno, media, situacaoPara(media), pendencias);
+        return new MediaFinal(idAluno, nomeAluno, media, situacaoPara(media, turmaDeRecuperacao), pendencias);
     }
 
     public SituacaoFinal situacaoPara(BigDecimal media) {
         if (media.compareTo(MEDIA_APROVACAO) >= 0) return SituacaoFinal.APROVADO;
         if (media.compareTo(MEDIA_EXAME_FINAL) >= 0) return SituacaoFinal.EXAME_FINAL;
         return SituacaoFinal.REPROVADO;
+    }
+
+    public SituacaoFinal situacaoPara(BigDecimal media, boolean turmaDeRecuperacao) {
+        if (turmaDeRecuperacao && media.compareTo(MEDIA_APROVACAO) < 0) {
+            return SituacaoFinal.REPROVADO;
+        }
+        return situacaoPara(media);
+    }
+
+    public boolean estaNaFaixaDeRecuperacao(BigDecimal media) {
+        if (media == null) {
+            return false;
+        }
+        BigDecimal mediaFinal = media.setScale(2, RoundingMode.HALF_UP);
+        return mediaFinal.compareTo(MEDIA_EXAME_FINAL) > 0
+                && mediaFinal.compareTo(MEDIA_APROVACAO) < 0;
     }
 
     public boolean podeLiberar(List<MediaFinal> mediasDaTurma) {

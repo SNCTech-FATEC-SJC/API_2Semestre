@@ -2,7 +2,7 @@ package br.snctech.turmas.modelo;
 
 import java.time.LocalDateTime;
 
-/** Turma ativa = em andamento (um professor pode ter várias); turma não ativa = concluída (histórico). */
+/** Turma ativa = turma atual do professor; turma não ativa = turma concluída (histórico). */
 public record Turma(int id, String nome, int professorId, String professorNome,
                     boolean ativa, LocalDateTime criadoEm, int totalAlunos) {
 

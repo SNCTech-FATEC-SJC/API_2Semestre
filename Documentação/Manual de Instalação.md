@@ -3,7 +3,6 @@
 Este manual é para quem vai instalar, configurar e manter o sistema. Para usar o sistema, consulte o **Manual do Usuário**.
 
 ---
-
 ## 1. Requisitos
 
 | Item | Versão | Observação |
@@ -205,4 +204,3 @@ Além da execução automática, há um arquivo separado com ajustes e consultas
 | `modo=memoria` e os dados somem | Comportamento esperado do modo demonstração | Use `modo=banco` para gravar |
 
 ---
-

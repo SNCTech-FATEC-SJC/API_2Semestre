@@ -2,9 +2,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -19,29 +16,10 @@
         <HBox alignment="CENTER_LEFT" spacing="12">
             <Label text="Provas e prazos" styleClass="section-label strong"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button text="Visualização do Professor" onAction="#aoClicarVoltar" styleClass="top-action"/>
-        </HBox>
-        <HBox alignment="CENTER_LEFT" spacing="12">
-            <Label text="E-mail cadastrado:" styleClass="form-label"/>
-            <TextField fx:id="campoAluno" promptText="E-mail do aluno" styleClass="form-field" HBox.hgrow="ALWAYS"/>
-            <Button text="Ver minhas notas" onAction="#mostrarNotas" styleClass="top-action"/>
+            <Button text="Voltar" onAction="#aoClicarVoltar" styleClass="secondary-button"/>
         </HBox>
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="fundo">
-            <content>
-                <GridPane fx:id="listaAvaliacoes" hgap="16" vgap="16" styleClass="card-grid">
-                    <columnConstraints>
-                        <ColumnConstraints percentWidth="33.33"/>
-                        <ColumnConstraints percentWidth="33.33"/>
-                        <ColumnConstraints percentWidth="33.34"/>
-                    </columnConstraints>
-                </GridPane>
-            </content>
-        </ScrollPane>
-        <Label text="Minhas notas" styleClass="section-label strong"/>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="150" minHeight="150" maxHeight="150" styleClass="fundo">
-            <content>
-                <VBox fx:id="listaNotas" spacing="6"/>
-            </content>
+            <content><VBox fx:id="listaAvaliacoes" spacing="12"/></content>
         </ScrollPane>
         <Label text="Cada aluno pode abrir uma avaliação uma única vez. Ao abrir, o tempo começa a contar." styleClass="mensagem"/>
     </VBox>

@@ -72,7 +72,7 @@ public class MediasTurmaService {
                 notas.put(avaliacao.id(), nota);
                 ponderadas.add(NotaPonderada.de(nota, avaliacao.peso(), encerrada));
             }
-            medias.add(calculo.calcular(aluno.id(), aluno.nome(), ponderadas));
+            medias.add(calculo.calcular(aluno.id(), aluno.nome(), ponderadas, turma.ehRecuperacao()));
             notasPorAluno.put(aluno.id(), notas);
         }
 
@@ -100,9 +100,8 @@ public class MediasTurmaService {
     }
 
     public void recalcularPelaAvaliacao(int idAvaliacao) {
-        Integer idTurma = repositorio.turmaDaAvaliacao(idAvaliacao);
-        if (idTurma != null) {
-            montarQuadro(new TurmaResumo(idTurma, ""));
+        for (TurmaResumo turma : repositorio.turmasDaAvaliacao(idAvaliacao)) {
+            montarQuadro(turma);
         }
     }
 

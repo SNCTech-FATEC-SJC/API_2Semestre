@@ -105,6 +105,7 @@ public final class Conexao {
                     "SELECT id, professor_id, tipo, enunciado, imagem_url FROM questoes WHERE 1 = 0",
                     "SELECT id, questao_id, texto, correta, par_associacao FROM alternativas WHERE 1 = 0",
                     "SELECT avaliacao_id, questao_id, ordem FROM avaliacao_questoes WHERE 1 = 0",
+                    "SELECT avaliacao_id, turma_id FROM avaliacao_turmas WHERE 1 = 0",
                     "SELECT id, avaliacao_id, aluno_id, data_inicio, data_envio, limite, status FROM tentativas_avaliacao WHERE 1 = 0",
                     "SELECT id, tentativa_id, questao_id, alternativa_escolhida_id, resposta_discursiva, resposta_associacao FROM respostas_aluno WHERE 1 = 0"
                 };

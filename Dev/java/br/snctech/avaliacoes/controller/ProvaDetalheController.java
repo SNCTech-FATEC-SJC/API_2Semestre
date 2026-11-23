@@ -18,6 +18,7 @@ public class ProvaDetalheController {
     @FXML private javafx.scene.control.Button botaoVoltar;
     @FXML private Label tituloProva;
     @FXML private VBox detalhesQuestoes;
+    @FXML private javafx.scene.control.Button botaoEditar;
     private static Avaliacao avaliacaoSelecionada;
     public static void prepararVisualizacao(Avaliacao avaliacao) { avaliacaoSelecionada = avaliacao; }
 
@@ -31,14 +32,21 @@ public class ProvaDetalheController {
         detalhesQuestoes.getChildren().add(new Label("Horário: "
                 + avaliacaoSelecionada.getHoraInicio().format(DateTimeFormatter.ofPattern("HH:mm")) + " às "
                 + avaliacaoSelecionada.getHoraFim().format(DateTimeFormatter.ofPattern("HH:mm"))));
-        detalhesQuestoes.getChildren().add(new Label("Duração por aluno: " + (avaliacaoSelecionada.getDuracaoMinutos() > 0
-                ? avaliacaoSelecionada.getDuracaoMinutos() + " minutos" : "sem limite além do prazo")));
+        detalhesQuestoes.getChildren().add(new Label("Peso: " + String.format(java.util.Locale.forLanguageTag("pt-BR"), "%.2f", avaliacaoSelecionada.getPeso())));
+        if (botaoEditar != null) botaoEditar.setDisable(avaliacaoSelecionada.isDisponibilizada());
         detalhesQuestoes.getChildren().add(new Label("Questões selecionadas:"));
         for (Questao questao : avaliacaoSelecionada.getQuestoes()) {
-            detalhesQuestoes.getChildren().add(new Label("• " + questao.getEnunciado()));
+            Label enunciado = new Label("• " + questao.getEnunciado());
+            enunciado.setWrapText(true);
+            detalhesQuestoes.getChildren().add(enunciado);
         }
     }
     @FXML private void aoClicarEditar(ActionEvent evento) {
+        if (avaliacaoSelecionada != null && avaliacaoSelecionada.isDisponibilizada()) {
+            new Alert(Alert.AlertType.WARNING, "Esta prova está ativa e não pode ser editada.")
+                    .showAndWait();
+            return;
+        }
         NovaProvaController.prepararEdicao(avaliacaoSelecionada);
         NavegacaoUtil.abrir((Node) evento.getSource(), "nova-prova.fxml", "SNCTECH - Editar Avaliação");
     }

@@ -15,15 +15,15 @@ import java.util.Map;
  */
 public class Tentativa {
 
-    /** EM_ANDAMENTO: aluno respondendo. FINALIZADA: aluno entregou.
-     *  ENCERRADA: o tempo acabou ou o aluno fechou a prova sem entregar. */
+    /** EM_ANDAMENTO: aluno respondendo. FINALIZADA: aluno entregou ou o tempo acabou.
+     *  ENCERRADA: aluno fechou a prova sem entregar. */
     public enum Status { EM_ANDAMENTO, FINALIZADA, ENCERRADA }
 
     private final int id;
     private final int avaliacaoId;
     private final String aluno;          // identificação provisória (ainda não há banco de alunos)
     private final LocalDateTime inicio;  // quando o aluno abriu a prova
-    private final LocalDateTime limite;  // quando o tempo acaba (duração ou prazo, o que vier primeiro)
+    private final LocalDateTime limite;  // fim da duração individual ou prazo geral, o que ocorrer primeiro
     private LocalDateTime fim;           // quando terminou (null enquanto em andamento)
     private Status status;
     // Resposta de cada questão, sempre como texto:

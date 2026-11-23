@@ -1,11 +1,26 @@
 package br.snctech.avaliacoes.service;
 
 import br.snctech.questoes.model.Questao;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /** Pequenos formatadores usados pela tela Responder Avaliação (ficam aqui para poderem ser testados sem JavaFX). */
 public final class ApoioResposta {
     private ApoioResposta() { }
+
+    /**
+     * Embaralha alternativas apenas para a visualização do aluno.
+     * O resultado é determinístico para a mesma tentativa e questão, mas não altera
+     * a lista original nem grava qualquer ordem no banco.
+     */
+    public static <T> List<T> embaralharAlternativas(List<T> alternativas, int tentativaId, int questaoId) {
+        List<T> resultado = new ArrayList<>(alternativas == null ? List.of() : alternativas);
+        long semente = 31L * tentativaId + questaoId;
+        Collections.shuffle(resultado, new Random(semente));
+        return resultado;
+    }
 
     /** Segundos em HH:MM:SS (as horas podem passar de 99). Valores negativos viram 00:00:00. */
     public static String formatarTempo(long segundos) {

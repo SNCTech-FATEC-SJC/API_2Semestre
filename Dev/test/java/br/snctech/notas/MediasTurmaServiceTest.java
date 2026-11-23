@@ -183,11 +183,36 @@ class MediasTurmaServiceTest {
         assertTrue(repo.sincronizadas.isEmpty());
     }
 
+    @Test
+    void recalculaTodasAsTurmasAssociadasAUmaAvaliacao() {
+        repo.avaliacoes.add(prova(100, "1", true));
+        repo.alunos.add(ANA);
+        repo.tentativas.add(corrigida(ANA, 100, "7.00"));
+        repo.turmasAssociadas.addAll(List.of(TURMA, new TurmaResumo(11, "Turma B")));
+
+        servico.recalcularPelaAvaliacao(100);
+
+        assertEquals(List.of(10, 11), repo.turmasSincronizadas);
+    }
+
+    @Test
+    void mediaAbaixoDeSeisReprovaNaTurmaDeRecuperacao() {
+        repo.avaliacoes.add(prova(100, "1", true));
+        repo.alunos.add(ANA);
+        repo.tentativas.add(corrigida(ANA, 100, "5.00"));
+
+        QuadroDaTurma quadro = servico.montarQuadro(new TurmaResumo(10, "Recuperação turma #10"));
+
+        assertEquals(SituacaoFinal.REPROVADO, linhaDe(quadro, ANA).media().situacao());
+    }
+
     private static final class RepositorioFalso implements RepositorioMedias {
         final List<AvaliacaoDaTurma> avaliacoes = new ArrayList<>();
         final List<AlunoDaTurma> alunos = new ArrayList<>();
         final List<TentativaRegistrada> tentativas = new ArrayList<>();
         List<MediaFinal> sincronizadas = new ArrayList<>();
+        final List<TurmaResumo> turmasAssociadas = new ArrayList<>();
+        final List<Integer> turmasSincronizadas = new ArrayList<>();
         final Map<Integer, Boolean> liberacao = new HashMap<>();
         boolean liberou;
 
@@ -198,6 +223,7 @@ class MediasTurmaServiceTest {
 
         @Override
         public void sincronizar(int idTurma, List<MediaFinal> mediasProntas) {
+            turmasSincronizadas.add(idTurma);
             sincronizadas = new ArrayList<>(mediasProntas);
             liberacao.keySet().retainAll(mediasProntas.stream().map(MediaFinal::idAluno).toList());
             mediasProntas.forEach(m -> liberacao.putIfAbsent(m.idAluno(), false));
@@ -214,6 +240,13 @@ class MediasTurmaServiceTest {
         @Override
         public Integer turmaDaAvaliacao(int idAvaliacao) {
             return avaliacoes.stream().anyMatch(a -> a.id() == idAvaliacao) ? TURMA.id() : null;
+        }
+
+        @Override
+        public List<TurmaResumo> turmasDaAvaliacao(int idAvaliacao) {
+            return turmasAssociadas.isEmpty()
+                    ? RepositorioMedias.super.turmasDaAvaliacao(idAvaliacao)
+                    : List.copyOf(turmasAssociadas);
         }
 
         @Override public List<MediaLiberada> mediasLiberadasDoAluno(String email) { return List.of(); }

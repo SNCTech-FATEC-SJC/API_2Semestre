@@ -35,10 +35,8 @@ public class TentativaService {
         if (avaliacao == null) return "A avaliação não foi encontrada.";
         if (aluno == null || aluno.isBlank()) return "Informe o e-mail cadastrado do aluno.";
         if (!tentativas.alunoExiste(aluno)) return "Não encontramos um aluno cadastrado com esse e-mail.";
+        if (!tentativas.alunoMatriculadoNaAvaliacao(avaliacaoId, aluno)) return "Você não está matriculado em uma das turmas desta avaliação.";
         if (!avaliacao.isDisponibilizada()) return "A avaliação ainda não foi disponibilizada.";
-        if (avaliacao.getTurmaId() > 0 && !tentativas.alunoNaTurma(aluno, avaliacao.getTurmaId())) {
-            return "Você não está matriculado na turma desta avaliação.";
-        }
 
         LocalDateTime inicio = inicioDa(avaliacao);
         LocalDateTime fim = fimDa(avaliacao);
@@ -53,6 +51,16 @@ public class TentativaService {
         return null;
     }
 
+    /** Recupera uma tentativa que permaneceu em andamento após falha inesperada. */
+    public Tentativa retomar(int avaliacaoId, String aluno) {
+        Tentativa tentativa = tentativas.buscarPorAvaliacaoEAluno(avaliacaoId, aluno);
+        if (tentativa == null) throw new IllegalArgumentException("Não existe uma tentativa para retomar.");
+        if (!tentativa.isEmAndamento()) throw new IllegalArgumentException("Esta tentativa já foi finalizada ou encerrada.");
+        encerrarSeTempoAcabou(tentativa);
+        if (!tentativa.isEmAndamento()) throw new IllegalArgumentException("O prazo desta tentativa terminou.");
+        return tentativa;
+    }
+
     /** Registra a abertura da prova. A partir daqui o aluno não consegue abri-la de novo. */
     public Tentativa iniciar(int avaliacaoId, String aluno) {
         String motivo = motivoDeBloqueio(avaliacaoId, aluno);
@@ -61,12 +69,7 @@ public class TentativaService {
         Avaliacao avaliacao = avaliacoes.buscarPorId(avaliacaoId);
         LocalDateTime agora = agora();
 
-        // O tempo acaba no fim da duração ou no prazo, o que vier primeiro.
-        LocalDateTime limite = fimDa(avaliacao);
-        if (avaliacao.getDuracaoMinutos() > 0) {
-            LocalDateTime porDuracao = agora.plusMinutes(avaliacao.getDuracaoMinutos());
-            if (porDuracao.isBefore(limite)) limite = porDuracao;
-        }
+        LocalDateTime limite = limiteDaTentativa(avaliacao, agora);
 
         Tentativa tentativa = tentativas.salvar(avaliacaoId, aluno.trim(), agora, limite);
         // Com um aluno na prova, a avaliação passa a contar como respondida:
@@ -91,7 +94,7 @@ public class TentativaService {
         tentativas.registrarResposta(tentativa, questao, resposta);
     }
 
-    /** O aluno clicou em entregar. Se o tempo já tinha acabado, fica ENCERRADA com as respostas já registradas. */
+    /** O aluno clicou em entregar; se o limite passou, a tentativa já foi entregue automaticamente. */
     public Tentativa finalizar(int tentativaId) {
         Tentativa tentativa = buscar(tentativaId);
         encerrarSeTempoAcabou(tentativa);
@@ -99,9 +102,10 @@ public class TentativaService {
         return tentativa;
     }
 
-    /** O aluno fechou a prova (ou o cronômetro chegou a zero) sem entregar. Mantém as respostas já registradas. */
+    /** Encerra ao sair antes do prazo; se o limite venceu, entrega automaticamente. */
     public Tentativa encerrar(int tentativaId) {
         Tentativa tentativa = buscar(tentativaId);
+        encerrarSeTempoAcabou(tentativa);
         if (tentativa.isEmAndamento()) {
             LocalDateTime agora = agora();
             tentativas.concluir(tentativa, Tentativa.Status.ENCERRADA, agora.isBefore(tentativa.getLimite()) ? agora : tentativa.getLimite());
@@ -109,17 +113,18 @@ public class TentativaService {
         return tentativa;
     }
 
-    /** Segundos que faltam para o tempo acabar (0 se a tentativa não está em andamento). Para o cronômetro da tela. */
+    /** Segundos restantes, arredondados para cima para só mostrar zero depois do prazo. */
     public long segundosRestantes(int tentativaId) {
         Tentativa tentativa = buscar(tentativaId);
         encerrarSeTempoAcabou(tentativa);
         if (!tentativa.isEmAndamento()) return 0;
-        return Duration.between(agora(), tentativa.getLimite()).getSeconds();
+        Duration restante = Duration.between(agora(), tentativa.getLimite());
+        return Math.max(1, (restante.toMillis() + 999) / 1000);
     }
 
     private void encerrarSeTempoAcabou(Tentativa tentativa) {
         if (tentativa.isEmAndamento() && !agora().isBefore(tentativa.getLimite())) {
-            tentativas.concluir(tentativa, Tentativa.Status.ENCERRADA, tentativa.getLimite());
+            tentativas.concluir(tentativa, Tentativa.Status.FINALIZADA, tentativa.getLimite());
         }
     }
 
@@ -137,5 +142,15 @@ public class TentativaService {
 
     private LocalDateTime fimDa(Avaliacao a) {
         return (a.getPrazo() == null || a.getHoraFim() == null) ? null : a.getPrazo().atTime(a.getHoraFim());
+    }
+
+    private LocalDateTime limiteDaTentativa(Avaliacao avaliacao, LocalDateTime inicio) {
+        LocalDateTime prazo = fimDa(avaliacao);
+        int duracaoMinutos = avaliacao.getDuracaoMinutos();
+        if (duracaoMinutos <= 0) {
+            return prazo;
+        }
+        LocalDateTime limiteIndividual = inicio.plusMinutes(duracaoMinutos);
+        return limiteIndividual.isBefore(prazo) ? limiteIndividual : prazo;
     }
 }

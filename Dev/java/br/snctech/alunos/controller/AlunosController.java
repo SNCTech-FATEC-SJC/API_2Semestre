@@ -64,7 +64,7 @@ public class AlunosController {
         tabela.setPlaceholder(new Label("Nenhum aluno encontrado."));
         tabela.getColumns().add(TabelaUtil.<Aluno>coluna("Aluno", 240, Aluno::nome));
         tabela.getColumns().add(TabelaUtil.<Aluno>coluna("E-mail", 260, Aluno::email));
-        tabela.getColumns().add(TabelaUtil.<Aluno>coluna("Turmas ativas", 200,
+        tabela.getColumns().add(TabelaUtil.<Aluno>coluna("Turma atual", 200,
                 a -> a.turmaAtual() == null || a.turmaAtual().isBlank() ? "-" : a.turmaAtual()));
         tabela.getColumns().add(TabelaUtil.<Aluno>coluna("Cadastrado em", 150, a -> TabelaUtil.data(a.criadoEm())));
 
