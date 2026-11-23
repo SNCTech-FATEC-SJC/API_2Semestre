@@ -9,14 +9,14 @@
     -fx-cor-texto-fraco: #6c6c6c;
     -fx-cor-borda: #c8c8c8;
     -fx-cor-primaria: #980000;
-    -fx-cor-primaria-clara: #b31212;
+    -fx-cor-primaria-clara: #980000;
     -fx-cor-azul: #06a4c7;
     -fx-cor-azul-claro: #e4f7fb;
     -fx-cor-sombra: rgba(0, 0, 0, 0.12);
 }
 
 .delete-action {
-    -fx-background-color: #9c1c1c;
+    -fx-background-color: -fx-cor-primaria-clara;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-padding: 8 14 8 14;
@@ -24,9 +24,6 @@
     -fx-cursor: hand;
 }
 
-.delete-action:hover {
-    -fx-background-color: #761313;
-}
 
 .border-pane {
     -fx-background-color: -fx-cor-fundo;
@@ -81,9 +78,7 @@
     -fx-cursor: hand;
 }
 
-.menu-button:hover {
-    -fx-background-color: #f6f2ee;
-}
+
 
 .section-label {
     -fx-text-fill: -fx-cor-texto;
@@ -171,19 +166,6 @@
     -fx-border-radius: 8;
     -fx-background-radius: 8;
     -fx-cursor: hand;
-}
-
-.top-action {
-     -fx-background-color: #9c1c1c;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-background-radius: 8;
-    -fx-padding: 6 14 6 14;
-    -fx-cursor: hand;
-}
-
-.top-action:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.18);
 }
 
 .prova-card {
@@ -463,7 +445,7 @@
 
 /* Botões da barra superior vermelha (sair da conta / fechar aplicação) */
 .top-bar-button {
-    -fx-background-color: transparent;
+    -fx-background-color: -fx-cor-primaria-clara;
     -fx-text-fill: white;
     -fx-border-color: white;
     -fx-border-radius: 8;
@@ -474,4 +456,23 @@
 
 .top-bar-button:hover {
     -fx-background-color: rgba(255, 255, 255, 0.18);
+}
+
+.button,
+.top-action,
+.button:hover,
+.top-action:hover {
+    -fx-background-color: #c62b2b;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-radius: 8;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+}
+
+.button:disabled {
+    -fx-opacity: 0.45;
 }
