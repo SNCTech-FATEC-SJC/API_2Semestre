@@ -12,6 +12,7 @@
     <a href="#sprints"> Cronograma das Sprints</a> |
     <a href="#documentacao"> Documentação</a> |
     <a href="#manual"> Manual do Usuário</a> |
+   <a href="#instalacao"> Manual de Instalação</a> |
     <a href="#tecnologias"> Tecnologias</a> |
     <a href="#equipe"> Equipe</a>
 </p>
@@ -59,27 +60,27 @@ Ao atingir 00:00, a avaliação é entregue automaticamente com as respostas reg
 
 ---
 ### 📋 Backlog do Produto <a id="backlog"></a>
-| ID | Épico | User Story | Prioridade | Status |
-|:--:|-------|-------------|:----------:|:------:|
-| **PB-01** | Gerenciamento de Avaliação | Como professor, desejo gerenciar as informações das avaliações para reutilizar avaliações já aplicadas e criar novas avaliações. | 🔴 Alta | ❌ Não finalizado |
-| **PB-02** | Gerenciamento de questões | Como professor, desejo gerenciar questões para centralizar elas em um único lugar. | 🔴 Alta | ❌ Não finalizado |
-| **PB-03** | Correção Manual | Como professor, desejo a correção manual para corrigir questões discursivas e verificar a nota final. | 🔴 Alta | ❌ Não finalizado |
-| **PB-04** | Embaralhamento de Respostas | Como professor, desejo que as respostas de questões de múltipla escolha e associação sejam embaralhadas para reduzir a possibilidade de compartilhamento da ordem das respostas entre os alunos. | 🟡 Média | ❌ Não finalizado |
-| **PB-05** | Disponibilização de Avaliação | Como professor, desejo disponibilizar uma avaliação para uma ou mais turmas para que os alunos possam ter acesso a ela. | 🟡 Média | ❌ Não finalizado |
-| **PB-06** | Realização das avaliações | Como professor, desejo que os alunos realizem a prova para centralizar todas as avaliações. | 🟡 Média | ❌ Não finalizado |
-| **PB-07** | Realização das avaliações | Como aluno, desejo realizar as avaliações para registrar minhas respostas e ser avaliado. | 🟡 Média | ❌ Não finalizado |
-| **PB-08** | Correção Automática | Como professor, desejo uma correção automática para as questões de múltipla escolha e assimilação para facilitar a correção das avaliações. | 🟡 Média | ❌ Não finalizado |
-| **PB-09** | Gerenciamento de Turmas | Como professor, desejo cadastrar e editar turmas ativas e já concluídas para gerenciamento e organização das avaliações. | 🟡 Média | ❌ Não finalizado |
-| **PB-10** | Gerenciamento de Alunos | Como professor, desejo adicionar, editar e visualizar os alunos pertencentes a minhas turmas ativas para organização das minhas turmas. | 🟡 Média | ❌ Não finalizado |
-| **PB-11** | Visualização Avaliação | Como aluno, desejo visualizar minhas avaliações já feitas e as futuras para de ter controle da minhas notas e planos de estudo. | 🟡 Média | ❌ Não finalizado |
-| **PB-12** | Notas | Como professor, desejo que o cálculo das notas seja gerado automaticamente para facilitar a correção. | 🟡 Média | ❌ Não finalizado |
-| **PB-13** | Notas | Como aluno, desejo visualizar minhas notas para acompanhar meu desempenho. | 🟢 Baixa | ❌ Não finalizado |
-| **PB-14** | Notas | Como professor, desejo visualizar as notas dos alunos para ter controle de aprovação e desempenho. | 🟢 Baixa | ❌ Não finalizado |
-| **PB-15** | Média Final | Como aluno, desejo visualizar minha média final para ter conhecimento da minha aprovação ou reprovação. | 🟢 Baixa | ❌ Não finalizado |
-| **PB-16** | Média Final | Como professor, desejo que o cálculo da média seja feito de forma automática para facilitar o acesso a essa informação. | 🟢 Baixa | ❌ Não finalizado |
-| **PB-17** | Média Final | Como professor, desejo visualizar as médias finais dos alunos para ter controle de aprovação e desempenho. | 🟢 Baixa | ❌ Não finalizado |
-| **PB-18** | Prazo Das Avaliações | Como professor, desejo definir um prazo para as avaliações a fim de evitar que alunos façam antes da hora ou depois do prazo. | 🟢 Baixa | ❌ Não finalizado |
-| **PB-19** | Autenticação | Como usuário, desejo realizar login no sistema para acessar as funcionalidades correspondentes ao meu perfil. | 🟢 Baixa | ❌ Não finalizado |
+| ID | Épico | User Story | Status |
+|:--:|-------|-------------|:------:|
+| **PB-01** | Gerenciamento de Avaliação | Como professor, desejo gerenciar as informações das avaliações para reutilizar avaliações já aplicadas e criar novas avaliações. | ✅ Concluído |
+| **PB-02** | Gerenciamento de questões | Como professor, desejo gerenciar questões para centralizar elas em um único lugar. | ✅ Concluído |
+| **PB-03** | Correção Manual | Como professor, desejo a correção manual para corrigir questões discursivas e verificar a nota final. | ✅ Concluído |
+| **PB-04** | Embaralhamento de Respostas | Como professor, desejo que as respostas de questões de múltipla escolha e associação sejam embaralhadas para reduzir a possibilidade de compartilhamento da ordem das respostas entre os alunos. | ✅ Concluído |
+| **PB-05** | Disponibilização de Avaliação | Como professor, desejo disponibilizar uma avaliação para uma ou mais turmas para que os alunos possam ter acesso a ela. | ✅ Concluído |
+| **PB-06** | Realização das avaliações | Como professor, desejo que os alunos realizem a prova para centralizar todas as avaliações. | ✅ Concluído |
+| **PB-07** | Realização das avaliações | Como aluno, desejo realizar as avaliações para registrar minhas respostas e ser avaliado. | ✅ Concluído |
+| **PB-08** | Correção Automática | Como professor, desejo uma correção automática para as questões de múltipla escolha e assimilação para facilitar a correção das avaliações. | ✅ Concluído |
+| **PB-09** | Gerenciamento de Turmas | Como professor, desejo cadastrar e editar turmas ativas e já concluídas para gerenciamento e organização das avaliações. | ✅ Concluído |
+| **PB-10** | Gerenciamento de Alunos | Como professor, desejo adicionar, editar e visualizar os alunos pertencentes a minhas turmas ativas para organização das minhas turmas. | ✅ Concluído |
+| **PB-11** | Visualização Avaliação | Como aluno, desejo visualizar minhas avaliações já feitas e as futuras para de ter controle da minhas notas e planos de estudo. | ✅ Concluído |
+| **PB-12** | Notas | Como professor, desejo que o cálculo das notas seja gerado automaticamente para facilitar a correção. | ✅ Concluído |
+| **PB-13** | Notas | Como aluno, desejo visualizar minhas notas para acompanhar meu desempenho. | ✅ Concluído |
+| **PB-14** | Notas | Como professor, desejo visualizar as notas dos alunos para ter controle de aprovação e desempenho. | ✅ Concluído |
+| **PB-15** | Média Final | Como aluno, desejo visualizar minha média final para ter conhecimento da minha aprovação ou reprovação. | ✅ Concluído |
+| **PB-16** | Média Final | Como professor, desejo que o cálculo da média seja feito de forma automática para facilitar o acesso a essa informação. | ✅ Concluído |
+| **PB-17** | Média Final | Como professor, desejo visualizar as médias finais dos alunos para ter controle de aprovação e desempenho. | ✅ Concluído |
+| **PB-18** | Prazo Das Avaliações | Como professor, desejo definir um prazo para as avaliações a fim de evitar que alunos façam antes da hora ou depois do prazo. | ✅ Concluído |
+| **PB-19** | Autenticação | Como usuário, desejo realizar login no sistema para acessar as funcionalidades correspondentes ao meu perfil. | ✅ Concluído |
  
 > Legenda — Prioridade: 🔴 Alta · 🟡 Média · 🟢 Baixa. <BR>Status: ✅ Concluído · ❌ Não finalizado.
 >
@@ -89,7 +90,7 @@ Ao atingir 00:00, a avaliação é entregue automaticamente com as respostas reg
 
 ### 📆 Cronograma das Sprints <a id="sprints"></a>
 
-<div> <table> <tr> <th>Etapa</th> <th>Período</th> <th>Status</th> </tr> <tr> <td><b>Início das Aulas</b></td> <td align="center">03/08</td> <td align="center">✅</td> </tr> <tr> <td><b>Kick-off geral</b></td> <td align="center">24/08 a 28/08</td> <td align="center">✅</td> </tr> <tr> <td><b>Construção do Backlog de Produto / Planning</b></td> <td align="center">31/08 a 04/09</td> <td align="center">✅</td> </tr> <tr> <td><b>Sprint 1</a></b></td> <td align="center">07/09 a 27/09</td> <td align="center">✅</td> </tr> <tr> <td><i>Sprint Review / Planning</i></td> <td align="center">28/09 a 02/10</td> <td align="center">🔄</td> </tr> <tr> <td><b>Sprint 2</a></b></td> <td align="center">05/10 a 25/10</td> <td align="center">🔲</td> </tr> <tr> <td><i>Sprint Review / Planning</i></td> <td align="center">26/10 a 30/10</td> <td align="center">🔲</td> </tr> <tr> <td><b>Sprint 3</a></b></td> <td align="center">02/11 a 22/11</td> <td align="center">🔲</td> </tr> <tr> <td><i>Sprint Review</i></td> <td align="center">23/11 a 27/11</td> <td align="center">🔲</td> </tr> <tr> <td><b>Feira de Soluções</b></td> <td align="center">03/12</td> <td align="center">🔲</td> </tr> <tr> <td><b>Apresentação de TGs</b></td> <td align="center">07/12 a 11/12</td> <td align="center">🔲</td> </tr> <tr> <td><b>Encerramento das Aulas</b></td> <td align="center">14/12</td> <td align="center">🔲</td> </tr> </table> </div>
+<div> <table> <tr> <th>Etapa</th> <th>Período</th> <th>Status</th> </tr> <tr> <td><b>Início das Aulas</b></td> <td align="center">03/08</td> <td align="center">✅</td> </tr> <tr> <td><b>Kick-off geral</b></td> <td align="center">24/08 a 28/08</td> <td align="center">✅</td> </tr> <tr> <td><b>Construção do Backlog de Produto / Planning</b></td> <td align="center">31/08 a 04/09</td> <td align="center">✅</td> </tr> <tr> <td><b>Sprint 1</a></b></td> <td align="center">07/09 a 27/09</td> <td align="center">✅</td> </tr> <tr> <td><i>Sprint Review / Planning</i></td> <td align="center">28/09 a 02/10</td> <td align="center">✅</td> </tr> <tr> <td><b>Sprint 2</a></b></td> <td align="center">05/10 a 25/10</td> <td align="center">✅</td> </tr> <tr> <td><i>Sprint Review / Planning</i></td> <td align="center">26/10 a 30/10</td> <td align="center">✅</td> </tr> <tr> <td><b>Sprint 3</a></b></td> <td align="center">02/11 a 22/11</td> <td align="center">✅</td> </tr> <tr> <td><i>Sprint Review</i></td> <td align="center">23/11 a 27/11</td> <td align="center">🔲</td> </tr> </table> </div>
 
 > 🔲 pendente · 🔄 em andamento · ✅ concluído 
 
@@ -106,12 +107,8 @@ A documentação completa está na pasta [Documentação](<./Documentação/>).
 - [Definition of Done (DoD)](<./Documentação/Definition of Done.MD>)
 - [Estratégia de Branch](<./Documentação/Estratégia de Branch.md>)
 - [Manual de Instalação](<./Documentação/Manual de Instalação.md>)
-- [Sprint 2 - Backlog](<./Documentação/SPRINT 2/Backlog Sprint 2.md>)
-- [Sprint 2 - Critérios de Aceitação](<./Documentação/SPRINT 2/Critérios de Aceitação.md>)
-- [Sprint 3 - Backlog](<./Documentação/SPRINT 3/Backlog Sprint 3.md>)
-- [Sprint 3 - Critérios de Aceitação](<./Documentação/SPRINT 3/Critérios de Aceitação.md>)
-- [Guia de Execução e Testes - Notas e Médias](<./Documentação/SPRINT 3/Guia de Execucao e Testes - Notas e Medias.md>)
-- [Telas do sistema (PDF)](<./Documentação/Telas-SNCTECH.pdf>)
+-  [Manual do Usuário](<./Documentação/Manual do Usuário.md>)
+
 
 ---
 
@@ -119,6 +116,12 @@ A documentação completa está na pasta [Documentação](<./Documentação/>).
 
 Consulte o [Manual do Usuário](<./Documentação/Manual do Usuário.md>) para obter orientações de uso da aplicação.
 
+
+---
+
+### 📖 Manual do usuário <a id="instalacao"></a>
+
+Consulte o [Manual de Instalação](<./Documentação/Manual de Instalação.md>) para obter orientações sobre o processo de instalção
 
 ---
 
